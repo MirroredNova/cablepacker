@@ -1,7 +1,14 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  distDir: 'build',
+  compiler: {
+    removeConsole: false,
+  },
+  experimental: {
+    serverMinification: false,
+  },
+  poweredByHeader: false,
 };
 
 export default nextConfig;
