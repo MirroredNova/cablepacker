@@ -4,6 +4,8 @@ import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { CssBaseline } from '@mui/material';
 import theme from '../theme';
+import './globals.css';
+import CableProvider from '@/providers/CableProvider';
 
 const roboto = Roboto({
   weight: ['300', '400', '500', '700'],
@@ -19,11 +21,13 @@ type Props = Readonly<{
 export default function RootLayout({ children }: Props) {
   return (
     <html lang="en">
-      <body className={roboto.variable}>
+      <body className={`${roboto.variable} h-screen`}>
         <StyledEngineProvider injectFirst>
           <AppRouterCacheProvider>
             <ThemeProvider theme={theme}>
-              {children}
+              <CableProvider>
+                {children}
+              </CableProvider>
               <CssBaseline />
             </ThemeProvider>
           </AppRouterCacheProvider>

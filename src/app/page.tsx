@@ -5,20 +5,31 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 
+import TabPanel from '@/components/shared/TabPanel';
+import CableBoreGenerationPanel from '@/components/pages/home/CableBoreGenerationPanel';
+
 export default function Home() {
-  const [value, setValue] = React.useState(0);
+  const [pageValue, setPageValue] = React.useState(0);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
+    setPageValue(newValue);
   };
 
   return (
-    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-      <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-        <Tab label="Item One" />
-        <Tab label="Item Two" />
-        <Tab label="Item Three" />
+    <Box sx={{
+      px: 4, pt: 4, maxWidth: { xl: 'xl' }, marginX: 'auto',
+    }}
+    >
+      <Tabs value={pageValue} onChange={handleChange} aria-label="basic tabs example">
+        <Tab label="Cable Bore Generator" />
+        <Tab label="Help" />
       </Tabs>
+      <TabPanel value={pageValue} index={0}>
+        <CableBoreGenerationPanel />
+      </TabPanel>
+      <TabPanel value={pageValue} index={1}>
+        Help Panel
+      </TabPanel>
     </Box>
   );
 }
