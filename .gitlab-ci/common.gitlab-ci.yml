@@ -1,0 +1,27 @@
+variables:
+
+  # Terraform
+  TF_ROOT: $CI_PROJECT_DIR/terraform
+  TF_CLI_CONFIG_FILE: $CI_PROJECT_DIR/terraform/.terraformrc
+  TFSTATE_STORAGE_ACCOUNT_NAME: $TFSTATE_STORAGE_ACCOUNT_NAME
+  TFSTATE_RESOURCE_GROUP_NAME: $TFSTATE_RESOURCE_GROUP_NAME
+  TFSTATE_CONTAINER_NAME: $TFSTATE_CONTAINER_NAME
+
+  # Proxy
+  # Include All Private EndPoint enabled resources in the no_proxies
+  NO_PROXY:  $NO_PROXY,gitlabp2.alliant-energy.com,vaultp2.alliant-energy.com
+  no_proxy:  $NO_PROXY
+  
+.tf_default:
+  image: gitlabp2.alliant-energy.com:5050/cloud/gitlab-ci-images/ae-terraformvault
+  id_tokens:
+    VAULT_ID_TOKEN:
+      aud: https://vaultp2.alliant-energy.com:8200
+  before_script:
+    - export VAULT_TOKEN="$(vault write -field=token auth/jwt/login role=gitlabp2-${CI_PROJECT_NAME}-id-${CI_PROJECT_ID} jwt=$VAULT_ID_TOKEN)"
+    - echo -e "credentials \"$CI_SERVER_HOST\" {\n  token = \"$CI_JOB_TOKEN\"\n}" > $TF_CLI_CONFIG_FILE
+    - cd ${TF_ROOT}
+    - echo -e "Gitlab Project Environment\n--------------------------"
+    - echo "$CI_ENVIRONMENT_NAME"
+    - echo -e "Azure Environment Variables\n--------------------------"
+    - env | grep '^ARM\|^TFSTATE'

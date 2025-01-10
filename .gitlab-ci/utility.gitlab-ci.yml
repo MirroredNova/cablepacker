@@ -1,0 +1,36 @@
+# az-powershell:
+#   stage: az-powershell
+#   image: gitlabp2.alliant-energy.com:5050/cloud/gitlab-ci-images/ae-azurepowershell
+#   extends:
+#     - .set_env
+#   variables:
+#     AZURE_CLIENT_ID: $ARM_CLIENT_ID
+#     AZURE_TENANT_ID: $ARM_TENANT_ID
+#     AZURE_CLIENT_SECRET: $ARM_CLIENT_SECRET
+#   dependencies: []
+#   script:
+#     - cd powershell                   # create a powershell folder in the root of the project with your ps1 file.
+#     - pwsh ./my-powershell-script.ps1 # <- put the name of your powershell script here.
+#     - ls -la
+#   environment: $ENV
+#   rules:
+#     - !reference [.set_env, rules]
+#     - if: $ENV != "NONE"
+#   when: manual
+
+# az-cli:
+#   stage: az-cli
+#   image: gitlabp2.alliant-energy.com:5050/cloud/gitlab-ci-images/ae-azurecli
+#   extends:
+#     - .set_env
+#   variables:
+#     AZURE_CLIENT_ID: $ARM_CLIENT_ID
+#     AZURE_TENANT_ID: $ARM_TENANT_ID
+#     AZURE_CLIENT_SECRET: $ARM_CLIENT_SECRET
+#   script:
+#     - az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID -o none
+#   environment: $ENV
+#   rules:
+#     - !reference [.set_env, rules]
+#     - if: $ENV != "NONE"
+#   when: manual
