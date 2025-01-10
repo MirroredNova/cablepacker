@@ -1,169 +1,30 @@
-image: gitlabp2.alliant-energy.com:5050/cloud/gitlab-ci-images/ae-terraform:latest
+# Determine environment name based on commit branch name. Envs are specific
+# (rather than an if/else catchall) to avoid problems with short-lived branches.
+.set_env:
+  variables:
+    ENV: "NONE"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      variables:
+        ENV: "dev"
+    - if: $CI_COMMIT_BRANCH == "test"
+      variables:
+        ENV: "test"
+    - if: $CI_COMMIT_BRANCH == "qa"
+      variables:
+        ENV: "qa"
+    - if: $CI_COMMIT_BRANCH == "prod"
+      variables:
+        ENV: "prod"
+  script:
+    - echo "Environment is: ${ENV}"
 
-variables:
-  TF_ROOT: ${CI_PROJECT_DIR}
-  TF_CLI_CONFIG_FILE: $CI_PROJECT_DIR/.terraformrc
-
-before_script:  
-  - echo -e "credentials \"$CI_SERVER_HOST\" {\n  token = \"$CI_JOB_TOKEN\"\n}" > $TF_CLI_CONFIG_FILE
-  - cd ${TF_ROOT} 
+include:
+  - local: '.gitlab-ci/*.yml'
 
 stages:
-  - validate
-  - plan
-  - deploy
-
-validate:
-  stage: validate
-  only :
-    - main #(Main is dev)
-    - test
-    - qa
-    - prod
-  script:
-    - terraform init -backend=false
-    - terraform validate
-
-plan_dev:
-  stage: plan
-  script:
-    - echo -e "Gitlab Project Environment\n--------------------------"
-    - echo "$CI_ENVIRONMENT_NAME"
-    - echo -e "Azure Environment Variables\n--------------------------"
-    - env | grep '^ARM\|^TFSTATE'
-    - terraform init -backend-config "subscription_id=b2856ed9-3c85-4c85-bc56-5d88f31bc299" -backend-config "storage_account_name=$TFSTATE_STORAGE_ACCOUNT_NAME" -backend-config "resource_group_name=$TFSTATE_RESOURCE_GROUP_NAME" -backend-config "container_name=$TFSTATE_CONTAINER_NAME" -backend-config "key=dev.tfstate"
-    - terraform plan -var-file="dev.tfvars" -input=false -out="dev.tfplan"
-    - terraform show -json "dev.tfplan" | jq -r '([.resource_changes[]?.change.actions?] | flatten) | {"create":(map(select(.=="create")) | length), "update":(map(select(.=="update")) | length), "delete":(map(select(.=="delete")) | length)}' > plan_dev.json
-  only: 
-    - main
-  environment: dev
-  artifacts:
-    name: plan_dev
-    paths:
-      - ${TF_ROOT}/dev.tfplan
-    reports:
-      terraform: ${TF_ROOT}/plan_dev.json
-
-deploy_dev:
-  stage: deploy
-  environment: dev
-  script:
-    - echo -e "Gitlab Project Environment\n--------------------------"
-    - echo "$CI_ENVIRONMENT_NAME"
-    - echo -e "Azure Environment Variables\n--------------------------"
-    - env | grep '^ARM\|^TFSTATE'
-    - terraform init -backend-config "subscription_id=b2856ed9-3c85-4c85-bc56-5d88f31bc299" -backend-config "storage_account_name=$TFSTATE_STORAGE_ACCOUNT_NAME" -backend-config "resource_group_name=$TFSTATE_RESOURCE_GROUP_NAME" -backend-config "container_name=$TFSTATE_CONTAINER_NAME" -backend-config "key=dev.tfstate"
-    - terraform apply -input=false dev.tfplan
-  dependencies:
-    - plan_dev
-  when: manual
-  only: 
-    - main
-
-plan_test:
-  stage: plan
-  script:
-    - echo -e "Gitlab Project Environment\n--------------------------"
-    - echo "$CI_ENVIRONMENT_NAME"
-    - echo -e "Azure Environment Variables\n--------------------------"
-    - env | grep '^ARM\|^TFSTATE'
-    - terraform init -backend-config "subscription_id=b2856ed9-3c85-4c85-bc56-5d88f31bc299" -backend-config "storage_account_name=$TFSTATE_STORAGE_ACCOUNT_NAME" -backend-config "resource_group_name=$TFSTATE_RESOURCE_GROUP_NAME" -backend-config "container_name=$TFSTATE_CONTAINER_NAME" -backend-config "key=test.tfstate"
-    - terraform plan -var-file="test.tfvars" -input=false -out="test.tfplan"
-    - terraform show -json "test.tfplan" | jq -r '([.resource_changes[]?.change.actions?] | flatten) | {"create":(map(select(.=="create")) | length), "update":(map(select(.=="update")) | length), "delete":(map(select(.=="delete")) | length)}' > plan_test.json
-  only: 
-    - test
-  environment: test
-  artifacts:
-    name: plan_test
-    paths:
-      - ${TF_ROOT}/test.tfplan
-    reports:
-      terraform: ${TF_ROOT}/plan_test.json
-
-deploy_test:
-  stage: deploy
-  environment: test
-  script:
-    - echo -e "Gitlab Project Environment\n--------------------------"
-    - echo "$CI_ENVIRONMENT_NAME"
-    - echo -e "Azure Environment Variables\n--------------------------"
-    - env | grep '^ARM\|^TFSTATE'
-    - terraform init -backend-config "subscription_id=b2856ed9-3c85-4c85-bc56-5d88f31bc299" -backend-config "storage_account_name=$TFSTATE_STORAGE_ACCOUNT_NAME" -backend-config "resource_group_name=$TFSTATE_RESOURCE_GROUP_NAME" -backend-config "container_name=$TFSTATE_CONTAINER_NAME" -backend-config "key=test.tfstate"
-    - terraform apply -input=false test.tfplan
-  dependencies:
-    - plan_test
-  when: manual
-  only: 
-    - test
-
-plan_qa:
-  stage: plan
-  script:
-    - echo -e "Gitlab Project Environment\n--------------------------"
-    - echo "$CI_ENVIRONMENT_NAME"
-    - echo -e "Azure Environment Variables\n--------------------------"
-    - env | grep '^ARM\|^TFSTATE'
-    - terraform init -backend-config "subscription_id=b2856ed9-3c85-4c85-bc56-5d88f31bc299" -backend-config "storage_account_name=$TFSTATE_STORAGE_ACCOUNT_NAME" -backend-config "resource_group_name=$TFSTATE_RESOURCE_GROUP_NAME" -backend-config "container_name=$TFSTATE_CONTAINER_NAME" -backend-config "key=qa.tfstate"
-    - terraform plan -var-file="qa.tfvars" -input=false -out="qa.tfplan"
-    - terraform show -json "qa.tfplan" | jq -r '([.resource_changes[]?.change.actions?] | flatten) | {"create":(map(select(.=="create")) | length), "update":(map(select(.=="update")) | length), "delete":(map(select(.=="delete")) | length)}' > plan_qa.json
-  only: 
-    - qa
-  environment: qa
-  artifacts:
-    name: plan_qa
-    paths:
-      - ${TF_ROOT}/qa.tfplan
-    reports:
-      terraform: ${TF_ROOT}/plan_qa.json
-
-deploy_qa:
-  stage: deploy
-  environment: qa
-  script:
-    - echo -e "Gitlab Project Environment\n--------------------------"
-    - echo "$CI_ENVIRONMENT_NAME"
-    - echo -e "Azure Environment Variables\n--------------------------"
-    - env | grep '^ARM\|^TFSTATE'
-    - terraform init -backend-config "subscription_id=b2856ed9-3c85-4c85-bc56-5d88f31bc299" -backend-config "storage_account_name=$TFSTATE_STORAGE_ACCOUNT_NAME" -backend-config "resource_group_name=$TFSTATE_RESOURCE_GROUP_NAME" -backend-config "container_name=$TFSTATE_CONTAINER_NAME" -backend-config "key=qa.tfstate"
-    - terraform apply -input=false qa.tfplan
-  dependencies:
-    - plan_qa
-  when: manual
-  only: 
-    - qa
-
-plan_prod:
-  stage: plan
-  script:
-    - echo -e "Gitlab Project Environment\n--------------------------"
-    - echo "$CI_ENVIRONMENT_NAME"
-    - echo -e "Azure Environment Variables\n--------------------------"
-    - env | grep '^ARM\|^TFSTATE'
-    - terraform init -backend-config "subscription_id=b2856ed9-3c85-4c85-bc56-5d88f31bc299" -backend-config "storage_account_name=$TFSTATE_STORAGE_ACCOUNT_NAME" -backend-config "resource_group_name=$TFSTATE_RESOURCE_GROUP_NAME" -backend-config "container_name=$TFSTATE_CONTAINER_NAME" -backend-config "key=prod.tfstate"
-    - terraform plan -var-file="prod.tfvars" -input=false -out="prod.tfplan"
-    - terraform show -json "prod.tfplan" | jq -r '([.resource_changes[]?.change.actions?] | flatten) | {"create":(map(select(.=="create")) | length), "update":(map(select(.=="update")) | length), "delete":(map(select(.=="delete")) | length)}' > plan_prod.json
-  only:
-    - prod
-  environment: prod
-  artifacts:
-    name: plan_prod
-    paths:
-      - ${TF_ROOT}/prod.tfplan
-    reports:
-      terraform: ${TF_ROOT}/plan_prod.json
-
-deploy_prod:
-  stage: deploy
-  environment: prod
-  script:
-    - echo -e "Gitlab Project Environment\n--------------------------"
-    - echo "$CI_ENVIRONMENT_NAME"
-    - echo -e "Azure Environment Variables\n--------------------------"
-    - env | grep '^ARM\|^TFSTATE'
-    - terraform init -backend-config "subscription_id=b2856ed9-3c85-4c85-bc56-5d88f31bc299" -backend-config "storage_account_name=$TFSTATE_STORAGE_ACCOUNT_NAME" -backend-config "resource_group_name=$TFSTATE_RESOURCE_GROUP_NAME" -backend-config "container_name=$TFSTATE_CONTAINER_NAME" -backend-config "key=prod.tfstate"
-    - terraform apply -input=false prod.tfplan
-  dependencies:
-    - plan_prod
-  when: manual
-  only:
-    - prod
+  - tf_validate
+  - tf_plan
+  - tf_apply
+#  - az-powershell
+#  - az-cli
