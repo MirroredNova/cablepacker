@@ -26,5 +26,4 @@ stages:
   - tf_validate
   - tf_plan
   - tf_apply
-#  - az-powershell
-#  - az-cli
+
