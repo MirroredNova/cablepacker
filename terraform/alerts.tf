@@ -31,6 +31,6 @@
 #   }
 
 #   action {
-#     action_group_id = azurerm_monitor_action_group.toteam.id
+#     action_group_id = azurerm_monitor_action_group.team.id
 #   }
 # }
