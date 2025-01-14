@@ -1,5 +1,5 @@
 # variable "app_env" {
-#   description = "Sitecore application environment"
+#   description = "Application environment"
 #   type        = string
 #   validation {
 #     condition     = contains(["prod", "qa", "dev"], var.app_env)
@@ -8,7 +8,7 @@
 # }
 
 # variable "app_location" {
-#   description = "Sitecore application location"
+#   description = "Application location"
 #   type        = string
 #   default     = "centralus"
 # }
