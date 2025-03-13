@@ -5,7 +5,10 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { CssBaseline } from '@mui/material';
 import theme from '../theme';
 import './globals.css';
-import CableProvider from '@/providers/CableProvider';
+import TableProvider from '@/components/providers/TableProvider';
+import PresetProvider from '@/components/providers/PresetProvider';
+import Navigation from '@/components/ui/Navigation';
+import Logo from '@/components/ui/Logo';
 
 const roboto = Roboto({
   weight: ['300', '400', '500', '700'],
@@ -25,9 +28,12 @@ export default function RootLayout({ children }: Props) {
         <StyledEngineProvider injectFirst>
           <AppRouterCacheProvider>
             <ThemeProvider theme={theme}>
-              <CableProvider>
-                {children}
-              </CableProvider>
+              <TableProvider>
+                <PresetProvider>
+                  <Logo />
+                  <Navigation>{children}</Navigation>
+                </PresetProvider>
+              </TableProvider>
               <CssBaseline />
             </ThemeProvider>
           </AppRouterCacheProvider>

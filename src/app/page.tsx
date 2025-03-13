@@ -1,35 +1,28 @@
-'use client';
-
 import React from 'react';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
+import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
-
-import TabPanel from '@/components/shared/TabPanel';
-import CableBoreGenerationPanel from '@/components/pages/home/CableBoreGenerationPanel';
+import CableBoreGenerationPanel from '@/components/pages/home/CableBoreTable';
+import HeaderForm from '@/components/pages/home/HeaderForm';
+import GenerateBore from '@/components/pages/home/GenerateBore';
 
 export default function Home() {
-  const [pageValue, setPageValue] = React.useState(0);
-
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setPageValue(newValue);
-  };
-
   return (
-    <Box sx={{
-      px: 4, pt: 4, maxWidth: { xl: 'xl' }, marginX: 'auto',
-    }}
-    >
-      <Tabs value={pageValue} onChange={handleChange} aria-label="basic tabs example">
-        <Tab label="Cable Bore Generator" />
-        <Tab label="Help" />
-      </Tabs>
-      <TabPanel value={pageValue} index={0}>
-        <CableBoreGenerationPanel />
-      </TabPanel>
-      <TabPanel value={pageValue} index={1}>
-        Help Panel
-      </TabPanel>
-    </Box>
+    <Stack spacing={2}>
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+
+        <HeaderForm />
+      </Stack>
+      <CableBoreGenerationPanel />
+      <Box display="flex" justifyContent="flex-end" mt={2}>
+        <GenerateBore />
+      </Box>
+    </Stack>
   );
 }

@@ -1,83 +1,112 @@
-/* eslint-disable react/no-array-index-key */
-import React, { useState } from 'react';
-import CheckIcon from '@mui/icons-material/Check';
+import React, { useMemo } from 'react';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import EditIcon from '@mui/icons-material/Edit';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
-import TextField from '@mui/material/TextField';
-import Select from '@mui/material/Select';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import TextField from '@mui/material/TextField';
+import IconButton from '@mui/material/IconButton'; // Added for better semantics
+import NumberInput from '@/components/shared/NumberInput';
+import { TableRowData } from '@/types/table';
 import { Cable } from '@/types/cables';
-import useCables from '@/hooks/useCables';
+import usePresetContext from '@/hooks/usePresetContext';
+import useTableContext from '@/hooks/useTableContext';
 
 type Props = {
-  cable: Cable;
-  index: number;
+  row: TableRowData;
 };
 
-function CableTableRow({ cable, index }: Props) {
-  const { removeCable, editCable, presetCables } = useCables();
-  const [editing, setEditing] = useState(false);
-  const [editedCable, setEditedCable] = useState<Cable>(cable);
+export default function CableTableRow({ row }: Props) {
+  const { selectedPreset } = usePresetContext();
+  const { updateRow, deleteRow } = useTableContext();
 
-  const handleSaveEdit = () => {
-    editCable(index, editedCable);
-    setEditing(false);
+  const isPresetCable = useMemo(
+    () => row.selectedCable !== 'custom',
+    [row.selectedCable],
+  );
+
+  const handleNameChange = (event: SelectChangeEvent) => {
+    const selectedName = event.target.value as string;
+    const selectedCable = selectedPreset?.cables.find(
+      (cable) => cable.name === selectedName,
+    );
+
+    if (selectedName === 'custom') {
+      updateRow(row.id, {
+        selectedCable: 'custom',
+        customName: row.customName || 'Custom',
+        customDiameter: row.customDiameter || 1,
+      });
+    } else if (selectedCable) {
+      updateRow(row.id, {
+        selectedCable,
+      });
+    }
   };
 
-  const handleOnDelete = () => {
-    removeCable(index);
+  const getDiameterDisplay = (): string | number => {
+    if (isPresetCable) {
+      return (row.selectedCable as Cable).diameter;
+    }
+    return row.customDiameter ?? 1;
+  };
+
+  const getNameValue = (): string => {
+    if (isPresetCable) {
+      return (row.selectedCable as Cable).name;
+    }
+    return 'custom';
   };
 
   return (
     <TableRow>
-      <TableCell>
-        {editing ? (
-          <Select value={editedCable.name} size="small" onChange={(e) => setEditedCable({ ...editedCable, name: e.target.value })}>
-            <MenuItem value="custom">Custom</MenuItem>
-            {presetCables.map((c, i) => (
-              <MenuItem key={i} value={c.name}>
-                {c.name}
-              </MenuItem>
-            ))}
-          </Select>
-        ) : (
-          cable.name
+      <TableCell sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+        <Select
+          value={getNameValue()}
+          fullWidth
+          size="small"
+          onChange={handleNameChange}
+        >
+          <MenuItem value="custom">Custom</MenuItem>
+          {selectedPreset?.cables.map((cable) => (
+            <MenuItem key={cable.id} value={cable.name}>
+              {cable.name}
+            </MenuItem>
+          ))}
+        </Select>
+        {row.selectedCable === 'custom' && (
+          <TextField
+            fullWidth
+            size="small"
+            label="Custom Name"
+            value={row.customName}
+            onChange={(e) => updateRow(row.id, { customName: e.target.value })}
+          />
         )}
       </TableCell>
       <TableCell>
-        {editing ? (
-          <TextField
-            value={editedCable.diameter}
-            onChange={(e) => setEditedCable({ ...editedCable, diameter: Number(e.target.value) })}
-            type="number"
-            size="small"
+        {!isPresetCable ? (
+          <NumberInput
+            value={row.customDiameter}
+            min={1}
+            onChange={(e, value) => updateRow(row.id, { customDiameter: value || 1 })}
           />
         ) : (
-          cable.diameter
+          getDiameterDisplay()
         )}
       </TableCell>
       <TableCell>
-        {editing ? (
-          <TextField
-            value={editedCable.quantity}
-            onChange={(e) => setEditedCable({ ...editedCable, quantity: Number(e.target.value) })}
-            type="number"
-            size="small"
-          />
-        ) : (
-          cable.quantity
-        )}
+        <NumberInput
+          value={row.quantity}
+          min={1}
+          onChange={(e, value) => updateRow(row.id, { quantity: value || 1 })}
+        />
       </TableCell>
       <TableCell align="right">
-        {editing
-          ? <CheckIcon onClick={handleSaveEdit} />
-          : <EditIcon onClick={() => setEditing(true)} />}
-        <DeleteOutlineIcon onClick={handleOnDelete} />
+        <IconButton onClick={() => deleteRow(row.id)} aria-label="delete">
+          <DeleteOutlineIcon />
+        </IconButton>
       </TableCell>
     </TableRow>
   );
 }
-
-export default CableTableRow;
