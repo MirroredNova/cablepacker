@@ -14,9 +14,9 @@ export default function CableBoreGenerationPanel() {
         <TableHead>
           <TableRow>
             <TableCell>Name</TableCell>
-            <TableCell sx={{ width: '150px' }}>Diameter (in)</TableCell>
-            <TableCell sx={{ width: '150px' }}>Quantity</TableCell>
-            <TableCell align="right" sx={{ width: '1px' }}>
+            <TableCell width="150px">Diameter (in)</TableCell>
+            <TableCell width="150px">Quantity</TableCell>
+            <TableCell align="right" width="1px">
               Actions
             </TableCell>
           </TableRow>

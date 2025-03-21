@@ -1,27 +1,8 @@
-import { Box } from '@mui/material';
+import Box from '@mui/material/Box';
 import React from 'react';
 
 function Logo() {
-  return (
-    <Box
-      sx={{
-        px: 4,
-        pt: 4,
-        maxWidth: { xl: 'xl' },
-        marginX: 'auto',
-      }}
-    >
-      <Box
-        component="img"
-        sx={{
-          height: 120,
-          maxHeight: 120,
-        }}
-        src="/logo.svg"
-        alt="Alliant Energy Logo"
-      />
-    </Box>
-  );
+  return <Box component="img" height={120} maxHeight={120} src="/logo.svg" alt="Alliant Energy Logo" />;
 }
 
 export default Logo;

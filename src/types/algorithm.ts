@@ -1,22 +1,29 @@
-// Types
-export type CircleStruct = {
+// BACKEND TYPES
+export type Circle = {
   name: string;
   diameter: number;
   radius: number;
-  coordinates: PointStruct;
-  colour?: string;
+  coordinates: Point;
+  color?: string;
 };
 
-export type PointStruct = {
+export type Point = {
   x: number;
   y: number;
 };
 
-export type BoreStruct = {
-  boreIncrement: number;
-  minBore: number;
+export type BoreResult = {
+  bore: Circle;
+  cables: Circle[];
 };
 
-export type QueueStruct = {
-  queue: number[];
+export type ApiError = {
+  code: number;
+  message: string;
+};
+
+export type ApiResponse = {
+  success: boolean;
+  data?: BoreResult;
+  error?: ApiError
 };

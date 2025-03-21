@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { CircleStruct } from '@/types/algorithm';
+import { Circle } from '@/types/algorithm';
 import { TableRowData } from '@/types/table';
-import { calculateMinimumEncloseForCircles, handleSingleCircleCase } from '@/utils/Algo';
-import { mapCablesToCircles } from '@/utils/circles';
+import { calculateMinimumEncloseForCircles, handleSingleCircleCase } from '@/utils/algo';
+import { assignColorsToCircles, mapCablesToCircles } from '@/utils/circles';
 
 export async function POST(req: Request) {
   try {
@@ -15,16 +15,24 @@ export async function POST(req: Request) {
     const circles = mapCablesToCircles(cables);
 
     // Handle single circle case
-    let bore: CircleStruct | null = null;
+    let bore: Circle;
+    let arrangedCables: Circle[] = [];
+
     if (circles.length === 1) {
       bore = handleSingleCircleCase(circles[0]);
+      arrangedCables = assignColorsToCircles([circles[0]]);
     } else {
       const optimalData = calculateMinimumEncloseForCircles(circles);
       bore = optimalData.enclose;
-      console.log('result circles', optimalData.circles);
+      arrangedCables = assignColorsToCircles(optimalData.circles);
     }
 
-    return Response.json({ message: 'Hello World' });
+    const response = {
+      bore,
+      cables: arrangedCables,
+    };
+
+    return Response.json(response, { status: 200 });
   } catch (error: Error | unknown) {
     if (error instanceof RangeError) {
       return Response.json({ message: error.message }, { status: 422 });

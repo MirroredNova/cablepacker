@@ -8,14 +8,14 @@ import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import usePresetContext from '@/hooks/usePresetContext';
-import useTableContext from '@/hooks/useTableContext';
+import usePreset from '@/hooks/usePreset';
+import useTable from '@/hooks/useTable';
 
 function HeaderForm() {
   const {
     presets, selectedPreset, setSelectedPreset, loadPresets,
-  } = usePresetContext();
-  const { addRow } = useTableContext();
+  } = usePreset();
+  const { addRow } = useTable();
 
   useEffect(() => {
     loadPresets();
@@ -32,7 +32,13 @@ function HeaderForm() {
       <Stack direction="row" spacing={2} alignItems="center">
         <FormControl sx={{ width: '160px' }} size="small">
           <InputLabel id="preset-select-label">Preset</InputLabel>
-          <Select labelId="preset-select-label" id="preset-select" value={selectedPreset?.name || ''} label="Preset" onChange={handlePresetChange}>
+          <Select
+            labelId="preset-select-label"
+            id="preset-select"
+            value={selectedPreset?.name || ''}
+            label="Preset"
+            onChange={handlePresetChange}
+          >
             <MenuItem value="">None</MenuItem>
             {presets.map((preset) => (
               <MenuItem key={preset.id} value={preset.name}>
@@ -41,7 +47,12 @@ function HeaderForm() {
             ))}
           </Select>
         </FormControl>
-        <TextField id="retrieve-existing-input" label="Search Existing Result ID" size="small" sx={{ width: '300px' }} />
+        <TextField
+          id="retrieve-existing-input"
+          label="Search Existing Result ID"
+          size="small"
+          sx={{ width: '300px' }}
+        />
         <Button variant="contained">Search</Button>
       </Stack>
       <Button variant="outlined" onClick={addRow}>

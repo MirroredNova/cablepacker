@@ -1,5 +1,8 @@
 import { Preset } from '@/types/cables';
 
+export const DEFAULT_MAX_DIAMETER = 50;
+export const DEFAULT_MAX_CIRCLES = 20;
+
 export const EXAMPLE_PRESETS: Preset[] = [
   {
     id: '1',

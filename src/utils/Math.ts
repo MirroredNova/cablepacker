@@ -1,4 +1,4 @@
-import { PointStruct } from '@/types/algorithm';
+import { Point } from '@/types/algorithm';
 
 const FLOAT64_EQUALITY_THRESHOLD = 1e-9;
 
@@ -14,7 +14,7 @@ export function polarToCartesian(angle: number, radius: number): [number, number
   ];
 }
 
-export function getDistanceBetweenPoints(point0: PointStruct, point1: PointStruct): number {
+export function getDistanceBetweenPoints(point0: Point, point1: Point): number {
   // distance formula: d = sqrt( (x1-x0)^2 + (y1-y0)^2 )
   const subedX = point1.x - point0.x;
   const subedY = point1.y - point0.y;

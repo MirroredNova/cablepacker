@@ -1,14 +1,15 @@
-import React from 'react';
-import { Roboto } from 'next/font/google';
-import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
-import { CssBaseline } from '@mui/material';
-import theme from '../theme';
 import './globals.css';
-import TableProvider from '@/components/providers/TableProvider';
+import { Roboto } from 'next/font/google';
+import React from 'react';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
+import Box from '@mui/material/Box';
+import CssBaseline from '@mui/material/CssBaseline';
+import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import PresetProvider from '@/components/providers/PresetProvider';
-import Navigation from '@/components/ui/Navigation';
+import { ResultProvider } from '@/components/providers/ResultProvider';
+import TableProvider from '@/components/providers/TableProvider';
 import Logo from '@/components/ui/Logo';
+import theme from '../theme';
 
 const roboto = Roboto({
   weight: ['300', '400', '500', '700'],
@@ -30,8 +31,14 @@ export default function RootLayout({ children }: Props) {
             <ThemeProvider theme={theme}>
               <TableProvider>
                 <PresetProvider>
-                  <Logo />
-                  <Navigation>{children}</Navigation>
+                  <ResultProvider>
+                    <Box maxWidth="xl" marginX="auto" p={4}>
+                      <Logo />
+                      <Box pt={4} display="flex" flexDirection="column" gap={4}>
+                        {children}
+                      </Box>
+                    </Box>
+                  </ResultProvider>
                 </PresetProvider>
               </TableProvider>
               <CssBaseline />

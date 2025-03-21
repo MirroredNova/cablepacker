@@ -3,11 +3,11 @@
 import React from 'react';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
-import useTableContext from '@/hooks/useTableContext';
+import useTable from '@/hooks/useTable';
 import CableTableRow from './CableTableRow';
 
 function CableBoreTableData() {
-  const { tableData } = useTableContext();
+  const { tableData } = useTable();
 
   return (
     tableData.length === 0 ? (

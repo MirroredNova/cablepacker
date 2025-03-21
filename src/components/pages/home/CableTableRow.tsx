@@ -1,45 +1,42 @@
 import React, { useMemo } from 'react';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import TableRow from '@mui/material/TableRow';
+import Autocomplete from '@mui/material/Autocomplete';
+import IconButton from '@mui/material/IconButton';
 import TableCell from '@mui/material/TableCell';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
+import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton'; // Added for better semantics
-import NumberInput from '@/components/shared/NumberInput';
 import { TableRowData } from '@/types/table';
 import { Cable } from '@/types/cables';
-import usePresetContext from '@/hooks/usePresetContext';
-import useTableContext from '@/hooks/useTableContext';
+import useTable from '@/hooks/useTable';
+import usePreset from '@/hooks/usePreset';
+import { getMaxDiameter } from '@/config';
+import EnhancedNumberInput from '@/components/shared/NumberInput';
 
 type Props = {
   row: TableRowData;
 };
 
 export default function CableTableRow({ row }: Props) {
-  const { selectedPreset } = usePresetContext();
-  const { updateRow, deleteRow } = useTableContext();
+  const { selectedPreset } = usePreset();
+  const { updateRow, deleteRow } = useTable();
 
-  const isPresetCable = useMemo(
-    () => row.selectedCable !== 'custom',
-    [row.selectedCable],
-  );
+  const isPresetCable = useMemo(() => row.selectedCable !== 'custom', [row.selectedCable]);
 
-  const handleNameChange = (event: SelectChangeEvent) => {
-    const selectedName = event.target.value as string;
-    const selectedCable = selectedPreset?.cables.find(
-      (cable) => cable.name === selectedName,
-    );
+  const options = useMemo(() => {
+    const customOption = { id: 'custom', name: 'Custom', diameter: row.customDiameter || 1 };
+    return selectedPreset?.cables ? [customOption, ...selectedPreset.cables] : [customOption];
+  }, [selectedPreset?.cables, row.customDiameter]);
 
-    if (selectedName === 'custom') {
+  const handleNameChange = (_event: React.SyntheticEvent<Element, Event>, value: Cable | null) => {
+    if (value?.id === 'custom') {
       updateRow(row.id, {
         selectedCable: 'custom',
         customName: row.customName || 'Custom',
         customDiameter: row.customDiameter || 1,
       });
-    } else if (selectedCable) {
+    } else if (value) {
       updateRow(row.id, {
-        selectedCable,
+        selectedCable: value,
       });
     }
   };
@@ -51,29 +48,18 @@ export default function CableTableRow({ row }: Props) {
     return row.customDiameter ?? 1;
   };
 
-  const getNameValue = (): string => {
-    if (isPresetCable) {
-      return (row.selectedCable as Cable).name;
-    }
-    return 'custom';
-  };
-
   return (
     <TableRow>
       <TableCell sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
-        <Select
-          value={getNameValue()}
+        <Autocomplete
+          value={isPresetCable ? (row.selectedCable as Cable) : options[0]}
+          options={options}
+          getOptionLabel={(option) => option.name}
+          onChange={(event, value) => handleNameChange(event, value)}
           fullWidth
           size="small"
-          onChange={handleNameChange}
-        >
-          <MenuItem value="custom">Custom</MenuItem>
-          {selectedPreset?.cables.map((cable) => (
-            <MenuItem key={cable.id} value={cable.name}>
-              {cable.name}
-            </MenuItem>
-          ))}
-        </Select>
+          renderInput={(params) => <TextField {...params} label="Cable Type" />}
+        />
         {row.selectedCable === 'custom' && (
           <TextField
             fullWidth
@@ -86,20 +72,29 @@ export default function CableTableRow({ row }: Props) {
       </TableCell>
       <TableCell>
         {!isPresetCable ? (
-          <NumberInput
-            value={row.customDiameter}
-            min={1}
-            onChange={(e, value) => updateRow(row.id, { customDiameter: value || 1 })}
+          <EnhancedNumberInput
+            value={row.customDiameter ?? 1}
+            onChangeAction={(value) => updateRow(row.id, { customDiameter: value })}
+            min={0.1}
+            max={getMaxDiameter()}
+            step={0.1}
+            allowTemporaryZero
+            decimalPlaces={1}
+            name="customDiameter"
           />
         ) : (
           getDiameterDisplay()
         )}
       </TableCell>
       <TableCell>
-        <NumberInput
+        <EnhancedNumberInput
           value={row.quantity}
+          onChangeAction={(value) => updateRow(row.id, { quantity: value })}
           min={1}
-          onChange={(e, value) => updateRow(row.id, { quantity: value || 1 })}
+          step={1}
+          allowTemporaryZero={false}
+          decimalPlaces={0}
+          name="quantity"
         />
       </TableCell>
       <TableCell align="right">

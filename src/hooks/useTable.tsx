@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { TableContext } from '@/components/providers/TableProvider';
 
-const useTableContext = () => {
+const useTable = () => {
   const context = useContext(TableContext);
   if (!context) {
     throw new Error('useTableContext must be used within a TableProvider');
@@ -9,4 +9,4 @@ const useTableContext = () => {
   return context;
 };
 
-export default useTableContext;
+export default useTable;

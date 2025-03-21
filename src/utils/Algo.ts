@@ -1,7 +1,5 @@
-// Constants
-// Import required math functions
-import { CircleStruct } from '@/types/algorithm';
-import { almostEqual, polarToCartesian, getDistanceBetweenPoints } from './Math';
+import { Circle } from '@/types/algorithm';
+import { almostEqual, polarToCartesian, getDistanceBetweenPoints } from './math';
 
 const MAX_ITERATIONS = 100;
 const RADIUS_STEP_SIZE = 0.01;
@@ -11,14 +9,14 @@ const MIN_ENCLOSE_STEP_SIZE = 0.001;
 /**
  * Sort the list of circles from input (from largest radius to smallest radius)
  */
-export function sortCircles(circleList: CircleStruct[]): CircleStruct[] {
+export function sortCircles(circleList: Circle[]): Circle[] {
   return [...circleList].sort((a, b) => b.radius - a.radius);
 }
 
 /**
  * Create a enclosing circle with the given diameter and radius
  */
-export function createEnclose(diameter: number, radius: number): CircleStruct {
+export function createEnclose(diameter: number, radius: number): Circle {
   return {
     name: 'enclose',
     diameter,
@@ -27,14 +25,14 @@ export function createEnclose(diameter: number, radius: number): CircleStruct {
       x: 0.0,
       y: 0.0,
     },
-    colour: '',
+    color: '',
   };
 }
 
 /**
  * Check if a circle's position is valid compared to all previously placed circles
  */
-function circlePositionIsValid(circles: CircleStruct[], index: number): boolean {
+function circlePositionIsValid(circles: Circle[], index: number): boolean {
   const circle = circles[index];
 
   for (let j = 0; j < index; j += 1) {
@@ -53,7 +51,7 @@ function circlePositionIsValid(circles: CircleStruct[], index: number): boolean 
 /**
  * Attempt to place a single circle inside the enclose
  */
-function placeCircle(circles: CircleStruct[], index: number, encloseRadius: number): boolean {
+function placeCircle(circles: Circle[], index: number, encloseRadius: number): boolean {
   const circle = circles[index];
 
   // Try different positions at decreasing distances from center
@@ -77,12 +75,9 @@ function placeCircle(circles: CircleStruct[], index: number, encloseRadius: numb
 /**
  * Check if circles can be placed within the specified circle diameter
  */
-function checkEnclose(
-  encloseDiameter: number,
-  circleList: CircleStruct[],
-): [CircleStruct[], boolean] {
+function checkEnclose(encloseDiameter: number, circleList: Circle[]): [Circle[], boolean] {
   // Create a deep copy of circleList to avoid modifying the original
-  const circles = JSON.parse(JSON.stringify(circleList)) as CircleStruct[];
+  const circles = JSON.parse(JSON.stringify(circleList)) as Circle[];
   const encloseRadius = encloseDiameter / 2.0;
 
   // Try to place each circle
@@ -98,9 +93,9 @@ function checkEnclose(
 /**
  * Find the optimal enclose size using binary search
  */
-export function findOptimalEncloseSize(circles: CircleStruct[]): {
-  enclose: CircleStruct;
-  circles: CircleStruct[];
+export function findOptimalEncloseSize(circles: Circle[]): {
+  enclose: Circle;
+  circles: Circle[];
 } {
   let validPacking = [...circles];
 
@@ -158,16 +153,16 @@ export function findOptimalEncloseSize(circles: CircleStruct[]): {
   };
 }
 
-export function handleSingleCircleCase(singleCircle: CircleStruct): CircleStruct {
+export function handleSingleCircleCase(singleCircle: Circle): Circle {
   const circleCopy = { ...singleCircle, coordinates: { ...singleCircle.coordinates } };
   circleCopy.coordinates.x = 0;
   circleCopy.coordinates.y = 0;
   return createEnclose(circleCopy.diameter, circleCopy.radius);
 }
 
-export function calculateMinimumEncloseForCircles(circles: CircleStruct[]): {
-  enclose: CircleStruct;
-  circles: CircleStruct[];
+export function calculateMinimumEncloseForCircles(circles: Circle[]): {
+  enclose: Circle;
+  circles: Circle[];
 } {
   const sortedCircles = sortCircles(circles);
   const encloseData = findOptimalEncloseSize(sortedCircles);
