@@ -3,14 +3,27 @@
 import React, {
   createContext, PropsWithChildren, useState, useMemo, useCallback,
 } from 'react';
-import { Preset } from '@/types/cables';
-import { EXAMPLE_PRESETS } from '@/constants';
+import {
+  CreateCableInput, CreatePresetInput, Preset, UpdateCableInput,
+} from '@/types/domain.types';
+import { createCableAction, deleteCableAction, updateCableAction } from '@/server/actions/cables.actions';
+import {
+  createPresetAction, deletePresetAction, getAllPresetsWithCablesAction, updatePresetAction,
+} from '@/server/actions/presets.actions';
 
 type PresetContextType = {
   presets: Preset[];
   selectedPreset: Preset | null;
+  loading: boolean;
+  error: string | null;
   setSelectedPreset: (preset: Preset | null) => void;
   loadPresets: () => Promise<void>;
+  addPreset: (name: string) => Promise<void>;
+  updatePreset: (id: number, updates: Partial<Preset>) => Promise<void>;
+  deletePreset: (id: number) => Promise<void>;
+  addCableToPreset: (presetId: number, cable: CreateCableInput) => Promise<void>;
+  editCable: (cableId: number, updates: Partial<UpdateCableInput>) => Promise<void>;
+  deleteCableFromPreset: (presetId: number, cableId: number) => Promise<void>;
 };
 
 export const PresetContext = createContext<PresetContextType | null>(null);
@@ -18,26 +31,338 @@ export const PresetContext = createContext<PresetContextType | null>(null);
 export default function PresetProvider({ children }: PropsWithChildren) {
   const [presets, setPresets] = useState<Preset[]>([]);
   const [selectedPreset, setSelectedPreset] = useState<Preset | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Using useCallback for functions passed to context
+  // Load presets
   const loadPresets = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
     try {
-      // In a real app, this would be an API call
-      // const response = await fetch('/api/presets');
-      // const data = await response.json();
-      // setPresets(data);
-      setPresets(EXAMPLE_PRESETS);
-    } catch (error) {
-      console.error('Failed to load presets:', error);
+      const result = await getAllPresetsWithCablesAction();
+      if (result.success) {
+        setPresets(result.presets || []);
+      } else {
+        setError(result.error || 'An error occurred while loading presets');
+      }
+    } catch (e: any) {
+      console.error('Failed to load presets:', e);
+      setError(e.message || 'An unexpected error occurred while loading presets');
+    } finally {
+      setLoading(false);
     }
   }, []);
+
+  // Load presets on mount
+  React.useEffect(() => {
+    loadPresets();
+  }, [loadPresets]);
+
+  const addPreset = useCallback(async (name: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const newPreset: CreatePresetInput = { name };
+      const res = await createPresetAction(newPreset);
+
+      if (res.success && res.preset) {
+        setPresets((currentPresets) => [...currentPresets, res.preset!]);
+      } else {
+        setError(res.error || 'Failed to create preset');
+      }
+    } catch (e: any) {
+      console.error('Error creating preset:', e);
+      setError(e.message || 'An unexpected error occurred while creating preset');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const updatePreset = useCallback(async (id: number, updates: Partial<Preset>) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Optimistic update
+      setPresets(
+        (currentPresets) => currentPresets.map(
+          (preset) => (preset.id === id ? { ...preset, ...updates } : preset),
+        ),
+      );
+
+      if (selectedPreset?.id === id) {
+        setSelectedPreset((current) => (current ? { ...current, ...updates } : null));
+      }
+
+      // Actual API call
+      const res = await updatePresetAction(id, updates);
+
+      if (!res.success) {
+        // Rollback on failure
+        loadPresets();
+        setError(res.error || 'Failed to update preset');
+      }
+    } catch (e: any) {
+      // Rollback on exception
+      loadPresets();
+      console.error('Error updating preset:', e);
+      setError(e.message || 'An unexpected error occurred while updating preset');
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedPreset, loadPresets]);
+
+  const deletePreset = useCallback(async (id: number) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Optimistic update
+      const previousPresets = [...presets];
+      setPresets((currentPresets) => currentPresets.filter((preset) => preset.id !== id));
+
+      if (selectedPreset?.id === id) {
+        setSelectedPreset(null);
+      }
+
+      // Actual API call
+      const res = await deletePresetAction(id);
+
+      if (!res.success) {
+        // Rollback on failure
+        setPresets(previousPresets);
+        setError(res.error || 'Failed to delete preset');
+      }
+    } catch (e: any) {
+      console.error('Error deleting preset:', e);
+      setError(e.message || 'An unexpected error occurred while deleting preset');
+    } finally {
+      setLoading(false);
+    }
+  }, [presets, selectedPreset]);
+
+  const addCableToPreset = useCallback(async (presetId: number, cable: CreateCableInput) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await createCableAction(cable);
+
+      if (res.success && res.cable) {
+        setPresets((currentPresets) => currentPresets.map((preset) => {
+          if (preset.id === presetId) {
+            return {
+              ...preset,
+              cables: [...(preset.cables || []), res.cable!],
+            };
+          }
+          return preset;
+        }));
+
+        // Also update selectedPreset if needed
+        if (selectedPreset?.id === presetId) {
+          setSelectedPreset((current) => {
+            if (!current) return null;
+            return {
+              ...current,
+              cables: [...(current.cables || []), res.cable!],
+            };
+          });
+        }
+      } else {
+        setError(res.error || 'Failed to add cable');
+      }
+    } catch (e: any) {
+      console.error('Error adding cable:', e);
+      setError(e.message || 'An unexpected error occurred while adding cable');
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedPreset]);
+
+  const editCable = useCallback(async (cableId: number, updates: Partial<UpdateCableInput>) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Find which preset contains this cable
+      const targetPreset = presets.find((preset) => preset.cables?.some((cable) => cable.id === cableId));
+
+      if (!targetPreset) {
+        setError('Cable not found in any preset');
+        setLoading(false);
+        return;
+      }
+
+      // Keep reference to original cable for rollback
+      const originalCable = targetPreset.cables?.find((c) => c.id === cableId);
+
+      // Optimistic update
+      setPresets((currentPresets) => currentPresets.map((preset) => {
+        if (preset.cables?.some((cable) => cable.id === cableId)) {
+          return {
+            ...preset,
+            cables: preset.cables.map((cable) => (
+              cable.id === cableId ? { ...cable, ...updates } : cable
+            )),
+          };
+        }
+        return preset;
+      }));
+
+      // Update selectedPreset if needed
+      if (selectedPreset?.id === targetPreset.id) {
+        setSelectedPreset((current) => {
+          if (!current || !current.cables) return current;
+          return {
+            ...current,
+            cables: current.cables.map((cable) => (cable.id === cableId ? { ...cable, ...updates } : cable)),
+          };
+        });
+      }
+
+      // Actual API call
+      const res = await updateCableAction(cableId, updates);
+
+      if (!res.success) {
+        // Rollback on failure
+        if (originalCable) {
+          // Reset to original state
+          setPresets((currentPresets) => currentPresets.map((preset) => {
+            if (preset.id === targetPreset.id) {
+              return {
+                ...preset,
+                cables: preset.cables?.map((cable) => (cable.id === cableId ? originalCable : cable)),
+              };
+            }
+            return preset;
+          }));
+
+          // Reset selectedPreset if needed
+          if (selectedPreset?.id === targetPreset.id) {
+            setSelectedPreset((current) => {
+              if (!current || !current.cables) return current;
+              return {
+                ...current,
+                cables: current.cables.map((cable) => (cable.id === cableId ? originalCable : cable)),
+              };
+            });
+          }
+        }
+        setError(res.error || 'Failed to update cable');
+      }
+    } catch (e: any) {
+      console.error('Error updating cable:', e);
+      setError(e.message || 'An unexpected error occurred while updating cable');
+      // Full reload as fallback
+      loadPresets();
+    } finally {
+      setLoading(false);
+    }
+  }, [presets, selectedPreset, loadPresets]);
+
+  const deleteCableFromPreset = useCallback(async (presetId: number, cableId: number) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Find the cable we're about to delete for potential rollback
+      const targetPreset = presets.find((p) => p.id === presetId);
+      const cableToDelete = targetPreset?.cables?.find((c) => c.id === cableId);
+
+      if (!targetPreset || !cableToDelete) {
+        setError('Cable not found');
+        setLoading(false);
+        return;
+      }
+
+      // Optimistic update
+      setPresets((currentPresets) => currentPresets.map((preset) => {
+        if (preset.id === presetId) {
+          return {
+            ...preset,
+            cables: preset.cables?.filter((cable) => cable.id !== cableId),
+          };
+        }
+        return preset;
+      }));
+
+      // Update selectedPreset if needed
+      if (selectedPreset?.id === presetId) {
+        setSelectedPreset((current) => {
+          if (!current) return null;
+          return {
+            ...current,
+            cables: current.cables?.filter((cable) => cable.id !== cableId),
+          };
+        });
+      }
+
+      // Actual API call
+      const res = await deleteCableAction(cableId);
+
+      if (!res.success) {
+        // Rollback on failure
+        setPresets((currentPresets) => currentPresets.map((preset) => {
+          if (preset.id === presetId && cableToDelete) {
+            return {
+              ...preset,
+              cables: [...(preset.cables || []), cableToDelete],
+            };
+          }
+          return preset;
+        }));
+
+        // Restore in selectedPreset if needed
+        if (selectedPreset?.id === presetId) {
+          setSelectedPreset((current) => {
+            if (!current) return null;
+            return {
+              ...current,
+              cables: [...(current.cables || []), cableToDelete],
+            };
+          });
+        }
+
+        setError(res.error || 'Failed to delete cable');
+      }
+    } catch (e: any) {
+      console.error('Error deleting cable:', e);
+      setError(e.message || 'An unexpected error occurred while deleting cable');
+      loadPresets(); // Reload everything as fallback
+    } finally {
+      setLoading(false);
+    }
+  }, [presets, selectedPreset, loadPresets]);
 
   const value = useMemo(() => ({
     presets,
     selectedPreset,
+    loading,
+    error,
     setSelectedPreset,
     loadPresets,
-  }), [presets, selectedPreset, loadPresets]);
+    addPreset,
+    updatePreset,
+    deletePreset,
+    addCableToPreset,
+    editCable,
+    deleteCableFromPreset,
+  }), [
+    presets,
+    selectedPreset,
+    loading,
+    error,
+    loadPresets,
+    addPreset,
+    updatePreset,
+    deletePreset,
+    addCableToPreset,
+    editCable,
+    deleteCableFromPreset,
+  ]);
 
   return (
     <PresetContext.Provider value={value}>

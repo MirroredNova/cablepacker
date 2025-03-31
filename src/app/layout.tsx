@@ -1,15 +1,24 @@
 import './globals.css';
+
 import { Roboto } from 'next/font/google';
 import React from 'react';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
+import type { Metadata } from 'next';
 import PresetProvider from '@/components/providers/PresetProvider';
 import { ResultProvider } from '@/components/providers/ResultProvider';
 import TableProvider from '@/components/providers/TableProvider';
 import Logo from '@/components/ui/Logo';
-import theme from '../theme';
+import theme from '@/theme';
+
+export const metadata: Metadata = {
+  title: {
+    default: 'Cable Packer',
+    template: '%s | Cable Packer',
+  },
+};
 
 const roboto = Roboto({
   weight: ['300', '400', '500', '700'],

@@ -1,4 +1,4 @@
-import { Point } from '@/types/algorithm';
+import { Point } from '@/types/algorithm.types';
 
 const FLOAT64_EQUALITY_THRESHOLD = 1e-9;
 

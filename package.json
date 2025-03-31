@@ -18,10 +18,12 @@
     "@mui/material": "^6.3.0",
     "@mui/material-nextjs": "^6.3.0",
     "@mui/system": "^6.3.1",
-    "d3": "^7.9.0",
+    "jose": "^6.0.10",
+    "nanoid": "^5.1.5",
     "next": "15.1.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "snowflake-sdk": "^2.0.3",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

@@ -13,8 +13,10 @@ export type Point = {
 };
 
 export type BoreResult = {
+  id: string;
   bore: Circle;
   cables: Circle[];
+  createdAt: string;
 };
 
 export type ApiError = {

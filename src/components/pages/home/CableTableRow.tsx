@@ -1,74 +1,102 @@
-import React, { useMemo } from 'react';
+'use client';
+
+import React, { useMemo, useContext } from 'react';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import Autocomplete from '@mui/material/Autocomplete';
 import IconButton from '@mui/material/IconButton';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
-import { TableRowData } from '@/types/table';
-import { Cable } from '@/types/cables';
+import Box from '@mui/material/Box';
+import { TableRowData } from '@/types/table.types';
 import useTable from '@/hooks/useTable';
-import usePreset from '@/hooks/usePreset';
 import { getMaxDiameter } from '@/config';
 import EnhancedNumberInput from '@/components/shared/NumberInput';
+import { Cable } from '@/types/domain.types';
+import { PresetContext } from '@/components/providers/PresetProvider';
 
 type Props = {
   row: TableRowData;
 };
 
 export default function CableTableRow({ row }: Props) {
-  const { selectedPreset } = usePreset();
+  const { selectedPreset, loading } = useContext(PresetContext)!;
   const { updateRow, deleteRow } = useTable();
 
   const isPresetCable = useMemo(() => row.selectedCable !== 'custom', [row.selectedCable]);
 
   const options = useMemo(() => {
-    const customOption = { id: 'custom', name: 'Custom', diameter: row.customDiameter || 1 };
-    return selectedPreset?.cables ? [customOption, ...selectedPreset.cables] : [customOption];
+    const customOption = {
+      id: -1, // Use a unique negative number to represent the custom option
+      name: 'Custom',
+      diameter: row.customDiameter || 1,
+      presetId: 0,
+      category: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    if (!selectedPreset?.cables?.length) {
+      return [customOption];
+    }
+
+    return [customOption, ...selectedPreset.cables];
   }, [selectedPreset?.cables, row.customDiameter]);
 
   const handleNameChange = (_event: React.SyntheticEvent<Element, Event>, value: Cable | null) => {
-    if (value?.id === 'custom') {
+    if (!value) return;
+
+    if (value.id === -1) {
       updateRow(row.id, {
         selectedCable: 'custom',
         customName: row.customName || 'Custom',
         customDiameter: row.customDiameter || 1,
       });
-    } else if (value) {
+    } else {
       updateRow(row.id, {
         selectedCable: value,
       });
     }
   };
 
-  const getDiameterDisplay = (): string | number => {
+  const getDiameterDisplay = (): string => {
     if (isPresetCable) {
-      return (row.selectedCable as Cable).diameter;
+      return `${(row.selectedCable as Cable).diameter.toFixed(2)} in`;
     }
-    return row.customDiameter ?? 1;
+    return `${(row.customDiameter ?? 1).toFixed(2)} in`;
   };
 
   return (
     <TableRow>
-      <TableCell sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
-        <Autocomplete
-          value={isPresetCable ? (row.selectedCable as Cable) : options[0]}
-          options={options}
-          getOptionLabel={(option) => option.name}
-          onChange={(event, value) => handleNameChange(event, value)}
-          fullWidth
-          size="small"
-          renderInput={(params) => <TextField {...params} label="Cable Type" />}
-        />
-        {row.selectedCable === 'custom' && (
-          <TextField
+      <TableCell sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Box
+          display="flex"
+          flexDirection="row"
+          gap={1}
+          width="100%"
+        >
+          <Autocomplete
+            value={isPresetCable ? (row.selectedCable as Cable) : options[0]}
+            options={options}
+            getOptionLabel={(option) => option.name}
+            onChange={handleNameChange}
             fullWidth
             size="small"
-            label="Custom Name"
-            value={row.customName}
-            onChange={(e) => updateRow(row.id, { customName: e.target.value })}
+            disabled={loading}
+            renderInput={(params) => <TextField {...params} label="Cable Type" />}
           />
-        )}
+
+          {row.selectedCable === 'custom' && (
+            <TextField
+              fullWidth
+              size="small"
+              label="Custom Name"
+              value={row.customName}
+              onChange={(e) => updateRow(row.id, { customName: e.target.value })}
+              disabled={loading}
+            />
+          )}
+        </Box>
       </TableCell>
       <TableCell>
         {!isPresetCable ? (

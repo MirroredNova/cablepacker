@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from 'react';
 import Navigation from '@/components/ui/Navigation';
 
-const layout = ({ children }: PropsWithChildren) => <Navigation>{children}</Navigation>;
-
-export default layout;
+export default function HomeLayout({ children }: PropsWithChildren) {
+  return <Navigation>{children}</Navigation>;
+}

@@ -1,13 +1,13 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Circle } from '@/types/algorithm';
+import { BoreResult } from '@/types/algorithm.types';
 
 type Props = {
-  bore: Circle;
+  result: BoreResult;
 };
 
-function ResultsInformation({ bore }: Props) {
+function ResultsInformation({ result }: Props) {
   return (
     <Box display="flex" flexDirection="column" gap={1} width={300}>
       <Typography variant="h5">Results Information</Typography>
@@ -16,21 +16,21 @@ function ResultsInformation({ bore }: Props) {
           Result ID:
         </Box>
         {' '}
-        TEMPTESTID
+        {result.id}
       </Typography>
       <Typography variant="body1">
         <Box component="span" fontWeight="bold">
           Generated at:
         </Box>
         {' '}
-        {new Date().toLocaleString()}
+        {new Date(result.createdAt).toLocaleString(undefined, { timeZoneName: 'short' })}
       </Typography>
       <Typography variant="body1">
         <Box component="span" fontWeight="bold">
           Minimum Bore Diameter:
         </Box>
         {' '}
-        {(bore.radius * 2).toFixed(3)}
+        {(result.bore.radius * 2).toFixed(3)}
         in
       </Typography>
     </Box>

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Box from '@mui/material/Box';
-import { Circle } from '@/types/algorithm';
+import { Circle } from '@/types/algorithm.types';
 
 const strokeWidth = 0.01;
 const padding = 0.01;

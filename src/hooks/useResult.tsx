@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { ResultContext } from '@/components/providers/ResultProvider';
 
-export function useResult() {
+export default function useResult() {
   const context = useContext(ResultContext);
   if (context === undefined) {
     throw new Error('useResult must be used within a ResultProvider');

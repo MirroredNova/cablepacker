@@ -5,7 +5,7 @@ import CableBoreGenerationPanel from '@/components/pages/home/CableBoreTable';
 import HeaderForm from '@/components/pages/home/HeaderForm';
 import GenerateBoreButton from '@/components/pages/home/GenerateBoreButton';
 import ResultsArea from '@/components/pages/home/ResultsArea';
-import CableTableAlert from './CableTableAlert';
+import CableBoreTableAlert from './CableBoreTableAlert';
 
 function HomePage() {
   return (
@@ -14,7 +14,7 @@ function HomePage() {
         <HeaderForm />
       </Stack>
       <CableBoreGenerationPanel />
-      <CableTableAlert />
+      <CableBoreTableAlert />
       <Box display="flex" justifyContent="flex-end" mt={2}>
         <GenerateBoreButton />
       </Box>

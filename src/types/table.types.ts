@@ -1,4 +1,4 @@
-import { Cable } from './cables';
+import { Cable } from '@/types/domain.types';
 
 export type TableError = {
   message: string;

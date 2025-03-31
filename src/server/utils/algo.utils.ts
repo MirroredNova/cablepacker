@@ -1,5 +1,5 @@
-import { Circle } from '@/types/algorithm';
-import { almostEqual, polarToCartesian, getDistanceBetweenPoints } from './math';
+import { Circle } from '@/types/algorithm.types';
+import { almostEqual, polarToCartesian, getDistanceBetweenPoints } from './math.utils';
 
 const MAX_ITERATIONS = 100;
 const RADIUS_STEP_SIZE = 0.01;
@@ -151,13 +151,6 @@ export function findOptimalEncloseSize(circles: Circle[]): {
     circles: validPacking,
     enclose,
   };
-}
-
-export function handleSingleCircleCase(singleCircle: Circle): Circle {
-  const circleCopy = { ...singleCircle, coordinates: { ...singleCircle.coordinates } };
-  circleCopy.coordinates.x = 0;
-  circleCopy.coordinates.y = 0;
-  return createEnclose(circleCopy.diameter, circleCopy.radius);
 }
 
 export function calculateMinimumEncloseForCircles(circles: Circle[]): {
