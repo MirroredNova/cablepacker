@@ -13,6 +13,7 @@ export const ensureResultsTableAction = async () => {
         ID VARCHAR(12) PRIMARY KEY,
         INPUT_CABLES VARIANT NOT NULL,
         RESULT_DATA VARIANT NOT NULL,
+        SELECTED_PRESET_ID NUMBER,
         CABLE_COUNT INT NOT NULL,
         BORE_DIAMETER FLOAT NOT NULL,
         CREATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
@@ -25,7 +26,7 @@ export const ensureResultsTableAction = async () => {
   }
 };
 
-export async function saveResultAction(input: CreateResult): Promise<{
+export async function saveResultAction(input: CreateResult, selectedPresetId: number | null): Promise<{
   success: boolean;
   resultId?: string;
   error?: string;
@@ -36,11 +37,12 @@ export async function saveResultAction(input: CreateResult): Promise<{
     await executeQuery(
       `
       INSERT INTO RESULTS
-      (ID, INPUT_CABLES, RESULT_DATA, CABLE_COUNT, BORE_DIAMETER, CREATED_AT)
+      (ID, INPUT_CABLES, RESULT_DATA, SELECTED_PRESET_ID, CABLE_COUNT, BORE_DIAMETER, CREATED_AT)
       SELECT
         ?,
         PARSE_JSON(?),
         PARSE_JSON(?),
+        ?,
         ?,
         ?,
         ?
@@ -49,6 +51,7 @@ export async function saveResultAction(input: CreateResult): Promise<{
         input.resultData.id,
         JSON.stringify(input.inputCables),
         JSON.stringify(input.resultData),
+        selectedPresetId,
         metadata.cableCount,
         metadata.boreDiameter,
         input.resultData.createdAt,

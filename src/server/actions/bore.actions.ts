@@ -9,7 +9,10 @@ import { ApiResponse } from '@/types/algorithm.types';
 import { CreateResult } from '@/types/domain.types';
 import { TableRowData } from '@/types/table.types';
 
-export async function generateBoreAction(cables: TableRowData[]): Promise<ApiResponse> {
+export async function generateBoreAction(
+  cables: TableRowData[],
+  selectedPresetId: number | null,
+): Promise<ApiResponse> {
   try {
     if (!cables || cables.length === 0) {
       throw new RangeError('No cables entered.');
@@ -37,7 +40,7 @@ export async function generateBoreAction(cables: TableRowData[]): Promise<ApiRes
     };
 
     // Save the result to the database
-    const res = await saveResultAction(result);
+    const res = await saveResultAction(result, selectedPresetId);
 
     if (!res.success) {
       throw new Error('Failed to save the result.');

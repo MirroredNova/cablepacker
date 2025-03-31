@@ -1,6 +1,6 @@
 import { getMaxDiameter } from '@/config';
 import { Circle } from '@/types/algorithm.types';
-import { Cable } from '@/types/cables.types';
+import { Cable } from '@/types/domain.types';
 import { TableRowData } from '@/types/table.types';
 
 export function mapCablesToCircles(cables: TableRowData[]): Circle[] {

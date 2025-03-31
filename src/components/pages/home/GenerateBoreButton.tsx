@@ -1,29 +1,28 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Button from '@mui/material/Button';
 import React, { useState } from 'react';
 import { CircularProgress } from '@mui/material';
-import Button from '@mui/material/Button';
-import useResult from '@/hooks/useResult';
+import { useRouter } from 'next/navigation';
 import useTable from '@/hooks/useTable';
 import { generateBoreAction } from '@/server/actions/bore.actions';
+import usePreset from '@/hooks/usePreset';
 
 function GenerateBoreButton() {
-  const { tableData, setError } = useTable();
-  const { setResult } = useResult();
   const router = useRouter();
+  const { selectedPreset } = usePreset();
+  const { tableData, setError } = useTable();
   const [loading, setLoading] = useState(false);
 
   const handleGenerateBore = async () => {
     try {
       setLoading(true);
-      const result = await generateBoreAction(tableData);
+      setError(null);
+      const result = await generateBoreAction(tableData, selectedPreset ? selectedPreset.id : null);
 
       if (result.success && result.data) {
-        setResult(result.data);
-
         if (result.data.id) {
-          router.replace(`/${result.data.id}`);
+          router.push(`/${result.data.id}`);
         }
       } else if (!result.success && result.error) {
         setError({ message: result.error.message });

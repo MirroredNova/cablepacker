@@ -1,6 +1,5 @@
 import './globals.css';
 
-import { Roboto } from 'next/font/google';
 import React from 'react';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import Box from '@mui/material/Box';
@@ -20,13 +19,6 @@ export const metadata: Metadata = {
   },
 };
 
-const roboto = Roboto({
-  weight: ['300', '400', '500', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-roboto',
-});
-
 type Props = Readonly<{
   children: React.ReactNode;
 }>;
@@ -34,7 +26,7 @@ type Props = Readonly<{
 export default function RootLayout({ children }: Props) {
   return (
     <html lang="en">
-      <body className={`${roboto.variable} h-screen`}>
+      <body className="h-screen">
         <StyledEngineProvider injectFirst>
           <AppRouterCacheProvider>
             <ThemeProvider theme={theme}>

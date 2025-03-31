@@ -44,6 +44,7 @@ export function ResultProvider({ children }: PropsWithChildren) {
   const fetchResult = useCallback(async (id: string): Promise<boolean> => {
     if (!id?.trim()) return false;
 
+    setResult(null);
     setLoading(true);
 
     try {
