@@ -1,2 +1,7 @@
+export const DEFAULT_MAX_ITERATIONS = 100;
+export const DEFAULT_RADIUS_STEP_SIZE = 0.01;
+export const DEFAULT_ANGLE_STEP_SIZE = 0.1;
+export const DEFAULT_MIN_ENCLOSE_STEP_SIZE = 0.001;
+
 export const DEFAULT_MAX_DIAMETER = 50;
 export const DEFAULT_MAX_CIRCLES = 20;

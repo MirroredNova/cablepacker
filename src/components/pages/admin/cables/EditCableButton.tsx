@@ -1,19 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
+import EditIcon from '@mui/icons-material/Edit';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import EditIcon from '@mui/icons-material/Edit';
-import EnhancedNumberInput from '@/components/shared/NumberInput';
-import useAdmin from '@/hooks/useAdmin';
-import usePreset from '@/hooks/usePreset';
 import { Cable, UpdateCableInput } from '@/types/domain.types';
+import usePreset from '@/hooks/usePreset';
+import useAdmin from '@/hooks/useAdmin';
+import EnhancedNumberInput from '@/components/shared/NumberInput';
 
 type Props = {
   cable: Cable

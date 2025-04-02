@@ -1,14 +1,14 @@
 'use client';
 
 import React from 'react';
-import ListItem from '@mui/material/ListItem';
 import Box from '@mui/material/Box';
+import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
-import usePreset from '@/hooks/usePreset';
-import EditPresetButton from './EditPresetButton';
-import DeletePresetButton from './DeletePresetButton';
+import DeletePresetButton from '@/components/pages/admin/presets/DeletePresetButton';
+import EditPresetButton from '@/components/pages/admin/presets/EditPresetButton';
 import useAdmin from '@/hooks/useAdmin';
+import usePreset from '@/hooks/usePreset';
 
 function PresetsTable() {
   const { presets } = usePreset();

@@ -1,10 +1,6 @@
 import 'server-only';
 import { SignJWT, jwtVerify } from 'jose';
-
-type SessionPayload = {
-  username: string;
-  expiresAt: Date;
-};
+import { SessionPayload } from '@/types/auth.types';
 
 const secretKey = process.env.SESSION_SECRET;
 const encodedKey = new TextEncoder().encode(secretKey);

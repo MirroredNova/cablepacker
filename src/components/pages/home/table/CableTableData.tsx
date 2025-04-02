@@ -4,9 +4,9 @@ import React from 'react';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import useTable from '@/hooks/useTable';
-import CableTableRow from '@/components/pages/home/CableTableRow';
+import CableTableRow from '@/components/pages/home/table/CableTableRow';
 
-function CableBoreTableData() {
+function CableTableData() {
   const { tableData } = useTable();
 
   return tableData.length === 0 ? (
@@ -20,4 +20,4 @@ function CableBoreTableData() {
   );
 }
 
-export default CableBoreTableData;
+export default CableTableData;

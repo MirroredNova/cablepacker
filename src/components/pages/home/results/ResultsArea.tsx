@@ -4,15 +4,15 @@ import React from 'react';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
-import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useParams } from 'next/navigation';
-import ResultsActions from '@/components/pages/home/ResultsActions';
-import ResultsCables from '@/components/pages/home/ResultsCables';
-import ResultsGraphic from '@/components/pages/home/ResultsGraphic';
-import ResultsInformation from '@/components/pages/home/ResultsInformation';
+import ResultsActions from '@/components/pages/home/results/ResultsActions';
+import ResultsCables from '@/components/pages/home/results/ResultsCables';
+import ResultsGraphic from '@/components/pages/home/results/ResultsGraphic';
+import ResultsInformation from '@/components/pages/home/results/ResultsInformation';
 import useResult from '@/hooks/useResult';
+import Spinner from '@/components/shared/Spinner';
 
 function ResultsArea() {
   const {
@@ -25,7 +25,7 @@ function ResultsArea() {
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-        <CircularProgress />
+        <Spinner />
       </Box>
     );
   }
@@ -54,15 +54,19 @@ function ResultsArea() {
     );
   }
 
-  // Result exists, show the visualization
   return result && (
     <Stack spacing={2}>
       <Divider />
       <ResultsActions resultId={result.id} />
       <Stack direction="row" spacing={2}>
-        {result.cables.length > 0 && <ResultsGraphic bore={result.bore} data={result.cables} />}
+        {result.resultData.cables.length > 0 && (
+          <ResultsGraphic
+            bore={result.resultData.bore}
+            data={result.resultData.cables}
+          />
+        )}
         <ResultsInformation result={result} />
-        <ResultsCables cables={result.cables} />
+        <ResultsCables cables={result.resultData.cables} />
       </Stack>
     </Stack>
   );

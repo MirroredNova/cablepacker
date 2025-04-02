@@ -2,19 +2,21 @@
 
 import { useParams, usePathname } from 'next/navigation';
 import React, {
-  createContext, PropsWithChildren, useCallback, useEffect, useMemo, useState,
+  createContext, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState,
 } from 'react';
+import usePreset from '@/hooks/usePreset';
 import useTable from '@/hooks/useTable';
 import { getResultByIdAction } from '@/server/actions/results.actions';
-import { BoreResult } from '@/types/algorithm.types';
-import { TableRowData } from '@/types/table.types';
+import { Result } from '@/types/domain.types';
 
 type ResultContextType = {
-  result: BoreResult | null;
+  result: Result | null;
   loading: boolean;
   error: string | null;
   resultId: string | null;
-  setResult: (result: BoreResult | null) => void;
+  setResult: (result: Result | null, navigate?: boolean) => void;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
   fetchResult: (id: string) => Promise<boolean>;
   resetResult: () => void;
 };
@@ -23,38 +25,89 @@ export const ResultContext = createContext<ResultContextType | undefined>(undefi
 
 export function ResultProvider({ children }: PropsWithChildren) {
   // State management
-  const [result, setResult] = useState<BoreResult | null>(null);
+  const [result, setResultState] = useState<Result | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Refs for managing side effects
+  const justSetResultRef = useRef(false);
+  const pendingPresetIdRef = useRef<number | null>(null);
+
   // External hooks
+  const {
+    presets, setSelectedPreset, resetPresets, presetsLoaded,
+  } = usePreset();
   const { setTableData, resetTableData } = useTable();
   const params = useParams<{ resultId?: string }>();
   const pathname = usePathname();
   const resultId = params?.resultId || null;
 
-  // Reset both result and table data
+  // Handle preset selection with loading state awareness
+  const safeSetSelectedPreset = useCallback((presetId: number | null) => {
+    if (!presetId) {
+      setSelectedPreset(null);
+      return;
+    }
+
+    if (presetsLoaded) {
+      const preset = presets.find((p) => p.id === presetId);
+      setSelectedPreset(preset || null);
+    } else {
+      pendingPresetIdRef.current = presetId;
+    }
+  }, [presets, presetsLoaded, setSelectedPreset]);
+
+  // Set result with optional navigation
+  const setResult = useCallback((newResult: Result | null, navigate = false) => {
+    setResultState(newResult);
+
+    if (newResult) {
+      justSetResultRef.current = true;
+
+      if (newResult.selectedPresetId) {
+        safeSetSelectedPreset(newResult.selectedPresetId);
+      }
+
+      if (newResult.inputCables) {
+        setTableData(newResult.inputCables);
+      }
+
+      if (navigate) {
+        if (newResult?.id) {
+          window.history.replaceState(
+            { resultId: newResult.id },
+            '',
+            `/${newResult.id}`,
+          );
+        }
+      }
+    }
+  }, [safeSetSelectedPreset, setTableData]);
+
+  // Reset all state
   const resetResult = useCallback(() => {
-    setResult(null);
+    setResultState(null);
     setError(null);
     resetTableData();
-  }, [resetTableData]);
+    resetPresets();
+    justSetResultRef.current = false;
+    pendingPresetIdRef.current = null;
+  }, [resetPresets, resetTableData]);
 
-  // Fetch a result by ID
+  // Fetch result by ID
   const fetchResult = useCallback(async (id: string): Promise<boolean> => {
     if (!id?.trim()) return false;
 
-    setResult(null);
     setLoading(true);
 
     try {
       const response = await getResultByIdAction(id.trim());
 
-      if (response.success && response.result) {
-        setResult(response.result.resultData as BoreResult);
-        setTableData(response.result.inputCables as TableRowData[] || []);
+      if (response.success && response.data) {
+        setResult(response.data);
         return true;
       }
+
       setError(response.error || 'Failed to load result');
       return false;
     } catch (err: any) {
@@ -63,27 +116,48 @@ export function ResultProvider({ children }: PropsWithChildren) {
     } finally {
       setLoading(false);
     }
-  }, [setTableData]);
+  }, [setResult]);
+
+  // Apply pending preset when presets load
+  useEffect(() => {
+    if (presetsLoaded && pendingPresetIdRef.current) {
+      const presetToApply = presets.find((preset) => preset.id === pendingPresetIdRef.current);
+      if (presetToApply) {
+        setSelectedPreset(presetToApply);
+      }
+      pendingPresetIdRef.current = null;
+    }
+  }, [presets, presetsLoaded, setSelectedPreset]);
 
   // Auto-fetch on route change
   useEffect(() => {
+    if (resultId && result?.id === resultId) {
+      return; // Already have this result
+    }
+
+    if (resultId && justSetResultRef.current) {
+      justSetResultRef.current = false;
+      return; // Just set the result manually
+    }
+
     if (resultId) {
       fetchResult(resultId);
     } else if (pathname === '/') {
       resetResult();
     }
-  }, [resultId, pathname, fetchResult, resetResult]);
+  }, [resultId, pathname, fetchResult, resetResult, result?.id]);
 
-  // Create context value
   const value = useMemo(() => ({
     result,
     loading,
     error,
     resultId,
     setResult,
+    setLoading,
+    setError,
     fetchResult,
     resetResult,
-  }), [result, loading, error, resultId, fetchResult, resetResult]);
+  }), [error, fetchResult, loading, resetResult, result, resultId, setResult]);
 
   return (
     <ResultContext.Provider value={value}>

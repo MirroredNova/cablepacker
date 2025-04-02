@@ -5,7 +5,7 @@ import Alert from '@mui/material/Alert';
 import Typography from '@mui/material/Typography';
 import useTable from '@/hooks/useTable';
 
-function CableBoreTableAlert() {
+function CableTableAlert() {
   const { error, setError } = useTable();
 
   useEffect(() => {
@@ -30,4 +30,4 @@ function CableBoreTableAlert() {
   );
 }
 
-export default CableBoreTableAlert;
+export default CableTableAlert;

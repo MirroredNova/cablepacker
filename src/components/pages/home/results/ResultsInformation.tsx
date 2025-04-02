@@ -1,10 +1,10 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { BoreResult } from '@/types/algorithm.types';
+import { Result } from '@/types/domain.types';
 
 type Props = {
-  result: BoreResult;
+  result: Result;
 };
 
 function ResultsInformation({ result }: Props) {
@@ -30,7 +30,7 @@ function ResultsInformation({ result }: Props) {
           Minimum Bore Diameter:
         </Box>
         {' '}
-        {(result.bore.radius * 2).toFixed(3)}
+        {(result.boreDiameter).toFixed(3)}
         in
       </Typography>
     </Box>

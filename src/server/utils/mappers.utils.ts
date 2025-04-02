@@ -34,6 +34,7 @@ export function mapDBResultToSavedResult(result: DBResult): Result {
     id: result.ID,
     inputCables: result.INPUT_CABLES,
     resultData: result.RESULT_DATA,
+    selectedPresetId: result.SELECTED_PRESET_ID,
     cableCount: result.CABLE_COUNT,
     boreDiameter: result.BORE_DIAMETER,
     createdAt: new Date(result.CREATED_AT),

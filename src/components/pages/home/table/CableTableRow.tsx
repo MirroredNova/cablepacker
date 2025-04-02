@@ -1,18 +1,18 @@
 'use client';
 
-import React, { useMemo, useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import Autocomplete from '@mui/material/Autocomplete';
+import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
-import Box from '@mui/material/Box';
 import { TableRowData } from '@/types/table.types';
+import { Cable } from '@/types/domain.types';
 import useTable from '@/hooks/useTable';
 import { getMaxDiameter } from '@/config';
 import EnhancedNumberInput from '@/components/shared/NumberInput';
-import { Cable } from '@/types/domain.types';
 import { PresetContext } from '@/components/providers/PresetProvider';
 
 type Props = {
@@ -83,7 +83,9 @@ export default function CableTableRow({ row }: Props) {
             fullWidth
             size="small"
             disabled={loading}
-            renderInput={(params) => <TextField {...params} label="Cable Type" />}
+            renderInput={(params) => (
+              <TextField {...params} label="Cable" slotProps={{ inputLabel: { shrink: true } }} />
+            )}
           />
 
           {row.selectedCable === 'custom' && (

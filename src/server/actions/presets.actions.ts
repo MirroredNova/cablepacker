@@ -3,9 +3,11 @@
 import { executeQuery } from '@/server/db/snowflake.db';
 import { mapDBPresetToDomain, mapPresetWithCables } from '@/server/utils/mappers.utils';
 import { DBPreset, DBCable } from '@/types/database.types';
-import { Preset, CreatePresetInput, UpdatePresetInput } from '@/types/domain.types';
+import {
+  Preset, CreatePresetInput, UpdatePresetInput, ApiResponse,
+} from '@/types/domain.types';
 
-export async function ensurePresetTableAction() {
+export async function ensurePresetTableAction(): Promise<ApiResponse<null>> {
   try {
     await executeQuery(`
       CREATE TABLE IF NOT EXISTS PRESETS (
@@ -21,11 +23,7 @@ export async function ensurePresetTableAction() {
   }
 }
 
-export async function createPresetAction(input: CreatePresetInput): Promise<{
-  success: boolean;
-  preset?: Preset;
-  error?: string
-}> {
+export async function createPresetAction(input: CreatePresetInput): Promise<ApiResponse<Preset>> {
   try {
     // Start a transaction
     await executeQuery('BEGIN TRANSACTION');
@@ -60,7 +58,7 @@ export async function createPresetAction(input: CreatePresetInput): Promise<{
 
     return {
       success: true,
-      preset: mapDBPresetToDomain(results.rows[0]),
+      data: mapDBPresetToDomain(results.rows[0]),
     };
   } catch (error: any) {
     // Ensure we roll back the transaction on error
@@ -75,29 +73,7 @@ export async function createPresetAction(input: CreatePresetInput): Promise<{
   }
 }
 
-export async function getPresetsAction(): Promise<{
-  success: boolean;
-  presets?: Preset[];
-  error?: string;
-}> {
-  try {
-    const results = await executeQuery<DBPreset>('SELECT * FROM PRESETS ORDER BY NAME');
-
-    return {
-      success: true,
-      presets: results.rows.map(mapDBPresetToDomain),
-    };
-  } catch (error: any) {
-    console.error('Error fetching presets:', error);
-    return { success: false, error: error.message };
-  }
-}
-
-export async function getAllPresetsWithCablesAction(): Promise<{
-  success: boolean;
-  presets?: Preset[];
-  error?: string;
-}> {
+export async function getAllPresetsWithCablesAction(): Promise<ApiResponse<Preset[]>> {
   try {
     // Get all presets
     const presetResults = await executeQuery<DBPreset>('SELECT * FROM PRESETS ORDER BY NAME');
@@ -106,7 +82,7 @@ export async function getAllPresetsWithCablesAction(): Promise<{
       // Early return if there are no presets
       return {
         success: true,
-        presets: [],
+        data: [],
       };
     }
 
@@ -135,7 +111,7 @@ export async function getAllPresetsWithCablesAction(): Promise<{
 
     return {
       success: true,
-      presets: presetsWithCables,
+      data: presetsWithCables,
     };
   } catch (error: any) {
     console.error('Error fetching all presets with cables:', error);
@@ -143,47 +119,7 @@ export async function getAllPresetsWithCablesAction(): Promise<{
   }
 }
 
-export async function getPresetWithCablesAction(presetId: number): Promise<{
-  success: boolean;
-  preset?: Preset;
-  error?: string;
-}> {
-  try {
-    // Get preset details
-    const presetResults = await executeQuery<DBPreset>(
-      'SELECT * FROM PRESETS WHERE ID = ?',
-      [presetId],
-    );
-
-    if (presetResults.rows.length === 0) {
-      return { success: false, error: `Preset with ID ${presetId} not found` };
-    }
-
-    // Get cables for this preset
-    const cablesResults = await executeQuery<DBCable>(
-      'SELECT * FROM CABLES WHERE PRESET_ID = ? ORDER BY NAME',
-      [presetId],
-    );
-
-    // Combine preset with its cables
-    return {
-      success: true,
-      preset: mapPresetWithCables(presetResults.rows[0], cablesResults.rows),
-    };
-  } catch (error: any) {
-    console.error(`Error fetching preset ${presetId} with cables:`, error);
-    return { success: false, error: error.message };
-  }
-}
-
-export async function updatePresetAction(
-  presetId: number,
-  updates: UpdatePresetInput,
-): Promise<{
-    success: boolean;
-    preset?: Preset;
-    error?: string;
-  }> {
+export async function updatePresetAction(presetId: number, updates: UpdatePresetInput): Promise<ApiResponse<Preset>> {
   try {
     if (!updates.name) {
       return { success: false, error: 'No update fields provided' };
@@ -219,7 +155,7 @@ export async function updatePresetAction(
 
     return {
       success: true,
-      preset: mapDBPresetToDomain(results.rows[0]),
+      data: mapDBPresetToDomain(results.rows[0]),
     };
   } catch (error: any) {
     try {
@@ -233,10 +169,7 @@ export async function updatePresetAction(
   }
 }
 
-export async function deletePresetAction(presetId: number): Promise<{
-  success: boolean;
-  error?: string;
-}> {
+export async function deletePresetAction(presetId: number): Promise<ApiResponse<null>> {
   try {
     // First verify the preset exists
     const checkResult = await executeQuery<DBPreset>(

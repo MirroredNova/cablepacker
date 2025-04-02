@@ -1,16 +1,16 @@
+import Link from 'next/link';
 import React from 'react';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import Link from 'next/link';
-import AddPresetButton from './AddPresetButton';
-import AddCableButton from './AddCableButton';
-import SelectedPresetHeader from './SelectedPresetHeader';
-import PresetsTable from './PresetsTable';
-import CableTable from './CableTable';
+import AddCableButton from '@/components/pages/admin/cables/AddCableButton';
+import CableTable from '@/components/pages/admin/cables/CableTable';
+import AddPresetButton from '@/components/pages/admin/presets/AddPresetButton';
+import PresetsTable from '@/components/pages/admin/presets/PresetsTable';
+import SelectedPresetHeader from '@/components/pages/admin/presets/SelectedPresetHeader';
 import { logoutAction } from '@/server/actions/admin.actions';
 
 function AdminDashboard() {
@@ -28,8 +28,8 @@ function AdminDashboard() {
         </Stack>
       </Stack>
 
+      {/* Left side - Preset List */}
       <Box sx={{ display: 'flex', gap: 4 }}>
-        {/* Left side - Preset List */}
         <Box
           sx={{
             width: 300,

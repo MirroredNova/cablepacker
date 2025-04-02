@@ -3,9 +3,11 @@
 import { executeQuery } from '@/server/db/snowflake.db';
 import { mapDBCableToDomain } from '@/server/utils/mappers.utils';
 import { DBCable } from '@/types/database.types';
-import { Cable, CreateCableInput, UpdateCableInput } from '@/types/domain.types';
+import {
+  ApiResponse, Cable, CreateCableInput, UpdateCableInput,
+} from '@/types/domain.types';
 
-export async function endureCableTableAction() {
+export async function endureCableTableAction(): Promise<ApiResponse<null>> {
   try {
     await executeQuery(`
       CREATE TABLE IF NOT EXISTS CABLES (
@@ -25,11 +27,7 @@ export async function endureCableTableAction() {
   }
 }
 
-export async function createCableAction(input: CreateCableInput): Promise<{
-  success: boolean;
-  cable?: Cable;
-  error?: string
-}> {
+export async function createCableAction(input: CreateCableInput): Promise<ApiResponse<Cable>> {
   try {
     const {
       presetId, name, diameter, category,
@@ -68,7 +66,7 @@ export async function createCableAction(input: CreateCableInput): Promise<{
 
     return {
       success: true,
-      cable: mapDBCableToDomain(results.rows[0]),
+      data: mapDBCableToDomain(results.rows[0]),
     };
   } catch (error: any) {
     // Ensure we roll back the transaction on error
@@ -83,35 +81,7 @@ export async function createCableAction(input: CreateCableInput): Promise<{
   }
 }
 
-export async function getCablesByPresetIdAction(presetId: number): Promise<{
-  success: boolean;
-  cables?: Cable[];
-  error?: string;
-}> {
-  try {
-    const results = await executeQuery<DBCable>(
-      'SELECT * FROM CABLES WHERE PRESET_ID = ? ORDER BY NAME',
-      [presetId],
-    );
-
-    return {
-      success: true,
-      cables: results.rows.map(mapDBCableToDomain),
-    };
-  } catch (error: any) {
-    console.error(`Error fetching cables for preset ${presetId}:`, error);
-    return { success: false, error: error.message };
-  }
-}
-
-export async function updateCableAction(
-  cableId: number,
-  updates: UpdateCableInput,
-): Promise<{
-    success: boolean;
-    cable?: Cable;
-    error?: string;
-  }> {
+export async function updateCableAction(cableId: number, updates: UpdateCableInput): Promise<ApiResponse<Cable>> {
   try {
     const updateFields: string[] = [];
     const values: any[] = [];
@@ -167,7 +137,7 @@ export async function updateCableAction(
 
     return {
       success: true,
-      cable: mapDBCableToDomain(results.rows[0]),
+      data: mapDBCableToDomain(results.rows[0]),
     };
   } catch (error: any) {
     // Ensure we roll back the transaction on error
@@ -182,10 +152,7 @@ export async function updateCableAction(
   }
 }
 
-export async function deleteCableAction(cableId: number): Promise<{
-  success: boolean;
-  error?: string;
-}> {
+export async function deleteCableAction(cableId: number): Promise<ApiResponse<null>> {
   try {
     // First verify the cable exists
     const checkResult = await executeQuery<{ ID: number }>(

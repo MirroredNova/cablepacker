@@ -22,6 +22,7 @@ export interface DBResult {
   ID: string;
   INPUT_CABLES: TableRowData[];
   RESULT_DATA: BoreResult;
+  SELECTED_PRESET_ID: number | null;
   CABLE_COUNT: number;
   BORE_DIAMETER: number;
   CREATED_AT: string;

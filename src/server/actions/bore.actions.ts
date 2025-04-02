@@ -5,14 +5,13 @@ import { saveResultAction } from '@/server/actions/results.actions';
 import { calculateMinimumEncloseForCircles } from '@/server/utils/algo.utils';
 import { assignColorsToCircles, mapCablesToCircles } from '@/server/utils/circles.utils';
 import { generateResultId } from '@/server/utils/result.utils';
-import { ApiResponse } from '@/types/algorithm.types';
-import { CreateResult } from '@/types/domain.types';
+import { ApiResponse, CreateResult, Result } from '@/types/domain.types';
 import { TableRowData } from '@/types/table.types';
 
 export async function generateBoreAction(
   cables: TableRowData[],
   selectedPresetId: number | null,
-): Promise<ApiResponse> {
+): Promise<ApiResponse<Result>> {
   try {
     if (!cables || cables.length === 0) {
       throw new RangeError('No cables entered.');
@@ -30,42 +29,32 @@ export async function generateBoreAction(
     const arrangedCables = assignColorsToCircles(circles);
 
     const result: CreateResult = {
+      id,
       inputCables: cables,
       resultData: {
-        id,
         bore: enclose,
         cables: arrangedCables,
-        createdAt: new Date().toISOString(),
       },
+      selectedPresetId,
+      cableCount: circleList.length,
+      boreDiameter: enclose.diameter,
+      createdAt: new Date(),
     };
 
-    // Save the result to the database
-    const res = await saveResultAction(result, selectedPresetId);
+    const res = await saveResultAction(result);
 
     if (!res.success) {
       throw new Error('Failed to save the result.');
     } else {
       return {
         success: true,
-        data: result.resultData,
+        data: result,
       };
     }
-  } catch (error: unknown) {
-    if (error instanceof RangeError) {
-      return {
-        success: false,
-        error: {
-          code: 422,
-          message: error.message,
-        },
-      };
-    }
+  } catch (error: any) {
     return {
       success: false,
-      error: {
-        code: 500,
-        message: 'Internal server error.',
-      },
+      error: error.message,
     };
   }
 }

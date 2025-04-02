@@ -1,8 +1,9 @@
 import 'server-only';
+
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
-import { decrypt, encrypt } from './session.server';
+import { decrypt, encrypt } from '@/server/auth/session.server';
 
 export const verifySession = cache(async () => {
   const cookie = (await cookies()).get('session')?.value;

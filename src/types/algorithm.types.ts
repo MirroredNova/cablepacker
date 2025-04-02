@@ -13,19 +13,6 @@ export type Point = {
 };
 
 export type BoreResult = {
-  id: string;
   bore: Circle;
   cables: Circle[];
-  createdAt: string;
-};
-
-export type ApiError = {
-  code: number;
-  message: string;
-};
-
-export type ApiResponse = {
-  success: boolean;
-  data?: BoreResult;
-  error?: ApiError
 };

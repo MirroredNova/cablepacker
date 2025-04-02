@@ -10,8 +10,8 @@ import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import useAdmin from '@/hooks/useAdmin';
-import EditCableButton from './EditCableButton';
-import DeleteCableButton from './DeleteCableButton';
+import EditCableButton from '@/components/pages/admin/cables/EditCableButton';
+import DeleteCableButton from '@/components/pages/admin/cables/DeleteCableButton';
 
 function CableTable() {
   const { selectedPreset } = useAdmin();

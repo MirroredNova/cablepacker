@@ -1,5 +1,5 @@
-import { TableRowData } from './table.types';
-import { BoreResult } from './algorithm.types';
+import { TableRowData } from '@/types/table.types';
+import { BoreResult } from '@/types/algorithm.types';
 
 export interface Cable {
   id: number;
@@ -23,6 +23,7 @@ export interface Result {
   id: string;
   inputCables: TableRowData[];
   resultData: BoreResult
+  selectedPresetId: number | null;
   cableCount: number;
   boreDiameter: number;
   createdAt: Date;
@@ -51,6 +52,17 @@ export interface UpdatePresetInput {
 }
 
 export interface CreateResult {
+  id: string;
   inputCables: TableRowData[];
   resultData: BoreResult;
+  selectedPresetId: number | null;
+  cableCount: number;
+  boreDiameter: number;
+  createdAt: Date;
 }
+
+export type ApiResponse<T> = {
+  success: boolean;
+  data?: T;
+  error?: string
+};

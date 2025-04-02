@@ -1,10 +1,6 @@
 import { Circle } from '@/types/algorithm.types';
-import { almostEqual, polarToCartesian, getDistanceBetweenPoints } from './math.utils';
-
-const MAX_ITERATIONS = 100;
-const RADIUS_STEP_SIZE = 0.01;
-const ANGLE_STEP_SIZE = 0.1;
-const MIN_ENCLOSE_STEP_SIZE = 0.001;
+import { almostEqual, polarToCartesian, getDistanceBetweenPoints } from '@/server/utils/math.utils';
+import { serverConfig } from '@/config';
 
 /**
  * Sort the list of circles from input (from largest radius to smallest radius)
@@ -55,9 +51,9 @@ function placeCircle(circles: Circle[], index: number, encloseRadius: number): b
   const circle = circles[index];
 
   // Try different positions at decreasing distances from center
-  for (let radius = encloseRadius - circle.radius; radius >= 0; radius -= RADIUS_STEP_SIZE) {
+  for (let radius = encloseRadius - circle.radius; radius >= 0; radius -= serverConfig.RADIUS_STEP_SIZE) {
     // Try different angles around the circle
-    for (let angle = 0.0; angle <= 360.0; angle += ANGLE_STEP_SIZE) {
+    for (let angle = 0.0; angle <= 360.0; angle += serverConfig.ANGLE_STEP_SIZE) {
       const [x, y] = polarToCartesian(angle, radius);
       circle.coordinates.x = x;
       circle.coordinates.y = y;
@@ -109,7 +105,7 @@ export function findOptimalEncloseSize(circles: Circle[]): {
 
   let iterations = 0;
 
-  while (iterations < MAX_ITERATIONS) {
+  while (iterations < serverConfig.MAX_ITERATIONS) {
     const [packing, valid] = checkEnclose(encloseDiameter, circles);
 
     if (valid) {
@@ -131,7 +127,7 @@ export function findOptimalEncloseSize(circles: Circle[]): {
     } else {
       // We have both bounds, bisect the interval
       const diameterDifference = (upperDiameterBound - lowerDiameterBound) / 2.0;
-      const nextDiameter = lowerDiameterBound + Math.max(diameterDifference, MIN_ENCLOSE_STEP_SIZE);
+      const nextDiameter = lowerDiameterBound + Math.max(diameterDifference, serverConfig.MIN_ENCLOSE_STEP_SIZE);
 
       // Check if we've converged
       if (nextDiameter >= upperDiameterBound) {

@@ -2,11 +2,10 @@
 
 import { executeQuery } from '@/server/db/snowflake.db';
 import { mapDBResultToSavedResult } from '@/server/utils/mappers.utils';
-import { CreateResult, Result } from '@/types/domain.types';
+import { ApiResponse, CreateResult, Result } from '@/types/domain.types';
 import { DBResult } from '@/types/database.types';
-import { extractResultMetadata } from '@/server/utils/result.utils';
 
-export const ensureResultsTableAction = async () => {
+export async function ensureResultsTableAction() {
   try {
     await executeQuery(`
       CREATE TABLE IF NOT EXISTS RESULTS (
@@ -24,16 +23,10 @@ export const ensureResultsTableAction = async () => {
     console.error('Error creating results table:', error);
     return { success: false, error: error.message };
   }
-};
+}
 
-export async function saveResultAction(input: CreateResult, selectedPresetId: number | null): Promise<{
-  success: boolean;
-  resultId?: string;
-  error?: string;
-}> {
+export async function saveResultAction(input: CreateResult): Promise<ApiResponse<Result>> {
   try {
-    const metadata = extractResultMetadata(input.resultData);
-
     await executeQuery(
       `
       INSERT INTO RESULTS
@@ -48,28 +41,24 @@ export async function saveResultAction(input: CreateResult, selectedPresetId: nu
         ?
     `,
       [
-        input.resultData.id,
+        input.id,
         JSON.stringify(input.inputCables),
         JSON.stringify(input.resultData),
-        selectedPresetId,
-        metadata.cableCount,
-        metadata.boreDiameter,
-        input.resultData.createdAt,
+        input.selectedPresetId,
+        input.cableCount,
+        input.boreDiameter,
+        input.createdAt,
       ],
     );
 
-    return { success: true };
+    return { success: true, data: input };
   } catch (error: any) {
     console.error('Error saving calculation result:', error);
     return { success: false, error: error.message };
   }
 }
 
-export async function getResultByIdAction(resultId: string): Promise<{
-  success: boolean;
-  result?: Result;
-  error?: string;
-}> {
+export async function getResultByIdAction(resultId: string): Promise<ApiResponse<Result>> {
   try {
     const results = await executeQuery<DBResult>('SELECT * FROM RESULTS WHERE ID = ?', [resultId]);
 
@@ -77,11 +66,11 @@ export async function getResultByIdAction(resultId: string): Promise<{
       return { success: false, error: `No result found with ID: ${resultId}` };
     }
 
-    const result = mapDBResultToSavedResult(results.rows[0]);
+    const data = mapDBResultToSavedResult(results.rows[0]);
 
     return {
       success: true,
-      result,
+      data,
     };
   } catch (error: any) {
     console.error(`Error retrieving result ${resultId}:`, error);
