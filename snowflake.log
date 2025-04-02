@@ -3847,3 +3847,241 @@
 {"level":"INFO","message":"[5:19:12.584 AM]: No config file path found. Client config will not be used."}
 {"level":"INFO","message":"[5:19:12.585 AM]: Easy Logging is disabled as no config has been found"}
 {"level":"INFO","message":"[5:19:12.589 AM]: Connection[id: 0f5b4f92-f9d6-4159-b986-116b7e047fc4] - connected successfully after 19.711099982261658 milliseconds"}
+{"level":"INFO","message":"[5:25:12.777 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[5:25:12.782 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[5:25:12.786 AM]: Creating new connection object"}
+{"level":"INFO","message":"[5:25:12.794 AM]: Creating Connection[id: 11f737ce-2e8e-4d1a-9af5-40a9614d99c4] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[5:25:12.795 AM]: Connection[id: 11f737ce-2e8e-4d1a-9af5-40a9614d99c4] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:25:12.796 AM]: Connection[id: 11f737ce-2e8e-4d1a-9af5-40a9614d99c4] - connection object created successfully."}
+{"level":"INFO","message":"[5:25:12.797 AM]: Connection[id: 11f737ce-2e8e-4d1a-9af5-40a9614d99c4] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:25:12.797 AM]: Connection[id: 11f737ce-2e8e-4d1a-9af5-40a9614d99c4] - setting up private link"}
+{"level":"INFO","message":"[5:25:12.803 AM]: Connection[id: 11f737ce-2e8e-4d1a-9af5-40a9614d99c4] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[5:25:12.804 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:25:12.808 AM]: No client config detected."}
+{"level":"INFO","message":"[5:25:12.809 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:25:12.810 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:25:12.814 AM]: Connection[id: 11f737ce-2e8e-4d1a-9af5-40a9614d99c4] - connected successfully after 17.70260000228882 milliseconds"}
+{"level":"INFO","message":"[5:33:36.795 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[5:33:36.800 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[5:33:36.803 AM]: Creating new connection object"}
+{"level":"INFO","message":"[5:33:36.811 AM]: Creating Connection[id: 40150db8-5c3d-459e-a8ee-ef84db544f74] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[5:33:36.812 AM]: Connection[id: 40150db8-5c3d-459e-a8ee-ef84db544f74] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:33:36.812 AM]: Connection[id: 40150db8-5c3d-459e-a8ee-ef84db544f74] - connection object created successfully."}
+{"level":"INFO","message":"[5:33:36.813 AM]: Connection[id: 40150db8-5c3d-459e-a8ee-ef84db544f74] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:33:36.814 AM]: Connection[id: 40150db8-5c3d-459e-a8ee-ef84db544f74] - setting up private link"}
+{"level":"INFO","message":"[5:33:36.819 AM]: Connection[id: 40150db8-5c3d-459e-a8ee-ef84db544f74] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[5:33:36.821 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:33:36.825 AM]: No client config detected."}
+{"level":"INFO","message":"[5:33:36.826 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:33:36.827 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:33:36.829 AM]: Connection[id: 40150db8-5c3d-459e-a8ee-ef84db544f74] - connected successfully after 16.21399998664856 milliseconds"}
+{"level":"INFO","message":"[5:33:41.062 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[5:33:41.067 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[5:33:41.069 AM]: Creating new connection object"}
+{"level":"INFO","message":"[5:33:41.075 AM]: Creating Connection[id: d7c9ac4a-2890-421c-bc67-24a369ae2c3d] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[5:33:41.076 AM]: Connection[id: d7c9ac4a-2890-421c-bc67-24a369ae2c3d] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:33:41.077 AM]: Connection[id: d7c9ac4a-2890-421c-bc67-24a369ae2c3d] - connection object created successfully."}
+{"level":"INFO","message":"[5:33:41.077 AM]: Connection[id: d7c9ac4a-2890-421c-bc67-24a369ae2c3d] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:33:41.078 AM]: Connection[id: d7c9ac4a-2890-421c-bc67-24a369ae2c3d] - setting up private link"}
+{"level":"INFO","message":"[5:33:41.082 AM]: Connection[id: d7c9ac4a-2890-421c-bc67-24a369ae2c3d] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[5:33:41.083 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:33:41.087 AM]: No client config detected."}
+{"level":"INFO","message":"[5:33:41.087 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:33:41.088 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:33:41.091 AM]: Connection[id: d7c9ac4a-2890-421c-bc67-24a369ae2c3d] - connected successfully after 13.539099991321564 milliseconds"}
+{"level":"INFO","message":"[5:34:30.880 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[5:34:30.899 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[5:34:30.903 AM]: Creating new connection object"}
+{"level":"INFO","message":"[5:34:30.914 AM]: Creating Connection[id: 9d77209f-1888-497b-8008-fc41c1e75c0c] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[5:34:30.915 AM]: Connection[id: 9d77209f-1888-497b-8008-fc41c1e75c0c] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:34:30.917 AM]: Connection[id: 9d77209f-1888-497b-8008-fc41c1e75c0c] - connection object created successfully."}
+{"level":"INFO","message":"[5:34:30.917 AM]: Connection[id: 9d77209f-1888-497b-8008-fc41c1e75c0c] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:34:30.918 AM]: Connection[id: 9d77209f-1888-497b-8008-fc41c1e75c0c] - setting up private link"}
+{"level":"INFO","message":"[5:34:30.923 AM]: Connection[id: 9d77209f-1888-497b-8008-fc41c1e75c0c] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[5:34:30.924 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:34:30.931 AM]: No client config detected."}
+{"level":"INFO","message":"[5:34:30.932 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:34:30.933 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:34:30.937 AM]: Connection[id: 9d77209f-1888-497b-8008-fc41c1e75c0c] - connected successfully after 19.306599974632263 milliseconds"}
+{"level":"INFO","message":"[5:34:36.980 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[5:34:36.986 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[5:34:36.988 AM]: Creating new connection object"}
+{"level":"INFO","message":"[5:34:36.993 AM]: Creating Connection[id: 5c1bdf6f-791d-4601-b383-101180357741] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[5:34:36.994 AM]: Connection[id: 5c1bdf6f-791d-4601-b383-101180357741] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:34:36.995 AM]: Connection[id: 5c1bdf6f-791d-4601-b383-101180357741] - connection object created successfully."}
+{"level":"INFO","message":"[5:34:36.996 AM]: Connection[id: 5c1bdf6f-791d-4601-b383-101180357741] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:34:36.996 AM]: Connection[id: 5c1bdf6f-791d-4601-b383-101180357741] - setting up private link"}
+{"level":"INFO","message":"[5:34:37.001 AM]: Connection[id: 5c1bdf6f-791d-4601-b383-101180357741] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[5:34:37.002 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:34:37.006 AM]: No client config detected."}
+{"level":"INFO","message":"[5:34:37.006 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:34:37.007 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:34:37.010 AM]: Connection[id: 5c1bdf6f-791d-4601-b383-101180357741] - connected successfully after 14.652899980545044 milliseconds"}
+{"level":"INFO","message":"[5:35:08.706 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[5:35:08.711 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[5:35:08.713 AM]: Creating new connection object"}
+{"level":"INFO","message":"[5:35:08.720 AM]: Creating Connection[id: 55ae2797-5ae1-4e5b-8a03-3eea0e96d3d5] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[5:35:08.721 AM]: Connection[id: 55ae2797-5ae1-4e5b-8a03-3eea0e96d3d5] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:35:08.721 AM]: Connection[id: 55ae2797-5ae1-4e5b-8a03-3eea0e96d3d5] - connection object created successfully."}
+{"level":"INFO","message":"[5:35:08.723 AM]: Connection[id: 55ae2797-5ae1-4e5b-8a03-3eea0e96d3d5] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:35:08.723 AM]: Connection[id: 55ae2797-5ae1-4e5b-8a03-3eea0e96d3d5] - setting up private link"}
+{"level":"INFO","message":"[5:35:08.727 AM]: Connection[id: 55ae2797-5ae1-4e5b-8a03-3eea0e96d3d5] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[5:35:08.729 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:35:08.735 AM]: No client config detected."}
+{"level":"INFO","message":"[5:35:08.735 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:35:08.736 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:35:08.739 AM]: Connection[id: 55ae2797-5ae1-4e5b-8a03-3eea0e96d3d5] - connected successfully after 16.749700009822845 milliseconds"}
+{"level":"INFO","message":"[5:36:09.260 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[5:36:09.265 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[5:36:09.268 AM]: Creating new connection object"}
+{"level":"INFO","message":"[5:36:09.276 AM]: Creating Connection[id: 8f8cf164-0ac8-49ef-8516-99506dd84160] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[5:36:09.277 AM]: Connection[id: 8f8cf164-0ac8-49ef-8516-99506dd84160] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:36:09.278 AM]: Connection[id: 8f8cf164-0ac8-49ef-8516-99506dd84160] - connection object created successfully."}
+{"level":"INFO","message":"[5:36:09.279 AM]: Connection[id: 8f8cf164-0ac8-49ef-8516-99506dd84160] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:36:09.279 AM]: Connection[id: 8f8cf164-0ac8-49ef-8516-99506dd84160] - setting up private link"}
+{"level":"INFO","message":"[5:36:09.283 AM]: Connection[id: 8f8cf164-0ac8-49ef-8516-99506dd84160] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[5:36:09.285 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:36:09.288 AM]: No client config detected."}
+{"level":"INFO","message":"[5:36:09.289 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:36:09.290 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:36:09.292 AM]: Connection[id: 8f8cf164-0ac8-49ef-8516-99506dd84160] - connected successfully after 13.70719999074936 milliseconds"}
+{"level":"INFO","message":"[5:37:53.302 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[5:37:53.309 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[5:37:53.311 AM]: Creating new connection object"}
+{"level":"INFO","message":"[5:37:53.318 AM]: Creating Connection[id: 9c310ebb-f4ec-47fc-8c2e-7fa8a92ecc83] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[5:37:53.319 AM]: Connection[id: 9c310ebb-f4ec-47fc-8c2e-7fa8a92ecc83] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:37:53.319 AM]: Connection[id: 9c310ebb-f4ec-47fc-8c2e-7fa8a92ecc83] - connection object created successfully."}
+{"level":"INFO","message":"[5:37:53.320 AM]: Connection[id: 9c310ebb-f4ec-47fc-8c2e-7fa8a92ecc83] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:37:53.321 AM]: Connection[id: 9c310ebb-f4ec-47fc-8c2e-7fa8a92ecc83] - setting up private link"}
+{"level":"INFO","message":"[5:37:53.326 AM]: Connection[id: 9c310ebb-f4ec-47fc-8c2e-7fa8a92ecc83] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[5:37:53.327 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:37:53.331 AM]: No client config detected."}
+{"level":"INFO","message":"[5:37:53.331 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:37:53.332 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:37:53.335 AM]: Connection[id: 9c310ebb-f4ec-47fc-8c2e-7fa8a92ecc83] - connected successfully after 15.34740000963211 milliseconds"}
+{"level":"INFO","message":"[5:38:00.871 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[5:38:00.876 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[5:38:00.879 AM]: Creating new connection object"}
+{"level":"INFO","message":"[5:38:00.884 AM]: Creating Connection[id: 15ffdaea-ac92-4c75-ac4c-fcdc33a6931d] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[5:38:00.885 AM]: Connection[id: 15ffdaea-ac92-4c75-ac4c-fcdc33a6931d] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:38:00.886 AM]: Connection[id: 15ffdaea-ac92-4c75-ac4c-fcdc33a6931d] - connection object created successfully."}
+{"level":"INFO","message":"[5:38:00.887 AM]: Connection[id: 15ffdaea-ac92-4c75-ac4c-fcdc33a6931d] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:38:00.888 AM]: Connection[id: 15ffdaea-ac92-4c75-ac4c-fcdc33a6931d] - setting up private link"}
+{"level":"INFO","message":"[5:38:00.894 AM]: Connection[id: 15ffdaea-ac92-4c75-ac4c-fcdc33a6931d] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[5:38:00.896 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:38:00.899 AM]: No client config detected."}
+{"level":"INFO","message":"[5:38:00.900 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:38:00.901 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:38:00.903 AM]: Connection[id: 15ffdaea-ac92-4c75-ac4c-fcdc33a6931d] - connected successfully after 16.306799948215485 milliseconds"}
+{"level":"INFO","message":"[5:38:27.850 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[5:38:27.855 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[5:38:27.858 AM]: Creating new connection object"}
+{"level":"INFO","message":"[5:38:27.866 AM]: Creating Connection[id: fd0525e4-6f83-4133-a014-32fdd874524d] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[5:38:27.867 AM]: Connection[id: fd0525e4-6f83-4133-a014-32fdd874524d] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:38:27.868 AM]: Connection[id: fd0525e4-6f83-4133-a014-32fdd874524d] - connection object created successfully."}
+{"level":"INFO","message":"[5:38:27.869 AM]: Connection[id: fd0525e4-6f83-4133-a014-32fdd874524d] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:38:27.869 AM]: Connection[id: fd0525e4-6f83-4133-a014-32fdd874524d] - setting up private link"}
+{"level":"INFO","message":"[5:38:27.874 AM]: Connection[id: fd0525e4-6f83-4133-a014-32fdd874524d] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[5:38:27.875 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:38:27.882 AM]: No client config detected."}
+{"level":"INFO","message":"[5:38:27.883 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:38:27.884 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:38:27.887 AM]: Connection[id: fd0525e4-6f83-4133-a014-32fdd874524d] - connected successfully after 18.241400003433228 milliseconds"}
+{"level":"INFO","message":"[5:39:28.156 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[5:39:28.162 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[5:39:28.164 AM]: Creating new connection object"}
+{"level":"INFO","message":"[5:39:28.173 AM]: Creating Connection[id: 4dfdf5de-5c27-42c6-a9d6-944516f043e8] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[5:39:28.175 AM]: Connection[id: 4dfdf5de-5c27-42c6-a9d6-944516f043e8] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:39:28.176 AM]: Connection[id: 4dfdf5de-5c27-42c6-a9d6-944516f043e8] - connection object created successfully."}
+{"level":"INFO","message":"[5:39:28.177 AM]: Connection[id: 4dfdf5de-5c27-42c6-a9d6-944516f043e8] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:39:28.178 AM]: Connection[id: 4dfdf5de-5c27-42c6-a9d6-944516f043e8] - setting up private link"}
+{"level":"INFO","message":"[5:39:28.182 AM]: Connection[id: 4dfdf5de-5c27-42c6-a9d6-944516f043e8] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[5:39:28.182 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:39:28.185 AM]: No client config detected."}
+{"level":"INFO","message":"[5:39:28.186 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:39:28.186 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:39:28.189 AM]: Connection[id: 4dfdf5de-5c27-42c6-a9d6-944516f043e8] - connected successfully after 12.169000029563904 milliseconds"}
+{"level":"INFO","message":"[5:40:12.109 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[5:40:12.115 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[5:40:12.117 AM]: Creating new connection object"}
+{"level":"INFO","message":"[5:40:12.122 AM]: Creating Connection[id: 6da12110-1d69-4c7d-9cb4-f42b91eccc8e] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[5:40:12.123 AM]: Connection[id: 6da12110-1d69-4c7d-9cb4-f42b91eccc8e] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:40:12.123 AM]: Connection[id: 6da12110-1d69-4c7d-9cb4-f42b91eccc8e] - connection object created successfully."}
+{"level":"INFO","message":"[5:40:12.124 AM]: Connection[id: 6da12110-1d69-4c7d-9cb4-f42b91eccc8e] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:40:12.125 AM]: Connection[id: 6da12110-1d69-4c7d-9cb4-f42b91eccc8e] - setting up private link"}
+{"level":"INFO","message":"[5:40:12.129 AM]: Connection[id: 6da12110-1d69-4c7d-9cb4-f42b91eccc8e] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[5:40:12.130 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:40:12.134 AM]: No client config detected."}
+{"level":"INFO","message":"[5:40:12.135 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:40:12.135 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:40:12.138 AM]: Connection[id: 6da12110-1d69-4c7d-9cb4-f42b91eccc8e] - connected successfully after 13.77290004491806 milliseconds"}
+{"level":"INFO","message":"[5:45:02.401 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[5:45:02.407 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[5:45:02.410 AM]: Creating new connection object"}
+{"level":"INFO","message":"[5:45:02.417 AM]: Creating Connection[id: 7710e209-2f0f-4d17-9376-fd43a6b1a259] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[5:45:02.418 AM]: Connection[id: 7710e209-2f0f-4d17-9376-fd43a6b1a259] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:45:02.419 AM]: Connection[id: 7710e209-2f0f-4d17-9376-fd43a6b1a259] - connection object created successfully."}
+{"level":"INFO","message":"[5:45:02.420 AM]: Connection[id: 7710e209-2f0f-4d17-9376-fd43a6b1a259] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:45:02.421 AM]: Connection[id: 7710e209-2f0f-4d17-9376-fd43a6b1a259] - setting up private link"}
+{"level":"INFO","message":"[5:45:02.425 AM]: Connection[id: 7710e209-2f0f-4d17-9376-fd43a6b1a259] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[5:45:02.426 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:45:02.429 AM]: No client config detected."}
+{"level":"INFO","message":"[5:45:02.429 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:45:02.430 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:45:02.432 AM]: Connection[id: 7710e209-2f0f-4d17-9376-fd43a6b1a259] - connected successfully after 12.442599952220917 milliseconds"}
+{"level":"INFO","message":"[5:45:34.075 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[5:45:34.082 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[5:45:34.084 AM]: Creating new connection object"}
+{"level":"INFO","message":"[5:45:34.089 AM]: Creating Connection[id: 512cf72c-6c93-4419-bf57-36bc87a95ee2] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[5:45:34.090 AM]: Connection[id: 512cf72c-6c93-4419-bf57-36bc87a95ee2] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:45:34.092 AM]: Connection[id: 512cf72c-6c93-4419-bf57-36bc87a95ee2] - connection object created successfully."}
+{"level":"INFO","message":"[5:45:34.093 AM]: Connection[id: 512cf72c-6c93-4419-bf57-36bc87a95ee2] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:45:34.094 AM]: Connection[id: 512cf72c-6c93-4419-bf57-36bc87a95ee2] - setting up private link"}
+{"level":"INFO","message":"[5:45:34.102 AM]: Connection[id: 512cf72c-6c93-4419-bf57-36bc87a95ee2] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[5:45:34.104 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:45:34.108 AM]: No client config detected."}
+{"level":"INFO","message":"[5:45:34.109 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:45:34.110 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:45:34.116 AM]: Connection[id: 512cf72c-6c93-4419-bf57-36bc87a95ee2] - connected successfully after 23.0518000125885 milliseconds"}
+{"level":"INFO","message":"[5:46:06.351 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[5:46:06.357 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[5:46:06.359 AM]: Creating new connection object"}
+{"level":"INFO","message":"[5:46:06.366 AM]: Creating Connection[id: 56ad169c-322b-406b-9eee-68160322052d] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[5:46:06.367 AM]: Connection[id: 56ad169c-322b-406b-9eee-68160322052d] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:46:06.368 AM]: Connection[id: 56ad169c-322b-406b-9eee-68160322052d] - connection object created successfully."}
+{"level":"INFO","message":"[5:46:06.369 AM]: Connection[id: 56ad169c-322b-406b-9eee-68160322052d] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:46:06.369 AM]: Connection[id: 56ad169c-322b-406b-9eee-68160322052d] - setting up private link"}
+{"level":"INFO","message":"[5:46:06.374 AM]: Connection[id: 56ad169c-322b-406b-9eee-68160322052d] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[5:46:06.375 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:46:06.381 AM]: No client config detected."}
+{"level":"INFO","message":"[5:46:06.382 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:46:06.383 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:46:06.386 AM]: Connection[id: 56ad169c-322b-406b-9eee-68160322052d] - connected successfully after 16.862200021743774 milliseconds"}
+{"level":"INFO","message":"[5:52:07.355 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[5:52:07.361 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[5:52:07.363 AM]: Creating new connection object"}
+{"level":"INFO","message":"[5:52:07.371 AM]: Creating Connection[id: 1f8b056d-21f4-4927-91ca-e25642bc6f37] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[5:52:07.372 AM]: Connection[id: 1f8b056d-21f4-4927-91ca-e25642bc6f37] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:52:07.373 AM]: Connection[id: 1f8b056d-21f4-4927-91ca-e25642bc6f37] - connection object created successfully."}
+{"level":"INFO","message":"[5:52:07.373 AM]: Connection[id: 1f8b056d-21f4-4927-91ca-e25642bc6f37] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:52:07.374 AM]: Connection[id: 1f8b056d-21f4-4927-91ca-e25642bc6f37] - setting up private link"}
+{"level":"INFO","message":"[5:52:07.379 AM]: Connection[id: 1f8b056d-21f4-4927-91ca-e25642bc6f37] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[5:52:07.380 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:52:07.382 AM]: No client config detected."}
+{"level":"INFO","message":"[5:52:07.383 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:52:07.384 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:52:07.388 AM]: Connection[id: 1f8b056d-21f4-4927-91ca-e25642bc6f37] - connected successfully after 15.04390001296997 milliseconds"}
+{"level":"INFO","message":"[6:25:30.880 AM]: Creating connection pool with provided options"}
+{"level":"INFO","message":"[6:25:30.885 AM]: Connection pool object created successfully"}
+{"level":"INFO","message":"[6:25:30.887 AM]: Creating new connection object"}
+{"level":"INFO","message":"[6:25:30.890 AM]: Creating Connection[id: 89dd2f44-cb46-4747-86ef-66e96e9a4e8f] with host: alliantenergy-dwh.privatelink.snowflakecomputing.com, account: alliantenergy-dwh, accessUrl: https://alliantenergy-dwh.privatelink.snowflakecomputing.com, user: SVC_SF_DEV_CABLEPACKER_APP, role: DEV_CABLEPACKER_APP_USER, database: APP_CABLEPACKER, schema: DEV, warehouse: APP_CABLEPACKER_WH, proxy was not configured, password is not provided, region: privatelink, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32,"}
+{"level":"INFO","message":"[6:25:30.891 AM]: Connection[id: 89dd2f44-cb46-4747-86ef-66e96e9a4e8f] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.0.3, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[6:25:30.892 AM]: Connection[id: 89dd2f44-cb46-4747-86ef-66e96e9a4e8f] - connection object created successfully."}
+{"level":"INFO","message":"[6:25:30.893 AM]: Connection[id: 89dd2f44-cb46-4747-86ef-66e96e9a4e8f] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[6:25:30.893 AM]: Connection[id: 89dd2f44-cb46-4747-86ef-66e96e9a4e8f] - setting up private link"}
+{"level":"INFO","message":"[6:25:30.898 AM]: Connection[id: 89dd2f44-cb46-4747-86ef-66e96e9a4e8f] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[6:25:30.900 AM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[6:25:30.905 AM]: No client config detected."}
+{"level":"INFO","message":"[6:25:30.906 AM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[6:25:30.906 AM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[6:25:30.909 AM]: Connection[id: 89dd2f44-cb46-4747-86ef-66e96e9a4e8f] - connected successfully after 16.76019996404648 milliseconds"}

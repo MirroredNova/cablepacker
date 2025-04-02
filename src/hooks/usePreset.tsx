@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { PresetContext } from '@/components/providers/PresetProvider';
+import { PresetContext } from '@/context/PresetContext';
 
 export default function usePreset() {
   const context = useContext(PresetContext);

@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { TableContext } from '@/components/providers/TableProvider';
+import { TableContext } from '@/context/TableContext';
 
 export default function useTable() {
   const context = useContext(TableContext);

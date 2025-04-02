@@ -2,38 +2,22 @@
 
 import { useParams, usePathname } from 'next/navigation';
 import React, {
-  createContext, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState,
+  PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState,
 } from 'react';
 import usePreset from '@/hooks/usePreset';
 import useTable from '@/hooks/useTable';
 import { getResultByIdAction } from '@/server/actions/results.actions';
 import { Result } from '@/types/domain.types';
-
-type ResultContextType = {
-  result: Result | null;
-  loading: boolean;
-  error: string | null;
-  resultId: string | null;
-  setResult: (result: Result | null, navigate?: boolean) => void;
-  setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
-  fetchResult: (id: string) => Promise<boolean>;
-  resetResult: () => void;
-};
-
-export const ResultContext = createContext<ResultContextType | undefined>(undefined);
+import { ResultContext } from '@/context/ResultContext';
 
 export function ResultProvider({ children }: PropsWithChildren) {
-  // State management
   const [result, setResultState] = useState<Result | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Refs for managing side effects
   const justSetResultRef = useRef(false);
   const pendingPresetIdRef = useRef<number | null>(null);
 
-  // External hooks
   const {
     presets, setSelectedPreset, resetPresets, presetsLoaded,
   } = usePreset();
@@ -42,7 +26,6 @@ export function ResultProvider({ children }: PropsWithChildren) {
   const pathname = usePathname();
   const resultId = params?.resultId || null;
 
-  // Handle preset selection with loading state awareness
   const safeSetSelectedPreset = useCallback((presetId: number | null) => {
     if (!presetId) {
       setSelectedPreset(null);

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
@@ -13,14 +13,14 @@ import { Cable } from '@/types/domain.types';
 import useTable from '@/hooks/useTable';
 import { getMaxDiameter } from '@/config';
 import EnhancedNumberInput from '@/components/shared/NumberInput';
-import { PresetContext } from '@/components/providers/PresetProvider';
+import usePreset from '@/hooks/usePreset';
 
 type Props = {
   row: TableRowData;
 };
 
 export default function CableTableRow({ row }: Props) {
-  const { selectedPreset, loading } = useContext(PresetContext)!;
+  const { selectedPreset, loading } = usePreset()!;
   const { updateRow, deleteRow } = useTable();
 
   const isPresetCable = useMemo(() => row.selectedCable !== 'custom', [row.selectedCable]);

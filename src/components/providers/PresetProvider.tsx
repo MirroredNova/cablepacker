@@ -1,7 +1,7 @@
 'use client';
 
 import React, {
-  createContext, PropsWithChildren, useCallback, useEffect, useMemo, useState,
+  PropsWithChildren, useCallback, useEffect, useMemo, useState,
 } from 'react';
 import {
   createCableAction, deleteCableAction, updateCableAction,
@@ -12,25 +12,7 @@ import {
 import {
   CreateCableInput, CreatePresetInput, Preset, UpdateCableInput,
 } from '@/types/domain.types';
-
-type PresetContextType = {
-  presets: Preset[];
-  selectedPreset: Preset | null;
-  presetsLoaded: boolean;
-  loading: boolean;
-  error: string | null;
-  setSelectedPreset: (preset: Preset | null) => void;
-  resetPresets: () => void;
-  loadPresets: () => Promise<void>;
-  addPreset: (name: string) => Promise<void>;
-  updatePreset: (id: number, updates: Partial<Preset>) => Promise<void>;
-  deletePreset: (id: number) => Promise<void>;
-  addCableToPreset: (presetId: number, cable: CreateCableInput) => Promise<void>;
-  editCable: (cableId: number, updates: Partial<UpdateCableInput>) => Promise<void>;
-  deleteCableFromPreset: (presetId: number, cableId: number) => Promise<void>;
-};
-
-export const PresetContext = createContext<PresetContextType | null>(null);
+import { PresetContext } from '@/context/PresetContext';
 
 export default function PresetProvider({ children }: PropsWithChildren) {
   const [presets, setPresets] = useState<Preset[]>([]);
