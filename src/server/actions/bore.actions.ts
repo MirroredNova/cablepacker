@@ -1,6 +1,6 @@
 'use server';
 
-import { getMaxCircles } from '@/config';
+import { serverConfig } from '@/config';
 import { saveResultAction } from '@/server/actions/results.actions';
 import { calculateMinimumEncloseForCircles } from '@/server/utils/algo.utils';
 import { assignColorsToCircles, mapCablesToCircles } from '@/server/utils/circles.utils';
@@ -19,7 +19,7 @@ export async function generateBoreAction(
 
     const circleList = mapCablesToCircles(cables);
 
-    const maxCircles = getMaxCircles();
+    const maxCircles = serverConfig.MAX_CIRCLES;
     if (circleList.length > maxCircles) {
       throw new RangeError(`Exceeded maximum number of cables (${maxCircles}).`);
     }

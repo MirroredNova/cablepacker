@@ -1,6 +1,5 @@
 import React from 'react';
 import Stack from '@mui/material/Stack';
-import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Table from '@mui/material/Table';
@@ -16,6 +15,7 @@ import CableTableAlert from '@/components/pages/home/table/CableTableAlert';
 import HeaderPresetSelect from '@/components/pages/home/header/HeaderPresetSelect';
 import SearchExistingForm from '@/components/pages/home/header/SearchExistingForm';
 import AddCableButton from '@/components/pages/home/header/AddCableButton';
+import CableTotal from '@/components/pages/home/table/CableTotal';
 
 function HomePage() {
   return (
@@ -51,9 +51,10 @@ function HomePage() {
 
       <CableTableAlert />
 
-      <Box display="flex" justifyContent="flex-end" mt={2}>
+      <Stack direction="row" justifyContent="flex-end" spacing={4} alignItems="center">
+        <CableTotal />
         <GenerateBoreButton />
-      </Box>
+      </Stack>
 
       <ResultsArea />
     </Stack>

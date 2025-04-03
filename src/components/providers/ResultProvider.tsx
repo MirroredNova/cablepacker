@@ -21,7 +21,7 @@ export function ResultProvider({ children }: PropsWithChildren) {
   const {
     presets, setSelectedPreset, resetPresets, presetsLoaded,
   } = usePreset();
-  const { setTableData, resetTableData } = useTable();
+  const { setTableData, resetTableData, setHasChangedSinceGeneration } = useTable();
   const params = useParams<{ resultId?: string }>();
   const pathname = usePathname();
   const resultId = params?.resultId || null;
@@ -88,6 +88,8 @@ export function ResultProvider({ children }: PropsWithChildren) {
 
       if (response.success && response.data) {
         setResult(response.data);
+        setHasChangedSinceGeneration(false);
+        setError(null);
         return true;
       }
 
@@ -99,7 +101,7 @@ export function ResultProvider({ children }: PropsWithChildren) {
     } finally {
       setLoading(false);
     }
-  }, [setResult]);
+  }, [setHasChangedSinceGeneration, setResult]);
 
   // Apply pending preset when presets load
   useEffect(() => {

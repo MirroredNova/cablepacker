@@ -1,4 +1,4 @@
-import { getMaxDiameter } from '@/config';
+import { serverConfig } from '@/config';
 import { Circle } from '@/types/algorithm.types';
 import { Cable } from '@/types/domain.types';
 import { TableRowData } from '@/types/table.types';
@@ -11,7 +11,7 @@ export function mapCablesToCircles(cables: TableRowData[]): Circle[] {
     const diameter = isCustom ? row.customDiameter : (row.selectedCable as Cable).diameter;
 
     if (!cableType || !diameter || diameter <= 0) return;
-    if (diameter > getMaxDiameter()) {
+    if (diameter > serverConfig.MAX_DIAMETER) {
       throw new RangeError('Diameter exceeds maximum limit');
     }
 

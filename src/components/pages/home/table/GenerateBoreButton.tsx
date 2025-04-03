@@ -10,7 +10,9 @@ import Spinner from '@/components/shared/Spinner';
 
 function GenerateBoreButton() {
   const { selectedPreset } = usePreset();
-  const { tableData, setError: setTableError } = useTable();
+  const {
+    tableData, setError: setTableError, hasChangedSinceGeneration, setHasChangedSinceGeneration,
+  } = useTable();
   const { setResult } = useResult();
 
   const [loading, setLoading] = useState(false);
@@ -24,6 +26,7 @@ function GenerateBoreButton() {
 
       if (result.success && result.data) {
         setResult(result.data, true);
+        setHasChangedSinceGeneration(false);
       } else if (!result.success && result.error) {
         setTableError({ message: result.error });
         console.error('Error generating bore:', result.error);
@@ -36,11 +39,13 @@ function GenerateBoreButton() {
     }
   };
 
+  const isDisabled = tableData.length === 0 || loading || !hasChangedSinceGeneration;
+
   return (
     <Button
       variant="contained"
       onClick={handleGenerateBore}
-      disabled={tableData.length === 0 || loading}
+      disabled={isDisabled}
       startIcon={loading ? <Spinner /> : null}
     >
       {loading ? 'Calculating...' : 'Generate Bore'}

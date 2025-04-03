@@ -11,7 +11,7 @@ import TextField from '@mui/material/TextField';
 import { TableRowData } from '@/types/table.types';
 import { Cable } from '@/types/domain.types';
 import useTable from '@/hooks/useTable';
-import { getMaxDiameter } from '@/config';
+import { clientConfig } from '@/config';
 import EnhancedNumberInput from '@/components/shared/NumberInput';
 import usePreset from '@/hooks/usePreset';
 
@@ -106,7 +106,7 @@ export default function CableTableRow({ row }: Props) {
             value={row.customDiameter ?? 1}
             onChangeAction={(value) => updateRow(row.id, { customDiameter: value })}
             min={0.1}
-            max={getMaxDiameter()}
+            max={clientConfig.MAX_DIAMETER}
             step={0.1}
             allowTemporaryZero
             decimalPlaces={1}
