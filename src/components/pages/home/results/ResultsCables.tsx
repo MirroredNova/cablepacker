@@ -13,7 +13,7 @@ type Props = {
 };
 
 function ResultsCables({ cables }: Props) {
-  // Count occurrences of each cable type
+  // Count occurrences of each unique cable (by name AND diameter)
   const cableCounts = cables.reduce(
     (acc, cable) => {
       const key = `${cable.name}-${cable.diameter}`;
@@ -23,10 +23,12 @@ function ResultsCables({ cables }: Props) {
     {} as Record<string, number>,
   );
 
-  // Create unique cable entries with counts
   const uniqueCables = Object.entries(cableCounts).map(([key, count]) => {
-    const [name] = key.split('-');
-    const cable = cables.find((c) => c.name === name)!;
+    const [name, diameterStr] = key.split('-');
+    const diameter = parseFloat(diameterStr);
+
+    const cable = cables.find((c) => c.name === name && c.diameter === diameter)!;
+
     return {
       ...cable,
       quantity: count,
@@ -36,7 +38,7 @@ function ResultsCables({ cables }: Props) {
   return (
     <Box display="flex" flexDirection="column" gap="8px" flex={1}>
       <Typography variant="h5">Cables</Typography>
-      <Table>
+      <Table size="small">
         <TableHead>
           <TableRow>
             <TableCell>Name</TableCell>
@@ -46,11 +48,13 @@ function ResultsCables({ cables }: Props) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {uniqueCables.map((cable, index) => (
-            // eslint-disable-next-line react/no-array-index-key
-            <TableRow key={index}>
+          {uniqueCables.map((cable) => (
+            <TableRow
+              key={`${cable.name}-${cable.diameter}`}
+              sx={{ '&:nth-of-type(odd)': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
+            >
               <TableCell>{cable.name}</TableCell>
-              <TableCell align="right">{cable.diameter}</TableCell>
+              <TableCell align="right">{cable.diameter.toFixed(1)}</TableCell>
               <TableCell align="right">{cable.quantity}</TableCell>
               <TableCell align="center">
                 <Box
@@ -60,7 +64,9 @@ function ResultsCables({ cables }: Props) {
                     backgroundColor: cable.color,
                     margin: '0 auto',
                     borderRadius: '50%',
+                    border: '1px solid rgba(0, 0, 0, 0.2)',
                   }}
+                  title={`${cable.name} (${cable.diameter}in)`}
                 />
               </TableCell>
             </TableRow>
