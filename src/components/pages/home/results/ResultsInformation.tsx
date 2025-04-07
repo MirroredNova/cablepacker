@@ -9,7 +9,7 @@ type Props = {
 
 function ResultsInformation({ result }: Props) {
   return (
-    <Box display="flex" flexDirection="column" gap={1} width={300}>
+    <Box display="flex" flexDirection="column" gap={1} width={300} className="ResultsInformation">
       <Typography variant="h5">Results Information</Typography>
       <Typography variant="body1">
         <Box component="span" fontWeight="bold">

@@ -35,7 +35,7 @@ export default function ResultsGraphic({ data, bore }: Props) {
   const height = yMax - yMin;
 
   return (
-    <Box flex={1} minWidth="300px">
+    <Box flex={1} minWidth="300px" className="ResultsGraphic">
       <svg
         viewBox={`${xMin} ${-yMax} ${width} ${height}`}
         preserveAspectRatio="xMidYMid meet"

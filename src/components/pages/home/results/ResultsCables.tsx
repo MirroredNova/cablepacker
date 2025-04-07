@@ -36,7 +36,7 @@ function ResultsCables({ cables }: Props) {
   });
 
   return (
-    <Box display="flex" flexDirection="column" gap="8px" flex={1}>
+    <Box display="flex" flexDirection="column" gap="8px" flex={1} className="ResultsCables">
       <Typography variant="h5">Cables</Typography>
       <Table size="small">
         <TableHead>

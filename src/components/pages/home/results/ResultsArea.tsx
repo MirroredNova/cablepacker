@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
@@ -15,6 +15,7 @@ import Spinner from '@/components/shared/Spinner';
 
 function ResultsArea() {
   const { result, loading, error } = useResult();
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // Show loading spinner when fetching results
   if (loading) {
@@ -41,8 +42,8 @@ function ResultsArea() {
     result && (
       <Stack spacing={2}>
         <Divider />
-        <ResultsActions resultId={result.id} />
-        <Stack direction="row" spacing={2}>
+        <ResultsActions result={result} contentRef={contentRef as React.RefObject<HTMLDivElement>} />
+        <Stack direction="row" spacing={2} ref={contentRef}>
           {result.resultData.cables.length > 0 && (
             <ResultsGraphic
               bore={result.resultData.bore}
