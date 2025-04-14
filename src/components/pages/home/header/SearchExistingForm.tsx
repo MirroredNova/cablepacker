@@ -42,7 +42,9 @@ function SearchExistingForm() {
 
   return (
     <FormControl
-      sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}
+      sx={{
+        display: 'flex', flexDirection: 'row', gap: 2, width: '100%',
+      }}
       component="form"
       onSubmit={handleSearchSubmit}
     >
@@ -50,12 +52,12 @@ function SearchExistingForm() {
         id="retrieve-existing-input"
         label="Search Existing Result ID"
         size="small"
-        sx={{ width: '300px' }}
         value={searchId}
         onChange={(e) => {
           setSearchId(e.target.value);
           if (error) setError(null);
         }}
+        sx={{ flexGrow: { xs: 1, md: 0 } }}
         disabled={loading}
         error={!!error}
       />

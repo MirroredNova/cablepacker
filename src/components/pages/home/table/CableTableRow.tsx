@@ -74,6 +74,7 @@ export default function CableTableRow({ row }: Props) {
           flexDirection="row"
           gap={1}
           width="100%"
+          minWidth="400px"
         >
           <Autocomplete
             value={isPresetCable ? (row.selectedCable as Cable) : options[0]}
@@ -111,6 +112,7 @@ export default function CableTableRow({ row }: Props) {
             allowTemporaryZero
             decimalPlaces={1}
             name="customDiameter"
+            sx={{ width: '85px' }}
           />
         ) : (
           getDiameterDisplay()
@@ -125,6 +127,7 @@ export default function CableTableRow({ row }: Props) {
           allowTemporaryZero={false}
           decimalPlaces={0}
           name="quantity"
+          sx={{ width: '85px' }}
         />
       </TableCell>
       <TableCell align="right">

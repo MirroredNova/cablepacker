@@ -1,9 +1,10 @@
 'use client';
 
-import Button from '@mui/material/Button';
 import React from 'react';
-import useTable from '@/hooks/useTable';
+import AddIcon from '@mui/icons-material/Add';
+import Button from '@mui/material/Button';
 import useResult from '@/hooks/useResult';
+import useTable from '@/hooks/useTable';
 
 function AddCableButton() {
   const { addRow } = useTable();
@@ -15,6 +16,7 @@ function AddCableButton() {
       onClick={addRow}
       sx={{ mt: error ? 0 : 2 }}
       disabled={loading}
+      startIcon={<AddIcon />}
     >
       Add Cable
     </Button>

@@ -105,6 +105,7 @@ export default function EnhancedNumberInput({
 
   return (
     <TextField
+      fullWidth
       type="number"
       size="small"
       value={inputValue}

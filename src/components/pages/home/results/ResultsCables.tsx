@@ -13,7 +13,6 @@ type Props = {
 };
 
 function ResultsCables({ cables }: Props) {
-  // Count occurrences of each unique cable (by name AND diameter)
   const cableCounts = cables.reduce(
     (acc, cable) => {
       const key = `${cable.name}-${cable.diameter}`;

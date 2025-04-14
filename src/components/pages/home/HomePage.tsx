@@ -20,9 +20,9 @@ import CableTotal from '@/components/pages/home/table/CableTotal';
 function HomePage() {
   return (
     <Stack spacing={2}>
-      <Stack direction="row" spacing={2} justifyContent="space-between" alignItems="center">
-        <Stack direction="row" spacing={2} alignItems="center">
-          <FormControl sx={{ width: '200px' }} size="small">
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} justifyContent="space-between">
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="start">
+          <FormControl sx={{ minWidth: '200px' }} size="small">
             <InputLabel id="preset-select-label">Preset</InputLabel>
             <HeaderPresetSelect />
           </FormControl>
@@ -36,8 +36,8 @@ function HomePage() {
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
-              <TableCell width="150px">Diameter (in)</TableCell>
-              <TableCell width="150px">Quantity</TableCell>
+              <TableCell width="120px">Diameter (in)</TableCell>
+              <TableCell width="120px">Quantity</TableCell>
               <TableCell align="right" width="1px">
                 Actions
               </TableCell>
