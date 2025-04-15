@@ -26,5 +26,4 @@ export interface DBResult {
   CABLE_COUNT: number;
   BORE_DIAMETER: number;
   CREATED_AT: string;
-  UPDATED_AT: string;
 }

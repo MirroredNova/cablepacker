@@ -15,23 +15,31 @@ export function mapCablesToCircles(cables: TableRowData[]): Circle[] {
       throw new RangeError('Diameter exceeds maximum limit');
     }
 
-    const newCircle: Circle = {
+    const baseCircle: Circle = {
       name: cableType,
       diameter,
       radius: diameter / 2,
       coordinates: { x: 0, y: 0 },
     };
 
-    circles.push(...Array(row.quantity).fill(structuredClone(newCircle)));
+    // Create a new instance for each quantity
+    for (let i = 0; i < row.quantity; i += 1) {
+      circles.push(structuredClone(baseCircle));
+    }
   });
   return circles;
 }
 
 function generateRandomColor(): string {
+  // Generate values between 0-255 for RGB
   const r = Math.floor(Math.random() * 256);
   const g = Math.floor(Math.random() * 256);
   const b = Math.floor(Math.random() * 256);
-  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+
+  // Convert to hex string and ensure 2 digits with padStart
+  const toHex = (num: number) => num.toString(16).padStart(2, '0');
+
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
 export function assignColorsToCircles(circles: Circle[]): Circle[] {
