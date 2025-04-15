@@ -1,0 +1,32 @@
+{
+  "extends": ["airbnb", "airbnb/hooks", "airbnb-typescript", "plugin:@next/next/recommended"],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "root": true,
+  "rules": {
+    "react/jsx-filename-extension": [
+      2,
+      {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    ],
+    "react/jsx-props-no-spreading": "off",
+    "react/require-default-props": "off",
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "": "never",
+        "js": "never",
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never"
+      }
+    ],
+    "import/prefer-default-export": "off",
+    "no-console": "off",
+    "max-len": ["error", { "code": 120 }],
+    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}]
+  }
+}
