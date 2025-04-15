@@ -11,7 +11,16 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: ['node_modules/', '.next/', '**/*.d.ts', 'build/'],
+      exclude: ['node_modules/',
+        '.next/',
+        '**/*.d.ts',
+        'build/',
+        'next.config.ts',
+        'vitest.setup.ts',
+        'vitest.config.ts',
+        'postcss.config.mjs',
+        'tailwind.config.ts',
+      ],
     },
     alias: {
       '@': resolve(__dirname, './src'),
