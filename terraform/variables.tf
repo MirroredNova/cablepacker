@@ -1,19 +1,25 @@
-# variable "app_env" {
-#   description = "Application environment"
-#   type        = string
-#   validation {
-#     condition     = contains(["prod", "qa", "dev"], var.app_env)
-#     error_message = "Variable app_env must be one of the following: 'prod', 'qa', 'dev'."
-#   }
-# }
+## AZURE AUTH VARIABLES
 
-# variable "app_location" {
-#   description = "Application location"
-#   type        = string
-#   default     = "centralus"
-# }
+variable "arm_client_id" {
+  description = "Azure client id to use for authentication"
+  sensitive   = true
+  type        = string
+}
 
-# variable "app_name" {
-#   description = "Application name in Azure"
-#   type        = string
-# }
+variable "arm_client_secret" {
+  description = "Azure client secret to use for authentication"
+  sensitive   = true
+  type        = string
+}
+
+variable "arm_subscription_id" {
+  description = "Azure subscription id to use under which all resources will be created"
+  sensitive   = true
+  type        = string
+}
+
+variable "arm_tenant_id" {
+  description = "Azure tenant id to use under which all resources will be created"
+  sensitive   = true
+  type        = string
+}

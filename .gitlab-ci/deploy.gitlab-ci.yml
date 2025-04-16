@@ -1,0 +1,40 @@
+.deploy:
+  stage: deploy
+  extends: .azcli_default
+  artifacts:
+    paths:
+      - version.env
+    reports:
+      dotenv: version.env
+  script:
+    # - az login --service-principal -u ${ARM_CLIENT_ID} -p ${ARM_CLIENT_SECRET} --tenant ${ARM_TENANT_ID}
+    # - az account set --subscription ${ARM_SUBSCRIPTION_ID}
+    # - az appservice plan update --name ${ARM_APP_SERVICE_PLAN_NAME} --resource-group ${ARM_RESOURCE_GROUP_NAME} --sku ${ASP_DEPLOYMENT_TARGET_SKU}
+    # - az webapp deployment source config-zip --resource-group ${ARM_RESOURCE_GROUP_NAME} --name ${ARM_APP_SERVICE_NAME} --src ./bundle.zip
+    # - az appservice plan update --name ${ARM_APP_SERVICE_PLAN_NAME} --resource-group ${ARM_RESOURCE_GROUP_NAME} --sku ${ASP_SKU}
+    # - az logout
+    - echo "Deploying to ${CI_ENVIRONMENT_NAME} environment"
+
+deploy_qa:
+  extends: .deploy
+  only:
+    - main
+  needs:
+    - job: tf_deploy_qa
+    - job: zip_qa
+      artifacts: true
+  environment: qa
+  dependencies:
+    - zip_qa
+
+deploy_prod:
+  extends: .deploy
+  only:
+    - prod
+  needs:
+    - job: tf_deploy_prod
+    - job: zip_prod
+      artifacts: true
+  environment: prod
+  dependencies:
+    - zip_prod

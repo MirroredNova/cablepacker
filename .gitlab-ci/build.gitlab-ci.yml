@@ -49,7 +49,7 @@
     - npm prune --production
     - mkdir bundle
     - |
-      cp -r build public package.json startup.sh next.config.js bundle/
+      cp -r build public package.json startup.sh next.config.ts bundle/
       # Enable dotglob to handle hidden files/folders
       shopt -s dotglob
       cd ./bundle

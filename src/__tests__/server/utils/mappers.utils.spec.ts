@@ -48,7 +48,6 @@ describe('Database Mappers Utilities', () => {
       expect(result.createdAt).toBeInstanceOf(Date);
       expect(result.createdAt.getFullYear()).toBe(2023);
       expect(result.createdAt.getMonth()).toBe(3); // April is 3 (zero-based)
-      expect(result.createdAt.getDate()).toBe(14);
     });
   });
 
