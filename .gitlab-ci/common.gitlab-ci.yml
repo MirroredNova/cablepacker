@@ -36,7 +36,7 @@ stages:
   - build
   - test
   - predeploy
-  # - deploy
+  - deploy
   # - postdeploy
   # - release
 
