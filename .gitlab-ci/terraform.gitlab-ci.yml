@@ -5,73 +5,78 @@
     - terraform init -backend=false
     - terraform validate
 
+# QA Jobs
+
 tf_validate_qa:
   extends: .tf_validate
   rules:
     - if: $CI_COMMIT_BRANCH != 'prod'
 
+tf_plan_qa:
+  stage: build
+  extends: .tf_default
+  script:
+    - terraform init -backend-config "subscription_id=b2856ed9-3c85-4c85-bc56-5d88f31bc299" -backend-config "storage_account_name=${TFSTATE_STORAGE_ACCOUNT_NAME}" -backend-config "resource_group_name=${TFSTATE_RESOURCE_GROUP_NAME}" -backend-config "container_name=${TFSTATE_CONTAINER_NAME}" -backend-config "key=dev.tfstate"
+    - terraform plan -var="arm_client_id=${ARM_CLIENT_ID}" -var="arm_client_secret=${ARM_CLIENT_SECRET}" -var="arm_subscription_id=${ARM_SUBSCRIPTION_ID}" -var="arm_tenant_id=${ARM_TENANT_ID}" -var="env_name=qa" -input=false -out="qa.tfplan"
+    - terraform show -json "qa.tfplan" | jq -r '([.resource_changes[]?.change.actions?] | flatten) | {"create":(map(select(.=="create")) | length), "update":(map(select(.=="update")) | length), "delete":(map(select(.=="delete")) | length)}' > plan_qa.json
+  only:
+    - main
+  environment: qa
+  needs: [tf_validate_qa]
+  artifacts:
+    name: plan_qa
+    paths:
+      - ${TF_ROOT}/qa.tfplan
+    reports:
+      terraform: ${TF_ROOT}/plan_qa.json
+
+tf_deploy_qa:
+  stage: deploy
+  extends: .tf_default
+  environment: qa
+  needs: [tf_plan_qa, zip_qa]
+  script:
+    - terraform init -backend-config "subscription_id=b2856ed9-3c85-4c85-bc56-5d88f31bc299" -backend-config "storage_account_name=${TFSTATE_STORAGE_ACCOUNT_NAME}" -backend-config "resource_group_name=${TFSTATE_RESOURCE_GROUP_NAME}" -backend-config "container_name=${TFSTATE_CONTAINER_NAME}" -backend-config "key=dev.tfstate"
+    - terraform apply -input=false qa.tfplan
+  dependencies:
+    - tf_plan_qa
+  when: manual
+  only:
+    - main
+
+# Prod Jobs
+
 tf_validate_prod:
   extends: .tf_validate
   rules:
     - if: $CI_COMMIT_BRANCH == 'prod'
-# tf_plan_qa:
-#   stage: build
-#   extends: .tf_default
-#   script:
-#     - terraform init -backend-config "subscription_id=b2856ed9-3c85-4c85-bc56-5d88f31bc299" -backend-config "storage_account_name=${TFSTATE_STORAGE_ACCOUNT_NAME}" -backend-config "resource_group_name=${TFSTATE_RESOURCE_GROUP_NAME}" -backend-config "container_name=${TFSTATE_CONTAINER_NAME}" -backend-config "key=dev.tfstate"
-#     - terraform plan -var="arm_client_id=${ARM_CLIENT_ID}" -var="arm_client_secret=${ARM_CLIENT_SECRET}" -var="arm_subscription_id=${ARM_SUBSCRIPTION_ID}" -var="arm_tenant_id=${ARM_TENANT_ID}" -var="env_name=qa" -input=false -out="qa.tfplan"
-#     - terraform show -json "qa.tfplan" | jq -r '([.resource_changes[]?.change.actions?] | flatten) | {"create":(map(select(.=="create")) | length), "update":(map(select(.=="update")) | length), "delete":(map(select(.=="delete")) | length)}' > plan_qa.json
-#   only:
-#     - main
-#   environment: qa
-#   needs: [tf_validate_qa]
-#   artifacts:
-#     name: plan_qa
-#     paths:
-#       - ${TF_ROOT}/qa.tfplan
-#     reports:
-#       terraform: ${TF_ROOT}/plan_qa.json
 
-# tf_deploy_qa:
-#   stage: deploy
-#   extends: .tf_default
-#   environment: qa
-#   needs: [tf_plan_qa, zip_web_qa]
-#   script:
-#     - terraform init -backend-config "subscription_id=b2856ed9-3c85-4c85-bc56-5d88f31bc299" -backend-config "storage_account_name=${TFSTATE_STORAGE_ACCOUNT_NAME}" -backend-config "resource_group_name=${TFSTATE_RESOURCE_GROUP_NAME}" -backend-config "container_name=${TFSTATE_CONTAINER_NAME}" -backend-config "key=dev.tfstate"
-#     - terraform apply -input=false qa.tfplan
-#   dependencies:
-#     - tf_plan_qa
-#   when: manual
-#   only:
-#     - main
+tf_plan_prod:
+  stage: build
+  extends: .tf_default
+  script:
+    - terraform init -backend-config "subscription_id=b2856ed9-3c85-4c85-bc56-5d88f31bc299" -backend-config "storage_account_name=${TFSTATE_STORAGE_ACCOUNT_NAME}" -backend-config "resource_group_name=${TFSTATE_RESOURCE_GROUP_NAME}" -backend-config "container_name=${TFSTATE_CONTAINER_NAME}" -backend-config "key=prod.tfstate"
+    - terraform plan -var="arm_client_id=${ARM_CLIENT_ID}" -var="arm_client_secret=${ARM_CLIENT_SECRET}" -var="arm_subscription_id=${ARM_SUBSCRIPTION_ID}" -var="arm_tenant_id=${ARM_TENANT_ID}" -var="env_name=prod" -input=false -out="prod.tfplan"
+    - terraform show -json "prod.tfplan" | jq -r '([.resource_changes[]?.change.actions?] | flatten) | {"create":(map(select(.=="create")) | length), "update":(map(select(.=="update")) | length), "delete":(map(select(.=="delete")) | length)}' > plan_prod.json
+  only:
+    - prod
+  environment: prod
+  needs: [tf_validate_prod]
+  artifacts:
+    name: plan_prod
+    paths:
+      - ${TF_ROOT}/prod.tfplan
 
-# tf_plan_prod:
-#   stage: build
-#   extends: .tf_default
-#   script:
-#     - terraform init -backend-config "subscription_id=b2856ed9-3c85-4c85-bc56-5d88f31bc299" -backend-config "storage_account_name=${TFSTATE_STORAGE_ACCOUNT_NAME}" -backend-config "resource_group_name=${TFSTATE_RESOURCE_GROUP_NAME}" -backend-config "container_name=${TFSTATE_CONTAINER_NAME}" -backend-config "key=prod.tfstate"
-#     - terraform plan -var="arm_client_id=${ARM_CLIENT_ID}" -var="arm_client_secret=${ARM_CLIENT_SECRET}" -var="arm_subscription_id=${ARM_SUBSCRIPTION_ID}" -var="arm_tenant_id=${ARM_TENANT_ID}" -var="env_name=prod" -input=false -out="prod.tfplan"
-#     - terraform show -json "prod.tfplan" | jq -r '([.resource_changes[]?.change.actions?] | flatten) | {"create":(map(select(.=="create")) | length), "update":(map(select(.=="update")) | length), "delete":(map(select(.=="delete")) | length)}' > plan_prod.json
-#   only:
-#     - prod
-#   environment: prod
-#   needs: [tf_validate_prod]
-#   artifacts:
-#     name: plan_prod
-#     paths:
-#       - ${TF_ROOT}/prod.tfplan
-
-# tf_deploy_prod:
-#   stage: deploy
-#   extends: .tf_default
-#   environment: prod
-#   needs: [tf_plan_prod, zip_web_prod]
-#   script:
-#     - terraform init -backend-config "subscription_id=b2856ed9-3c85-4c85-bc56-5d88f31bc299" -backend-config "storage_account_name=${TFSTATE_STORAGE_ACCOUNT_NAME}" -backend-config "resource_group_name=${TFSTATE_RESOURCE_GROUP_NAME}" -backend-config "container_name=${TFSTATE_CONTAINER_NAME}" -backend-config "key=prod.tfstate"
-#     - terraform apply -input=false prod.tfplan
-#   dependencies:
-#     - tf_plan_prod
-#   when: manual
-#   only:
-#     - prod
+tf_deploy_prod:
+  stage: deploy
+  extends: .tf_default
+  environment: prod
+  needs: [tf_plan_prod, zip_prod]
+  script:
+    - terraform init -backend-config "subscription_id=b2856ed9-3c85-4c85-bc56-5d88f31bc299" -backend-config "storage_account_name=${TFSTATE_STORAGE_ACCOUNT_NAME}" -backend-config "resource_group_name=${TFSTATE_RESOURCE_GROUP_NAME}" -backend-config "container_name=${TFSTATE_CONTAINER_NAME}" -backend-config "key=prod.tfstate"
+    - terraform apply -input=false prod.tfplan
+  dependencies:
+    - tf_plan_prod
+  when: manual
+  only:
+    - prod

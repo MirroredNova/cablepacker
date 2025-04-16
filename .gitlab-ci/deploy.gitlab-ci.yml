@@ -9,9 +9,9 @@
   script:
     # - az login --service-principal -u ${ARM_CLIENT_ID} -p ${ARM_CLIENT_SECRET} --tenant ${ARM_TENANT_ID}
     # - az account set --subscription ${ARM_SUBSCRIPTION_ID}
-    # - az appservice plan update --name ${ARM_APP_SERVICE_PLAN_NAME} --resource-group ${ARM_RESOURCE_GROUP_NAME} --sku ${ASP_DEPLOYMENT_TARGET_SKU}
-    # - az webapp deployment source config-zip --resource-group ${ARM_RESOURCE_GROUP_NAME} --name ${ARM_APP_SERVICE_NAME} --src ./bundle.zip
-    # - az appservice plan update --name ${ARM_APP_SERVICE_PLAN_NAME} --resource-group ${ARM_RESOURCE_GROUP_NAME} --sku ${ASP_SKU}
+    # - az appservice plan update --name ${ARM_WEB_APP_SERVICE_PLAN_NAME} --resource-group ${ARM_RESOURCE_GROUP_NAME} --sku ${WEB_ASP_DEPLOYMENT_TARGET_SKU}
+    # - az webapp deployment source config-zip --resource-group ${ARM_RESOURCE_GROUP_NAME} --name ${ARM_WEB_APP_SERVICE_NAME} --src ./bundle.zip
+    # - az appservice plan update --name ${ARM_WEB_APP_SERVICE_PLAN_NAME} --resource-group ${ARM_RESOURCE_GROUP_NAME} --sku ${WEB_ASP_SKU}
     # - az logout
     - echo "Deploying to ${CI_ENVIRONMENT_NAME} environment"
 
