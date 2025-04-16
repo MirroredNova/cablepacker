@@ -2,7 +2,7 @@
   stage: .pre
   extends: .npm_default
   script:
-    - npm ci --cache .npm --prefer-offline
+    - npm ci --prefer-offline
   artifacts:
     expire_in: 2 hrs
     paths:
@@ -26,6 +26,44 @@
     reports:
       dotenv: version.env
 
+.testing:
+  stage: test
+  extends: .npm_default
+  script:
+    - npm run test
+  artifacts:
+    expire_in: 2 hrs
+    paths:
+      - build/
+      - version.env
+    reports:
+      dotenv: version.env
+
+.zip:
+  stage: predeploy
+  extends: .npm_default
+  before_script:
+    - apt-get update
+    - apt-get -y install zip jq
+  script:
+    - npm prune --production
+    - mkdir bundle
+    - |
+      cp -r build public package.json startup.sh next.config.js bundle/
+      # Enable dotglob to handle hidden files/folders
+      shopt -s dotglob
+      cd ./bundle
+      zip -r ../bundle.zip *
+  artifacts:
+    expire_in: 2 hrs
+    paths:
+      - ./bundle.zip
+      - version.env
+    reports:
+      dotenv: version.env
+
+# QA Jobs
+
 install_dependencies_qa:
   extends: .install_dependencies
   needs:
@@ -35,16 +73,6 @@ install_dependencies_qa:
   environment: qa
   rules:
     - if: $CI_COMMIT_BRANCH != 'prod'
-
-install_dependencies_prod:
-  extends: .install_dependencies
-  needs:
-    - job: bump_version_prod
-      optional: true
-      artifacts: true
-  environment: prod
-  rules:
-    - if: $CI_COMMIT_BRANCH == 'prod'
 
 build_app_qa:
   extends: .build_app
@@ -57,6 +85,38 @@ build_app_qa:
   rules:
     - if: $CI_COMMIT_BRANCH != 'prod'
 
+testing_qa:
+  extends: .testing
+  needs:
+    - job: build_app_qa
+      artifacts: true
+  dependencies:
+    - build_app_qa
+  rules:
+    - if: $CI_COMMIT_BRANCH != 'prod'
+
+zip_qa:
+  extends: .zip
+  needs:
+    - job: build_app_qa
+      artifacts: true
+  dependencies:
+    - build_app_qa
+  rules:
+    - if: $CI_COMMIT_BRANCH != 'prod'
+
+# Prod Jobs
+
+install_dependencies_prod:
+  extends: .install_dependencies
+  needs:
+    - job: bump_version_prod
+      optional: true
+      artifacts: true
+  environment: prod
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'prod'
+
 build_app_prod:
   extends: .build_app
   needs:
@@ -65,5 +125,25 @@ build_app_prod:
   dependencies:
     - install_dependencies_prod
   environment: prod
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'prod'
+
+testing_prod:
+  extends: .testing
+  needs:
+    - job: build_app_prod
+      artifacts: true
+  dependencies:
+    - build_app_prod
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'prod'
+
+zip_prod:
+  extends: .zip
+  needs:
+    - job: build_app_prod
+      artifacts: true
+  dependencies:
+    - build_app_prod
   rules:
     - if: $CI_COMMIT_BRANCH == 'prod'
