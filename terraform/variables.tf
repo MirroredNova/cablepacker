@@ -50,6 +50,11 @@ variable "resource_region_in_name" {
   type        = string
 }
 
+variable "default_tags" {
+  type        = map(string)
+  description = "Default tags for the resources"
+}
+
 ## VNET AND PRIVATE ENDPOINT
 
 variable "vnet_resource_group" {
