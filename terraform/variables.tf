@@ -117,7 +117,7 @@ variable "app_service_settings" {
 variable "app_service_startup_command" {
   type        = string
   description = "Web App service startup command"
-  default     = "/home/site/wwwroot/startup.sh"
+  default     = "node build/server.js"
 }
 
 # variable "app_service_custom_domain" {
