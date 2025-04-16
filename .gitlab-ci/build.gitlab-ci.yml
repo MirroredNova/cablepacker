@@ -45,10 +45,11 @@
   extends: .npm_default
   before_script:
     - apt-get update
-    - apt-get -y install zip
+    - apt-get -y install zip jq
   script:
-    - echo "Zipping app..."
-    - zip -q -r build.zip  ./build
+    - echo "Zipping CPC web app..."
+    - cd build
+    - zip -r ../build.zip *
     - echo "Zipping completed"
   artifacts:
     expire_in: 2 hrs
