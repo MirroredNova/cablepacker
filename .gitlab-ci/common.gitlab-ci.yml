@@ -35,8 +35,8 @@ variables:
   WEB_REINITIALIZE_INTL_URL: $WEB_REINITIALIZE_INTL_URL
 
   # Proxy
-  NO_PROXY: $NO_PROXY,privatelink.azurewebsites.net,scm.azurewebsites.net,privatelink.snowflakecomputing.com,gitlabp2.alliant-energy.com
-  no_proxy: $NO_PROXY,privatelink.azurewebsites.net,scm.azurewebsites.net,privatelink.snowflakecomputing.com,gitlabp2.alliant-energy.com
+  NO_PROXY: $NO_PROXY,privatelink.azurewebsites.net,scm.azurewebsites.net,ae-solarassista-qa-api.azurewebsites.net,ae-solarassista-qa-web.azurewebsites.net,ae-solarassista-qa-web.scm.azurewebsites.net,ae-solarassista-prod-api.azurewebsites.net,ae-solarassista-prod-web.azurewebsites.net,privatelink.snowflakecomputing.com,gitlabp2.alliant-energy.com,z22.web.core.windows.net,stsolarassistaqacus.blob.core.windows.net,privatelink.blob.core.windows.net,stsolarassistaprodcus.blob.core.windows.net,solarassista-qa.alliantenergy.com,solarassista.alliantenergy.com,func-solarassista-qa-cus.azurewebsites.net,applicantassist.alliantenergy.com,applicantassist-api.alliantenergy.com,applicantassist-qa.alliantenergy.com,dgassist-qa.alliantenergy.com,dgassist.alliantenergy.com,,applicantassist-api-qa.alliantenergy.com,dgassist-api-qa.alliantenergy.com,dgassist-api.alliantenergy.com
+  no_proxy: $NO_PROXY,privatelink.azurewebsites.net,scm.azurewebsites.net,ae-solarassista-qa-api.azurewebsites.net,ae-solarassista-qa-web.azurewebsites.net,ae-solarassista-qa-web.scm.azurewebsites.net,ae-solarassista-prod-api.azurewebsites.net,ae-solarassista-prod-web.azurewebsites.net,privatelink.snowflakecomputing.com,gitlabp2.alliant-energy.com,z22.web.core.windows.net,stsolarassistaqacus.blob.core.windows.net,privatelink.blob.core.windows.net,stsolarassistaprodcus.blob.core.windows.net,solarassista-qa.alliantenergy.com,solarassista.alliantenergy.com,func-solarassista-qa-cus.azurewebsites.net,applicantassist.alliantenergy.com,applicantassist-api.alliantenergy.com,applicantassist-qa.alliantenergy.com,dgassist-qa.alliantenergy.com,dgassist.alliantenergy.com,,applicantassist-api-qa.alliantenergy.com,dgassist-api-qa.alliantenergy.com,dgassist-api.alliantenergy.com
 
 stages:
   - .pre
