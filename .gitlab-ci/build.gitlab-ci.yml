@@ -1,0 +1,32 @@
+.install_dependencies:
+  stage: .pre
+  extends: .npm_default
+  script:
+    - npm ci --cache .npm --prefer-offline
+  artifacts:
+    expire_in: 2 hrs
+    paths:
+      - node_modules/
+      - version.env
+    reports:
+      dotenv: version.env
+
+install_dependencies_qa:
+  extends: .install_dependencies
+  needs:
+    - job: bump_version_qa
+      optional: true
+      artifacts: true
+  environment: qa
+  rules:
+    - if: $CI_COMMIT_BRANCH != 'prod'
+
+install_dependencies_prod:
+  extends: .install_dependencies
+  needs:
+    - job: bump_version_prod
+      optional: true
+      artifacts: true
+  environment: prod
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'prod'

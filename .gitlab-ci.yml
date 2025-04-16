@@ -20,9 +20,4 @@
     - echo "Environment is: ${ENV}"
 
 include:
-  - local: '.gitlab-ci/*.yml'
-
-stages:
-  - tf_validate
-  - tf_plan
-  - tf_apply
+  - local: ".gitlab-ci/*.yml"

@@ -42,10 +42,10 @@ stages:
   - .pre
   - build
   - test
-  - predeploy
-  - deploy
-  - postdeploy
-  - release
+  # - predeploy
+  # - deploy
+  # - postdeploy
+  # - release
 
 .npm_default:
   image: gitlabp2.alliant-energy.com:5050/devops/gitlab-ci-images/ae-node-18:18

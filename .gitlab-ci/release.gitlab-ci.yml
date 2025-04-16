@@ -1,0 +1,67 @@
+# .reinitialize_web_intl:
+#   stage: postdeploy
+#   extends: .npm_default
+#   script:
+#     - echo "Environment variable WEB_REINITIALIZE_INTL_URL=" $WEB_REINITIALIZE_INTL_URL
+#     - curl -v --request POST "${WEB_REINITIALIZE_INTL_URL}" > /dev/null
+#   artifacts:
+#     paths:
+#     - version.env
+#     reports:
+#       dotenv: version.env
+
+# reinitialize_web_intl_qa:
+#   extends: .reinitialize_web_intl
+#   needs:
+#     - job: deploy_web_qa
+#   dependencies:
+#     - deploy_web_qa
+#   environment: qa
+#   only: 
+#     - main
+
+# reinitialize_web_intl_prod:
+#   extends: .reinitialize_web_intl
+#   needs:
+#     - job: deploy_web_prod
+#   dependencies:
+#     - deploy_web_prod
+#   environment: prod
+#   only: 
+#     - prod
+
+# release_job:
+#   stage: release
+#   extends: .npm_default
+#   rules:
+#     - if: $CI_COMMIT_BRANCH == 'main'
+#     - if: $CI_COMMIT_BRANCH == 'prod'
+#   script:
+#     - >
+#       if [[ "$CI_COMMIT_BRANCH" == "prod" ]]; then
+#         curl --header 'Content-Type: application/json' --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+#           --data "{ \"name\": \"Release prod_${APP_VERSION}\", \"tag_name\": \"prod_${APP_VERSION}\", \"ref\": \"prod_${APP_VERSION}\", \"description\": \"Release prod_${APP_VERSION}\" }" \
+#           --request POST "https://gitlabp2.alliant-energy.com/api/v4/projects/${CI_PROJECT_ID}/releases" > /dev/null 
+#       else
+#         curl --header 'Content-Type: application/json' --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+#           --data "{ \"name\": \"Release ${APP_VERSION}\", \"tag_name\": \"${APP_VERSION}\", \"ref\": \"${APP_VERSION}\", \"description\": \"Release ${APP_VERSION}\" }" \
+#           --request POST "https://gitlabp2.alliant-energy.com/api/v4/projects/${CI_PROJECT_ID}/releases" > /dev/null        
+#       fi
+#   needs:
+#     - job: deploy_api_qa
+#       optional: true
+#       artifacts: true
+#     - job: deploy_web_qa
+#       optional: true
+#       artifacts: true
+#     - job: deploy_api_prod
+#       optional: true
+#       artifacts: true
+#     - job: deploy_web_prod
+#       optional: true
+#       artifacts: true
+#   artifacts:
+#     paths:
+#     - version.env
+#     reports:
+#       dotenv: version.env

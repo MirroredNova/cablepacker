@@ -25,6 +25,7 @@ To get started with the Cable Packer project, follow these steps:
 ## Environment Variables
 Create a `.env.local` file in the project root with the following variables:
 
+```bash
 ### ALGORITHM
 MAX_ITERATIONS=100
 RADIUS_STEP_SIZE=0.01
@@ -57,3 +58,4 @@ SFDB_MIN_POOL_SIZE=0
 SFDB_MAX_POOL_SIZE=1
 SFDB_ACQUIRETIMEOUTMILLIS=60000
 SFDB_EVICTIONRUNINTERVALMILLIS=3600000
+```
