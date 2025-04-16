@@ -35,8 +35,8 @@ variables:
   WEB_REINITIALIZE_INTL_URL: $WEB_REINITIALIZE_INTL_URL
 
   # Proxy
-  NO_PROXY: $NO_PROXY,privatelink.azurewebsites.net,scm.azurewebsites.net
-  no_proxy: $NO_PROXY,privatelink.azurewebsites.net,scm.azurewebsites.net
+  NO_PROXY: $NO_PROXY,privatelink.azurewebsites.net,scm.azurewebsites.net,privatelink.snowflakecomputing.com,gitlabp2.alliant-energy.com
+  no_proxy: $NO_PROXY,privatelink.azurewebsites.net,scm.azurewebsites.net,privatelink.snowflakecomputing.com,gitlabp2.alliant-energy.com
 
 stages:
   - .pre
