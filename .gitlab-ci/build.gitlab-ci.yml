@@ -11,6 +11,21 @@
     reports:
       dotenv: version.env
 
+.build_app:
+  stage: build
+  extends: .npm_default
+  script:
+    - npm version $APP_VERSION
+    - npm run build
+  artifacts:
+    expire_in: 2 hrs
+    paths:
+      - build/
+      - node_modules/
+      - version.env
+    reports:
+      dotenv: version.env
+
 install_dependencies_qa:
   extends: .install_dependencies
   needs:
@@ -27,6 +42,28 @@ install_dependencies_prod:
     - job: bump_version_prod
       optional: true
       artifacts: true
+  environment: prod
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'prod'
+
+build_app_qa:
+  extends: .build_app
+  needs:
+    - job: install_dependencies_qa
+      artifacts: true
+  dependencies:
+    - install_dependencies_qa
+  environment: qa
+  rules:
+    - if: $CI_COMMIT_BRANCH != 'prod'
+
+build_app_prod:
+  extends: .build_app
+  needs:
+    - job: install_dependencies_prod
+      artifacts: true
+  dependencies:
+    - install_dependencies_prod
   environment: prod
   rules:
     - if: $CI_COMMIT_BRANCH == 'prod'
