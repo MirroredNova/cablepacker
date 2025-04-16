@@ -37,7 +37,6 @@ stages:
   - test
   - predeploy
   - deploy
-  # - postdeploy
   # - release
 
 .npm_default:

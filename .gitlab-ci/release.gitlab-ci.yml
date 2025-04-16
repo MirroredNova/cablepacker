@@ -1,35 +1,3 @@
-.reinitialize_web_intl:
-  stage: postdeploy
-  extends: .npm_default
-  script:
-    - echo "Environment variable WEB_REINITIALIZE_INTL_URL=" $WEB_REINITIALIZE_INTL_URL
-    - curl -v --request POST "${WEB_REINITIALIZE_INTL_URL}" > /dev/null
-  artifacts:
-    paths:
-    - version.env
-    reports:
-      dotenv: version.env
-
-# reinitialize_web_intl_qa:
-#   extends: .reinitialize_web_intl
-#   needs:
-#     - job: deploy_web_qa
-#   dependencies:
-#     - deploy_web_qa
-#   environment: qa
-#   only: 
-#     - main
-
-# reinitialize_web_intl_prod:
-#   extends: .reinitialize_web_intl
-#   needs:
-#     - job: deploy_web_prod
-#   dependencies:
-#     - deploy_web_prod
-#   environment: prod
-#   only: 
-#     - prod
-
 # release_job:
 #   stage: release
 #   extends: .npm_default
