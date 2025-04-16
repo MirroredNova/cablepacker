@@ -34,8 +34,8 @@ variables:
 stages:
   - .pre
   - build
-  # - test
-  # - predeploy
+  - test
+  - predeploy
   # - deploy
   # - postdeploy
   # - release
