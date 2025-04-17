@@ -16,6 +16,17 @@ resource "azurerm_linux_web_app" "app" {
     always_on        = var.app_app_service_always_on
     app_command_line = var.app_service_startup_command
   }
+
+  logs {
+    detailed_error_messages = var.app_service_logs_detailed_error_messages
+    failed_request_tracing  = var.app_service_logs_failed_request_tracing
+    http_logs {
+      file_system {
+        retention_in_days = var.app_service_logs_file_system_retention_in_days
+        retention_in_mb   = var.app_service_logs_file_system_retention_in_mb
+      }
+    }
+  }
   
   app_settings = var.app_service_settings
   tags = azurerm_resource_group.rg.tags
