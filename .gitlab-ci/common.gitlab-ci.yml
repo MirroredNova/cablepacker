@@ -22,11 +22,6 @@ variables:
   # Versioning
   GITLAB_TOKEN: $GITLAB_TOKEN
 
-  # Application
-  INCLUDE_NODE_MODULES_IN_ZIP: $INCLUDE_NODE_MODULES_IN_ZIP
-  LOAD_MESSAGES_LOCALLY: $LOAD_MESSAGES_LOCALLY
-  WEB_REINITIALIZE_INTL_URL: $WEB_REINITIALIZE_INTL_URL
-
   # Proxy
   NO_PROXY: $NO_PROXY,privatelink.azurewebsites.net,scm.azurewebsites.net,privatelink.blob.core.windows.net,privatelink.snowflakecomputing.com,gitlabp2.alliant-energy.com,z22.web.core.windows.net
   no_proxy: $NO_PROXY,privatelink.azurewebsites.net,scm.azurewebsites.net,privatelink.blob.core.windows.net,privatelink.snowflakecomputing.com,gitlabp2.alliant-energy.com,z22.web.core.windows.net

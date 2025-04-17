@@ -9,7 +9,7 @@
   script:
     - az login --service-principal -u ${ARM_CLIENT_ID} -p ${ARM_CLIENT_SECRET} --tenant ${ARM_TENANT_ID}
     - az account set --subscription ${ARM_SUBSCRIPTION_ID}
-    - az webapp deploy --src-path ./bundle.zip --resource-group ${ARM_RESOURCE_GROUP_NAME} --name ${ARM_WEB_APP_SERVICE_NAME} --type zip --async
+    - az webapp deploy --src-path ./build.zip --resource-group ${ARM_RESOURCE_GROUP_NAME} --name ${ARM_WEB_APP_SERVICE_NAME} --type zip --async
     - az logout
 
 deploy_qa:

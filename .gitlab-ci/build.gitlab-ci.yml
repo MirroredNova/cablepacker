@@ -16,7 +16,9 @@
   extends: .npm_default
   script:
     - npm version $APP_VERSION
+    - npm prune --production
     - npm run build
+    - cp -r .next/standalone build
   artifacts:
     expire_in: 2 hrs
     paths:
@@ -46,19 +48,13 @@
     - apt-get update
     - apt-get -y install zip jq
   script:
-    - npm prune --production
-    - mkdir bundle
-    - |
-      cp -r build public package.json startup.sh next.config.ts bundle/
-      # mv node_modules/ bundle/
-      # Enable dotglob to handle hidden files/folders
-      shopt -s dotglob
-      cd ./bundle
-      zip -r ../bundle.zip *
+    - cd build
+    - shopt -s dotglob # This statement is required to allow zipping .next folder
+    - zip -r ../build.zip *
   artifacts:
     expire_in: 2 hrs
     paths:
-      - ./bundle.zip
+      - build.zip
       - version.env
     reports:
       dotenv: version.env
