@@ -17,7 +17,6 @@
   script:
     - npm version $APP_VERSION
     - npm run build
-    - npm prune --production
     - cp -r .next/standalone build
   artifacts:
     expire_in: 2 hrs
