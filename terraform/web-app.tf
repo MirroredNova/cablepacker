@@ -7,7 +7,7 @@ resource "azurerm_linux_web_app" "app" {
   location            = azurerm_resource_group.rg.location
   service_plan_id     = azurerm_service_plan.asp.id
   public_network_access_enabled = var.app_service_public_network_access_enabled
-  https_only = true
+  https_only = false
   
   site_config {
     application_stack {
@@ -17,7 +17,11 @@ resource "azurerm_linux_web_app" "app" {
     app_command_line = var.app_service_startup_command
   }
   
-  app_settings = var.app_service_settings
+  app_settings = merge(var.app_service_settings, {
+    "WEBSITE_NODE_DEFAULT_VERSION" = var.app_service_node_version
+    "SCM_DO_BUILD_DURING_DEPLOYMENT": "true"
+    "ENABLE_ORYX_BUILD": "true"
+  })
   tags = azurerm_resource_group.rg.tags
 }
 
