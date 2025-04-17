@@ -50,7 +50,7 @@
     - mkdir bundle
     - |
       cp -r build public package.json startup.sh next.config.ts bundle/
-      mv node_modules/ bundle/
+      # mv node_modules/ bundle/
       # Enable dotglob to handle hidden files/folders
       shopt -s dotglob
       cd ./bundle
