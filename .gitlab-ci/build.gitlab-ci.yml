@@ -15,18 +15,12 @@
   stage: build
   extends: .npm_default
   script:
-    - echo "Building CPC web app..."
     - npm version $APP_VERSION
     - npm run build
-    - echo "Build completed"
   artifacts:
     expire_in: 2 hrs
     paths:
-      - .next/
-      - public/
-      - package.json
-      - package-lock.json
-      - next.config.ts
+      - build/
       - node_modules/
       - version.env
     reports:
@@ -52,26 +46,18 @@
     - apt-get update
     - apt-get -y install zip jq
   script:
-    - echo "Preparing deployment package..."
     - npm prune --production
-    - mkdir -p build
+    - mkdir bundle
     - |
-      # Copy all required files to build directory
-      cp -r .next public package.json package-lock.json next.config.ts node_modules build/
-      # Add a startup script
-      echo "#!/bin/bash" > build/startup.sh
-      echo "cd /home/site/wwwroot" >> build/startup.sh
-      echo "npm start" >> build/startup.sh
-      chmod +x build/startup.sh
-
-      # Create the zip file
-      cd build
-      zip -r ../build.zip *
-    - echo "Zipping completed"
+      cp -r build public package.json startup.sh next.config.ts bundle/
+      # Enable dotglob to handle hidden files/folders
+      shopt -s dotglob
+      cd ./bundle
+      zip -r ../bundle.zip *
   artifacts:
     expire_in: 2 hrs
     paths:
-      - ./build.zip
+      - ./bundle.zip
       - version.env
     reports:
       dotenv: version.env
