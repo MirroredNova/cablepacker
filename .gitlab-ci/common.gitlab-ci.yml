@@ -62,11 +62,11 @@ stages:
 .azcli_default:
   image: gitlabp2.alliant-energy.com:5050/cloud/gitlab-ci-images/ae-azurecli:latest
   before_script:
-    - unset HTTPS_PROXY
-    - unset HTTP_PROXY
-    - unset https_proxy
-    - unset http_proxy
-    - unset NO_PROXY
-    - unset no_proxy
+    # - unset HTTPS_PROXY
+    # - unset HTTP_PROXY
+    # - unset https_proxy
+    # - unset http_proxy
+    # - unset NO_PROXY
+    # - unset no_proxy
     - echo "Azure CLI version " $(az --version)
     - echo "App build version " $APP_VERSION
