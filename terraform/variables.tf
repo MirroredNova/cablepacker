@@ -156,10 +156,21 @@ variable "app_service_logs_file_system_retention_in_mb" {
   default     = 100
 }
 
+## PRIVATE ENDPOINT
+
+variable "pe_static_ip" {
+  type        = string
+  default     = "10.66.148.132"
+  description = "App Service Private Endpoint static IP address"
+}
+
 ## LOCALS
 
 locals {
   resource_group_name = join("-", compact(["rg", var.base_name, var.env_name, var.resource_region_in_name]))
   asp_name = join("-", compact(["asp", var.base_name, var.env_name, var.resource_region_in_name]))
   app_service_name = join("-", compact(["app", var.base_name, var.env_name, var.resource_region_in_name]))
+  app_service_pe_name = join("-", compact(["pe", var.base_name, var.env_name, var.resource_region_in_name]))
+  pe_ip_config_name = join("-", compact(["pep", "ip", var.base_name, var.env_name, var.resource_region_in_name]))
+  app_service_private_connection_name = join("-", compact(["pec", var.base_name, var.env_name, var.resource_region_in_name]))
 }
