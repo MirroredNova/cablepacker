@@ -100,7 +100,7 @@ variable "asp_sku" {
 variable "app_service_public_network_access_enabled" {
   type        = bool
   description = "Toggles public network access for Web"
-  default     = true
+  default     = false
 }
 
 variable "app_service_node_version" {
