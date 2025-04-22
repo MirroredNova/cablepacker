@@ -30,6 +30,7 @@ resource "azurerm_linux_web_app" "app" {
   
   app_settings = var.app_service_settings
   tags = azurerm_resource_group.rg.tags
+  lifecycle { ignore_changes = [virtual_network_subnet_id] }
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "appout_swift_connection" {
