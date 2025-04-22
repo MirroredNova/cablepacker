@@ -32,7 +32,7 @@ resource "azurerm_linux_web_app" "app" {
   tags = azurerm_resource_group.rg.tags
 }
 
-resource "azurerm_app_service_virtual_network_swift_connection" "web_appout_swift_connection" {
+resource "azurerm_app_service_virtual_network_swift_connection" "appout_swift_connection" {
   depends_on = [
     azurerm_linux_web_app.app
   ]
