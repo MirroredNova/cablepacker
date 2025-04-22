@@ -1,6 +1,6 @@
 resource "azurerm_private_endpoint" "web_pe" {
   depends_on = [
-    azurerm_linux_web_app.web_app
+    azurerm_linux_web_app.app
   ]
   name                = local.app_service_pe_name
   location            = azurerm_resource_group.rg.location
