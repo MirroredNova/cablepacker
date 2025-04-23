@@ -92,7 +92,7 @@ variable "asp_os_type" {
 variable "asp_sku" {
   type        = string
   description = "App service plan SKU"
-  default     = "S1"
+  default     = "B1"
 }
 
 ## APP SERVICE
