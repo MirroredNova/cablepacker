@@ -21,7 +21,7 @@ bump_version_qa:
   # $CI_COMMIT_TAG => This check prevents the job to run on a tag
   # $CI_COMMIT_BRANCH => This will make the job run only on default branch, i.e. main branch
   rules:
-    - if: ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "schedule") && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == 'qa'
+    - if: ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "schedule") && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 bump_version_prod:
   extends: .bump_version
