@@ -68,7 +68,7 @@ install_dependencies_qa:
       artifacts: true
   environment: qa
   rules:
-    - if: $CI_COMMIT_BRANCH != 'prod'
+    - if: $CI_COMMIT_BRANCH != 'main'
 
 build_app_qa:
   extends: .build_app
@@ -79,7 +79,7 @@ build_app_qa:
     - install_dependencies_qa
   environment: qa
   rules:
-    - if: $CI_COMMIT_BRANCH != 'prod'
+    - if: $CI_COMMIT_BRANCH != 'main'
 
 testing_qa:
   extends: .testing
@@ -89,7 +89,7 @@ testing_qa:
   dependencies:
     - build_app_qa
   rules:
-    - if: $CI_COMMIT_BRANCH != 'prod'
+    - if: $CI_COMMIT_BRANCH != 'main'
 
 zip_qa:
   extends: .zip
@@ -99,7 +99,7 @@ zip_qa:
   dependencies:
     - build_app_qa
   rules:
-    - if: $CI_COMMIT_BRANCH != 'prod'
+    - if: $CI_COMMIT_BRANCH != 'main'
 
 # Prod Jobs
 
@@ -111,7 +111,7 @@ install_dependencies_prod:
       artifacts: true
   environment: prod
   rules:
-    - if: $CI_COMMIT_BRANCH == 'prod'
+    - if: $CI_COMMIT_BRANCH == 'main'
 
 build_app_prod:
   extends: .build_app
@@ -122,7 +122,7 @@ build_app_prod:
     - install_dependencies_prod
   environment: prod
   rules:
-    - if: $CI_COMMIT_BRANCH == 'prod'
+    - if: $CI_COMMIT_BRANCH == 'main'
 
 testing_prod:
   extends: .testing
@@ -132,7 +132,7 @@ testing_prod:
   dependencies:
     - build_app_prod
   rules:
-    - if: $CI_COMMIT_BRANCH == 'prod'
+    - if: $CI_COMMIT_BRANCH == 'main'
 
 zip_prod:
   extends: .zip
@@ -142,4 +142,4 @@ zip_prod:
   dependencies:
     - build_app_prod
   rules:
-    - if: $CI_COMMIT_BRANCH == 'prod'
+    - if: $CI_COMMIT_BRANCH == 'main'

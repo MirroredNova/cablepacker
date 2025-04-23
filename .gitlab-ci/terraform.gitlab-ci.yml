@@ -10,7 +10,7 @@
 tf_validate_qa:
   extends: .tf_validate
   rules:
-    - if: $CI_COMMIT_BRANCH != 'prod'
+    - if: $CI_COMMIT_BRANCH != 'main'
 
 tf_plan_qa:
   stage: build
@@ -20,7 +20,7 @@ tf_plan_qa:
     - terraform plan -var="arm_client_id=${ARM_CLIENT_ID}" -var="arm_client_secret=${ARM_CLIENT_SECRET}" -var="arm_subscription_id=${ARM_SUBSCRIPTION_ID}" -var="arm_tenant_id=${ARM_TENANT_ID}" -var="env_name=qa" -input=false -out="qa.tfplan"
     - terraform show -json "qa.tfplan" | jq -r '([.resource_changes[]?.change.actions?] | flatten) | {"create":(map(select(.=="create")) | length), "update":(map(select(.=="update")) | length), "delete":(map(select(.=="delete")) | length)}' > plan_qa.json
   only:
-    - main
+    - qa
   environment: qa
   needs: [tf_validate_qa]
   artifacts:
@@ -42,14 +42,14 @@ tf_deploy_qa:
     - tf_plan_qa
   when: manual
   only:
-    - main
+    - qa
 
 # Prod Jobs
 
 tf_validate_prod:
   extends: .tf_validate
   rules:
-    - if: $CI_COMMIT_BRANCH == 'prod'
+    - if: $CI_COMMIT_BRANCH == 'main'
 
 tf_plan_prod:
   stage: build
@@ -59,7 +59,7 @@ tf_plan_prod:
     - terraform plan -var="arm_client_id=${ARM_CLIENT_ID}" -var="arm_client_secret=${ARM_CLIENT_SECRET}" -var="arm_subscription_id=${ARM_SUBSCRIPTION_ID}" -var="arm_tenant_id=${ARM_TENANT_ID}" -var="env_name=prod" -input=false -out="prod.tfplan"
     - terraform show -json "prod.tfplan" | jq -r '([.resource_changes[]?.change.actions?] | flatten) | {"create":(map(select(.=="create")) | length), "update":(map(select(.=="update")) | length), "delete":(map(select(.=="delete")) | length)}' > plan_prod.json
   only:
-    - prod
+    - main
   environment: prod
   needs: [tf_validate_prod]
   artifacts:
@@ -79,4 +79,4 @@ tf_deploy_prod:
     - tf_plan_prod
   when: manual
   only:
-    - prod
+    - main

@@ -15,7 +15,7 @@
 deploy_qa:
   extends: .deploy
   only:
-    - main
+    - qa
   needs:
     - job: tf_deploy_qa
     - job: zip_qa
@@ -27,7 +27,7 @@ deploy_qa:
 deploy_prod:
   extends: .deploy
   only:
-    - prod
+    - main
   needs:
     - job: tf_deploy_prod
     - job: zip_prod
