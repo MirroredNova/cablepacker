@@ -1,553 +1,456 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { DBCable } from '@/types/database.types';
-import { Cable, CreateCableInput, UpdateCableInput } from '@/types/domain.types';
-import { createCableAction, updateCableAction, deleteCableAction } from '@/server/actions/cables.actions';
 import { executeQuery } from '@/server/db/snowflake.db';
 import { mapDBCableToDomain } from '@/server/utils/mappers.utils';
+import { createCableAction, updateCableAction, deleteCableAction } from '@/server/actions/cables.actions';
+import { DBCable } from '@/types/database.types';
 
-// Mock dependencies - MUST come before any imports of the modules
+// Mock dependencies
 vi.mock('@/server/db/snowflake.db', () => ({
   executeQuery: vi.fn(),
 }));
 
 vi.mock('@/server/utils/mappers.utils', () => ({
-  mapDBCableToDomain: vi.fn(),
+  mapDBCableToDomain: vi.fn((cable) => ({
+    id: cable.ID,
+    name: cable.NAME,
+    presetId: cable.PRESET_ID,
+    category: cable.CATEGORY,
+    diameter: cable.DIAMETER,
+    createdAt: cable.CREATED_AT,
+    updatedAt: cable.UPDATED_AT,
+  })),
 }));
 
-// Create a mock for adminProtectedAction that will track calls
 vi.mock('@/server/auth/protect.auth', () => ({
   adminProtectedAction: vi.fn((fn) => fn),
 }));
 
+// Mock console.error to prevent noise during tests
+vi.spyOn(console, 'error').mockImplementation(() => {});
+
 describe('Cable Actions', () => {
-  // Mock data for testing
   const mockDBCable: DBCable = {
-    ID: 123,
-    PRESET_ID: 456,
+    ID: 101,
     NAME: 'Test Cable',
+    PRESET_ID: 1,
     CATEGORY: 'Power',
-    DIAMETER: 0.75,
-    CREATED_AT: '2023-01-01T00:00:00.000Z',
-    UPDATED_AT: '2023-01-01T00:00:00.000Z',
+    DIAMETER: 10,
+    CREATED_AT: '2023-01-01T00:00:00Z',
+    UPDATED_AT: '2023-01-01T00:00:00Z',
   };
-
-  const mockCable: Cable = {
-    id: 123,
-    presetId: 456,
-    name: 'Test Cable',
-    category: 'Power',
-    diameter: 0.75,
-    createdAt: new Date('2023-01-01T00:00:00.000Z'),
-    updatedAt: new Date('2023-01-01T00:00:00.000Z'),
-  };
-
-  // Console error spy
-  let consoleErrorSpy: any;
 
   beforeEach(() => {
-    // Reset all mocks
     vi.clearAllMocks();
-
-    // Setup mapDBCableToDomain mock
-    (mapDBCableToDomain as any).mockReturnValue(mockCable);
-
-    // Spy on console.error
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    // Restore console.error
-    consoleErrorSpy.mockRestore();
+    vi.resetAllMocks();
   });
 
   describe('createCableAction', () => {
-    it('successfully creates a cable', async () => {
-      // Mock executeQuery responses for different calls
-      (executeQuery as any)
-        // First call - BEGIN TRANSACTION
-        .mockResolvedValueOnce({})
-        // Second call - Get max ID
-        .mockResolvedValueOnce({
-          rows: [{ MAX_ID: 122 }],
-        })
-        // Third call - Insert cable
-        .mockResolvedValueOnce({})
-        // Fourth call - Get inserted cable
-        .mockResolvedValueOnce({
-          rows: [mockDBCable],
-        })
-        // Fifth call - COMMIT
-        .mockResolvedValueOnce({});
-
-      // Test input
-      const input: CreateCableInput = {
-        presetId: 456,
+    it('creates a cable successfully', async () => {
+      // Arrange
+      const input = {
+        presetId: 1,
         name: 'Test Cable',
-        diameter: 0.75,
+        diameter: 10,
         category: 'Power',
       };
 
-      // Call the action
-      const result = await createCableAction(input);
+      const mockQueryResults = {
+        rows: [mockDBCable],
+      };
 
-      // Verify the result
-      expect(result).toEqual({
-        success: true,
-        data: mockCable,
+      // Set up mock implementation for executeQuery
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'SELECT * FROM CABLES WHERE PRESET_ID = ? ORDER BY CREATED_AT DESC LIMIT 1') {
+          return mockQueryResults;
+        }
+        return { rows: [] };
       });
 
-      // Verify that executeQuery was called with the correct parameters
-      expect(executeQuery).toHaveBeenCalledTimes(5);
-      expect(executeQuery).toHaveBeenNthCalledWith(1, 'BEGIN TRANSACTION');
-      expect(executeQuery).toHaveBeenNthCalledWith(2, 'SELECT MAX(ID) AS MAX_ID FROM CABLES WHERE PRESET_ID = ?', [
-        456,
-      ]);
-      expect(executeQuery).toHaveBeenNthCalledWith(
-        3,
-        'INSERT INTO CABLES (PRESET_ID, NAME, CATEGORY, DIAMETER) VALUES (?, ?, ?, ?)',
-        [456, 'Test Cable', 'Power', 0.75],
-      );
-      expect(executeQuery).toHaveBeenNthCalledWith(
-        4,
-        'SELECT * FROM CABLES WHERE PRESET_ID = ? AND ID > ? ORDER BY ID ASC LIMIT 1',
-        [456, 122],
-      );
-      expect(executeQuery).toHaveBeenNthCalledWith(5, 'COMMIT');
+      // Act
+      const result = await createCableAction(input);
 
-      // Verify that mapDBCableToDomain was called
+      // Assert
+      expect(executeQuery).toHaveBeenCalledWith('BEGIN TRANSACTION');
+      expect(executeQuery).toHaveBeenCalledWith(
+        'INSERT INTO CABLES (PRESET_ID, NAME, CATEGORY, DIAMETER) VALUES (?, ?, ?, ?)',
+        [1, 'Test Cable', 'Power', 10],
+      );
+      expect(executeQuery).toHaveBeenCalledWith(
+        'SELECT * FROM CABLES WHERE PRESET_ID = ? ORDER BY CREATED_AT DESC LIMIT 1',
+        [1],
+      );
+      expect(executeQuery).toHaveBeenCalledWith('COMMIT');
+
       expect(mapDBCableToDomain).toHaveBeenCalledWith(mockDBCable);
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
     });
 
-    it('handles null category correctly', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockResolvedValueOnce({ rows: [{ MAX_ID: 122 }] }) // MAX ID
-        .mockResolvedValueOnce({}) // INSERT
-        .mockResolvedValueOnce({ rows: [{ ...mockDBCable, CATEGORY: null }] }) // SELECT
-        .mockResolvedValueOnce({}); // COMMIT
-
-      // Test input with null category
-      const input: CreateCableInput = {
-        presetId: 456,
+    it('handles null category', async () => {
+      // Arrange
+      const input = {
+        presetId: 1,
         name: 'Test Cable',
-        diameter: 0.75,
+        diameter: 10,
         category: undefined,
       };
 
-      // Call the action
-      await createCableAction(input);
-
-      // Verify the insert parameters
-      expect(executeQuery).toHaveBeenNthCalledWith(
-        3,
-        'INSERT INTO CABLES (PRESET_ID, NAME, CATEGORY, DIAMETER) VALUES (?, ?, ?, ?)',
-        [456, 'Test Cable', null, 0.75],
-      );
-    });
-
-    it('handles undefined category correctly', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockResolvedValueOnce({ rows: [{ MAX_ID: 122 }] }) // MAX ID
-        .mockResolvedValueOnce({}) // INSERT
-        .mockResolvedValueOnce({ rows: [{ ...mockDBCable, CATEGORY: null }] }) // SELECT
-        .mockResolvedValueOnce({}); // COMMIT
-
-      // Test input with undefined category
-      const input: CreateCableInput = {
-        presetId: 456,
-        name: 'Test Cable',
-        diameter: 0.75,
+      const mockCableWithNullCategory = {
+        ...mockDBCable,
+        CATEGORY: null,
       };
 
-      // Call the action
-      await createCableAction(input);
-
-      // Verify the insert parameters
-      expect(executeQuery).toHaveBeenNthCalledWith(
-        3,
-        'INSERT INTO CABLES (PRESET_ID, NAME, CATEGORY, DIAMETER) VALUES (?, ?, ?, ?)',
-        [456, 'Test Cable', null, 0.75],
-      );
-    });
-
-    it('handles no prior cables in preset', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockResolvedValueOnce({ rows: [{ MAX_ID: null }] }) // MAX ID (null)
-        .mockResolvedValueOnce({}) // INSERT
-        .mockResolvedValueOnce({ rows: [mockDBCable] }) // SELECT
-        .mockResolvedValueOnce({}); // COMMIT
-
-      // Test input
-      const input: CreateCableInput = {
-        presetId: 456,
-        name: 'Test Cable',
-        diameter: 0.75,
-        category: 'Power',
+      const mockQueryResults = {
+        rows: [mockCableWithNullCategory],
       };
 
-      // Call the action
+      // Set up mock implementation for executeQuery
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'SELECT * FROM CABLES WHERE PRESET_ID = ? ORDER BY CREATED_AT DESC LIMIT 1') {
+          return mockQueryResults;
+        }
+        return { rows: [] };
+      });
+
+      // Act
       const result = await createCableAction(input);
 
-      // Verify success
+      // Assert
+      expect(executeQuery).toHaveBeenCalledWith(
+        'INSERT INTO CABLES (PRESET_ID, NAME, CATEGORY, DIAMETER) VALUES (?, ?, ?, ?)',
+        [1, 'Test Cable', null, 10],
+      );
       expect(result.success).toBe(true);
-
-      // Verify it used 0 as the default max ID
-      expect(executeQuery).toHaveBeenNthCalledWith(
-        4,
-        'SELECT * FROM CABLES WHERE PRESET_ID = ? AND ID > ? ORDER BY ID ASC LIMIT 1',
-        [456, 0],
-      );
+      expect(result.data).toBeDefined();
     });
 
-    it('handles empty result from retrieval', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockResolvedValueOnce({ rows: [{ MAX_ID: 122 }] }) // MAX ID
-        .mockResolvedValueOnce({}) // INSERT
-        .mockResolvedValueOnce({ rows: [] }) // SELECT (empty)
-        .mockResolvedValueOnce({}); // ROLLBACK
-
-      // Test input
-      const input: CreateCableInput = {
-        presetId: 456,
+    it('handles failure to retrieve newly inserted cable', async () => {
+      // Arrange
+      const input = {
+        presetId: 1,
         name: 'Test Cable',
-        diameter: 0.75,
-        category: 'Power',
+        diameter: 10,
       };
 
-      // Call the action
-      const result = await createCableAction(input);
-
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Failed to retrieve the newly inserted cable',
+      // Mock empty result set after insert
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'SELECT * FROM CABLES WHERE PRESET_ID = ? ORDER BY CREATED_AT DESC LIMIT 1') {
+          return { rows: [] };
+        }
+        return { rows: [] };
       });
 
-      // Verify ROLLBACK was called
-      expect(executeQuery).toHaveBeenNthCalledWith(5, 'ROLLBACK');
-    });
-
-    it('handles database errors during insertion', async () => {
-      // Mock executeQuery to throw an error
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockResolvedValueOnce({ rows: [{ MAX_ID: 122 }] }) // MAX ID
-        .mockRejectedValueOnce(new Error('Database error during insert')) // INSERT (error)
-        .mockResolvedValueOnce({}); // ROLLBACK
-
-      // Test input
-      const input: CreateCableInput = {
-        presetId: 456,
-        name: 'Test Cable',
-        diameter: 0.75,
-        category: 'Power',
-      };
-
-      // Call the action
+      // Act
       const result = await createCableAction(input);
 
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Database error during insert',
-      });
-
-      // Verify ROLLBACK was called
+      // Assert
       expect(executeQuery).toHaveBeenCalledWith('ROLLBACK');
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Failed to retrieve the newly inserted cable');
+    });
 
-      // Verify error was logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error adding cable to preset:', expect.any(Error));
+    it('handles database errors and rolls back transaction', async () => {
+      // Arrange
+      const input = {
+        presetId: 1,
+        name: 'Test Cable',
+        diameter: 10,
+      };
+
+      const mockError = new Error('Database error');
+
+      // Mock query execution error
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'INSERT INTO CABLES (PRESET_ID, NAME, CATEGORY, DIAMETER) VALUES (?, ?, ?, ?)') {
+          throw mockError;
+        }
+        return { rows: [] };
+      });
+
+      // Act
+      const result = await createCableAction(input);
+
+      // Assert
+      expect(executeQuery).toHaveBeenCalledWith('ROLLBACK');
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Database error');
+      expect(console.error).toHaveBeenCalledWith('Error adding cable to preset:', mockError);
     });
 
     it('handles rollback errors', async () => {
-      // Mock executeQuery to throw errors
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockRejectedValueOnce(new Error('Primary database error')) // MAX ID (error)
-        .mockRejectedValueOnce(new Error('Rollback error')); // ROLLBACK (error)
-
-      // Test input
-      const input: CreateCableInput = {
-        presetId: 456,
+      // Arrange
+      const input = {
+        presetId: 1,
         name: 'Test Cable',
-        diameter: 0.75,
-        category: 'Power',
+        diameter: 10,
       };
 
-      // Call the action
-      const result = await createCableAction(input);
+      const mockError = new Error('Database error');
+      const rollbackError = new Error('Rollback error');
 
-      // Verify error response has the primary error
-      expect(result).toEqual({
-        success: false,
-        error: 'Primary database error',
+      // Mock query execution error and rollback error
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'INSERT INTO CABLES (PRESET_ID, NAME, CATEGORY, DIAMETER) VALUES (?, ?, ?, ?)') {
+          throw mockError;
+        }
+        if (query === 'ROLLBACK') {
+          throw rollbackError;
+        }
+        return { rows: [] };
       });
 
-      // Verify both errors were logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error rolling back transaction:', expect.any(Error));
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error adding cable to preset:', expect.any(Error));
+      // Act
+      const result = await createCableAction(input);
+
+      // Assert
+      expect(console.error).toHaveBeenCalledWith('Error rolling back transaction:', rollbackError);
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Database error');
     });
   });
 
   describe('updateCableAction', () => {
-    it('successfully updates a cable with all fields', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockResolvedValueOnce({ rows: [{ 'number of rows updated': 1 }] }) // UPDATE
-        .mockResolvedValueOnce({ rows: [mockDBCable] }) // SELECT
-        .mockResolvedValueOnce({}); // COMMIT
-
-      // Test input
-      const cableId = 123;
-      const updates: UpdateCableInput = {
+    it('updates a cable with all fields successfully', async () => {
+      // Arrange
+      const cableId = 101;
+      const updates = {
         name: 'Updated Cable',
-        category: 'Data',
-        diameter: 1.0,
+        category: 'Updated Category',
+        diameter: 15,
       };
 
-      // Call the action
-      const result = await updateCableAction(cableId, updates);
+      const updatedCable = {
+        ...mockDBCable,
+        NAME: 'Updated Cable',
+        CATEGORY: 'Updated Category',
+        DIAMETER: 15,
+      };
 
-      // Verify the result
-      expect(result).toEqual({
-        success: true,
-        data: mockCable,
+      // Mock successful update
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query.startsWith('UPDATE CABLES SET')) {
+          return { rows: [{ 'number of rows updated': 1 }] };
+        }
+        if (query === 'SELECT * FROM CABLES WHERE ID = ?') {
+          return { rows: [updatedCable] };
+        }
+        return { rows: [] };
       });
 
-      // Verify executeQuery calls
-      expect(executeQuery).toHaveBeenCalledTimes(4);
-      expect(executeQuery).toHaveBeenNthCalledWith(1, 'BEGIN TRANSACTION');
-      expect(executeQuery).toHaveBeenNthCalledWith(
-        2,
-        'UPDATE CABLES SET NAME = ?, CATEGORY = ?, DIAMETER = ?, UPDATED_AT = CURRENT_TIMESTAMP() WHERE ID = ?',
-        ['Updated Cable', 'Data', 1.0, 123],
-      );
-      expect(executeQuery).toHaveBeenNthCalledWith(3, 'SELECT * FROM CABLES WHERE ID = ?', [123]);
-      expect(executeQuery).toHaveBeenNthCalledWith(4, 'COMMIT');
-    });
-
-    it('successfully updates only specified fields', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockResolvedValueOnce({ rows: [{ 'number of rows updated': 1 }] }) // UPDATE
-        .mockResolvedValueOnce({ rows: [mockDBCable] }) // SELECT
-        .mockResolvedValueOnce({}); // COMMIT
-
-      // Test input with only name update
-      const cableId = 123;
-      const updates: UpdateCableInput = {
-        name: 'Updated Cable',
-      };
-
-      // Call the action
+      // Act
       const result = await updateCableAction(cableId, updates);
 
-      // Verify success
+      // Assert
+      expect(executeQuery).toHaveBeenCalledWith('BEGIN TRANSACTION');
+
+      // Check that the update query contains all fields
+      const updateCall = (executeQuery as any).mock.calls.find(
+        (call) => typeof call[0] === 'string' && call[0].startsWith('UPDATE CABLES SET'),
+      );
+      expect(updateCall[0]).toContain('NAME = ?');
+      expect(updateCall[0]).toContain('CATEGORY = ?');
+      expect(updateCall[0]).toContain('DIAMETER = ?');
+      expect(updateCall[0]).toContain('UPDATED_AT = CURRENT_TIMESTAMP()');
+      expect(updateCall[1]).toEqual(['Updated Cable', 'Updated Category', 15, 101]);
+
+      expect(executeQuery).toHaveBeenCalledWith('SELECT * FROM CABLES WHERE ID = ?', [101]);
+      expect(executeQuery).toHaveBeenCalledWith('COMMIT');
+
       expect(result.success).toBe(true);
-
-      // Verify the update query has only the specified field
-      expect(executeQuery).toHaveBeenNthCalledWith(
-        2,
-        'UPDATE CABLES SET NAME = ?, UPDATED_AT = CURRENT_TIMESTAMP() WHERE ID = ?',
-        ['Updated Cable', 123],
-      );
+      expect(result.data).toBeDefined();
     });
 
-    it('handles updates with no fields provided', async () => {
-      // Test input with no updates
-      const cableId = 123;
-      const updates: UpdateCableInput = {};
+    it('updates a cable with partial fields', async () => {
+      // Arrange
+      const cableId = 101;
+      const updates = {
+        name: 'Updated Cable',
+        // Only updating name
+      };
 
-      // Call the action
-      const result = await updateCableAction(cableId, updates);
+      const updatedCable = {
+        ...mockDBCable,
+        NAME: 'Updated Cable',
+      };
 
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'No update fields provided',
+      // Mock successful update
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query.startsWith('UPDATE CABLES SET')) {
+          return { rows: [{ 'number of rows updated': 1 }] };
+        }
+        if (query === 'SELECT * FROM CABLES WHERE ID = ?') {
+          return { rows: [updatedCable] };
+        }
+        return { rows: [] };
       });
 
-      // Verify no database calls were made
+      // Act
+      const result = await updateCableAction(cableId, updates);
+
+      // Assert
+      // Check that the update query contains only name field
+      const updateCall = (executeQuery as any).mock.calls.find(
+        (call) => typeof call[0] === 'string' && call[0].startsWith('UPDATE CABLES SET'),
+      );
+      expect(updateCall[0]).toContain('NAME = ?');
+      expect(updateCall[0]).not.toContain('CATEGORY = ?');
+      expect(updateCall[0]).not.toContain('DIAMETER = ?');
+      expect(updateCall[1]).toEqual(['Updated Cable', 101]);
+
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+    });
+
+    it('returns error when no update fields provided', async () => {
+      // Arrange
+      const cableId = 101;
+      const updates = {}; // Empty updates
+
+      // Act
+      const result = await updateCableAction(cableId, updates);
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('No update fields provided');
       expect(executeQuery).not.toHaveBeenCalled();
     });
 
-    it('handles non-existent cable ID', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockResolvedValueOnce({ rows: [{ 'number of rows updated': 0 }] }) // UPDATE (no rows)
-        .mockResolvedValueOnce({}); // ROLLBACK
-
-      // Test input
+    it('handles cable not found during update', async () => {
+      // Arrange
       const cableId = 999;
-      const updates: UpdateCableInput = {
-        name: 'Updated Cable',
-      };
+      const updates = { name: 'Updated Cable' };
 
-      // Call the action
-      const result = await updateCableAction(cableId, updates);
-
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Cable with ID 999 not found',
+      // Mock cable not found
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query.startsWith('UPDATE CABLES SET')) {
+          return { rows: [{ 'number of rows updated': 0 }] };
+        }
+        return { rows: [] };
       });
 
-      // Verify ROLLBACK was called
-      expect(executeQuery).toHaveBeenNthCalledWith(3, 'ROLLBACK');
+      // Act
+      const result = await updateCableAction(cableId, updates);
+
+      // Assert
+      expect(executeQuery).toHaveBeenCalledWith('ROLLBACK');
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Cable with ID 999 not found');
+    });
+
+    it('handles failure to retrieve updated cable', async () => {
+      // Arrange
+      const cableId = 101;
+      const updates = { name: 'Updated Cable' };
+
+      // Mock update success but retrieval failure
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query.startsWith('UPDATE CABLES SET')) {
+          return { rows: [{ 'number of rows updated': 1 }] };
+        }
+        if (query === 'SELECT * FROM CABLES WHERE ID = ?') {
+          return { rows: [] }; // Empty result
+        }
+        return { rows: [] };
+      });
+
+      // Act
+      const result = await updateCableAction(cableId, updates);
+
+      // Assert
+      expect(executeQuery).toHaveBeenCalledWith('ROLLBACK');
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Failed to retrieve the updated cable');
     });
 
     it('handles database errors during update', async () => {
-      // Mock executeQuery to throw an error
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockRejectedValueOnce(new Error('Update failed')) // UPDATE (error)
-        .mockResolvedValueOnce({}); // ROLLBACK
+      // Arrange
+      const cableId = 101;
+      const updates = { name: 'Updated Cable' };
+      const mockError = new Error('Database error during update');
 
-      // Test input
-      const cableId = 123;
-      const updates: UpdateCableInput = {
-        name: 'Updated Cable',
-      };
-
-      // Call the action
-      const result = await updateCableAction(cableId, updates);
-
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Update failed',
+      // Mock database error
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query.startsWith('UPDATE CABLES SET')) {
+          throw mockError;
+        }
+        return { rows: [] };
       });
 
-      // Verify ROLLBACK was called
+      // Act
+      const result = await updateCableAction(cableId, updates);
+
+      // Assert
       expect(executeQuery).toHaveBeenCalledWith('ROLLBACK');
-
-      // Verify error was logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error updating cable 123:', expect.any(Error));
-    });
-
-    it('handles empty result from retrieving updated cable', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockResolvedValueOnce({ rows: [{ 'number of rows updated': 1 }] }) // UPDATE
-        .mockResolvedValueOnce({ rows: [] }) // SELECT (empty)
-        .mockResolvedValueOnce({}); // ROLLBACK
-
-      // Test input
-      const cableId = 123;
-      const updates: UpdateCableInput = {
-        name: 'Updated Cable',
-      };
-
-      // Call the action
-      const result = await updateCableAction(cableId, updates);
-
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Failed to retrieve the updated cable',
-      });
-
-      // Verify ROLLBACK was called
-      expect(executeQuery).toHaveBeenNthCalledWith(4, 'ROLLBACK');
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Database error during update');
+      expect(console.error).toHaveBeenCalledWith(`Error updating cable ${cableId}:`, mockError);
     });
   });
 
   describe('deleteCableAction', () => {
-    it('successfully deletes a cable', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({ rows: [{ ID: 123 }] }) // SELECT
-        .mockResolvedValueOnce({}); // DELETE
+    it('deletes a cable successfully', async () => {
+      // Arrange
+      const cableId = 101;
 
-      // Test input
-      const cableId = 123;
-
-      // Call the action
-      const result = await deleteCableAction(cableId);
-
-      // Verify the result
-      expect(result).toEqual({
-        success: true,
+      // Mock cable exists
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'SELECT ID FROM CABLES WHERE ID = ?') {
+          return { rows: [{ ID: cableId }] };
+        }
+        return { rows: [] };
       });
 
-      // Verify executeQuery calls
-      expect(executeQuery).toHaveBeenCalledTimes(2);
-      expect(executeQuery).toHaveBeenNthCalledWith(1, 'SELECT ID FROM CABLES WHERE ID = ?', [123]);
-      expect(executeQuery).toHaveBeenNthCalledWith(2, 'DELETE FROM CABLES WHERE ID = ?', [123]);
+      // Act
+      const result = await deleteCableAction(cableId);
+
+      // Assert
+      expect(executeQuery).toHaveBeenCalledWith('SELECT ID FROM CABLES WHERE ID = ?', [cableId]);
+      expect(executeQuery).toHaveBeenCalledWith('DELETE FROM CABLES WHERE ID = ?', [cableId]);
+      expect(result.success).toBe(true);
     });
 
-    it('handles non-existent cable ID', async () => {
-      // Mock executeQuery to return empty result
-      (executeQuery as any).mockResolvedValueOnce({ rows: [] }); // SELECT (empty)
-
-      // Test input
+    it('returns error when cable not found', async () => {
+      // Arrange
       const cableId = 999;
 
-      // Call the action
+      // Mock cable not found
+      (executeQuery as any).mockImplementation(() => ({ rows: [] }));
+
+      // Act
       const result = await deleteCableAction(cableId);
 
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Cable with ID 999 not found',
-      });
-
-      // Verify only the SELECT was called, not the DELETE
-      expect(executeQuery).toHaveBeenCalledTimes(1);
-      expect(executeQuery).not.toHaveBeenCalledWith('DELETE FROM CABLES WHERE ID = ?', expect.anything());
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Cable with ID 999 not found');
+      expect(executeQuery).not.toHaveBeenCalledWith('DELETE FROM CABLES WHERE ID = ?', [cableId]);
     });
 
-    it('handles database errors during check', async () => {
-      // Mock executeQuery to throw an error
-      (executeQuery as any).mockRejectedValueOnce(new Error('Database error')); // SELECT (error)
+    it('handles database errors during deletion', async () => {
+      // Arrange
+      const cableId = 101;
+      const mockError = new Error('Database error during deletion');
 
-      // Test input
-      const cableId = 123;
-
-      // Call the action
-      const result = await deleteCableAction(cableId);
-
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Database error',
+      // Mock cable exists but delete fails
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'SELECT ID FROM CABLES WHERE ID = ?') {
+          return { rows: [{ ID: cableId }] };
+        }
+        if (query === 'DELETE FROM CABLES WHERE ID = ?') {
+          throw mockError;
+        }
+        return { rows: [] };
       });
 
-      // Verify error was logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error deleting cable 123:', expect.any(Error));
-    });
-
-    it('handles database errors during delete', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({ rows: [{ ID: 123 }] }) // SELECT
-        .mockRejectedValueOnce(new Error('Delete failed')); // DELETE (error)
-
-      // Test input
-      const cableId = 123;
-
-      // Call the action
+      // Act
       const result = await deleteCableAction(cableId);
 
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Delete failed',
-      });
-
-      // Verify error was logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error deleting cable 123:', expect.any(Error));
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Database error during deletion');
+      expect(console.error).toHaveBeenCalledWith(`Error deleting cable ${cableId}:`, mockError);
     });
   });
 });

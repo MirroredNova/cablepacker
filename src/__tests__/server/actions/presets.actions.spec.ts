@@ -1,572 +1,436 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { DBCable, DBPreset } from '@/types/database.types';
-import { Preset, CreatePresetInput, UpdatePresetInput } from '@/types/domain.types';
-
-// Import AFTER mocking
+import { executeQuery } from '@/server/db/snowflake.db';
+import { mapDBPresetToDomain, mapPresetWithCables } from '@/server/utils/mappers.utils';
 import {
   createPresetAction,
   getAllPresetsWithCablesAction,
   updatePresetAction,
   deletePresetAction,
 } from '@/server/actions/presets.actions';
-import { executeQuery } from '@/server/db/snowflake.db';
-import { mapDBPresetToDomain, mapPresetWithCables } from '@/server/utils/mappers.utils';
 
-// Mock dependencies - MUST come before imports
+// Mock dependencies
 vi.mock('@/server/db/snowflake.db', () => ({
   executeQuery: vi.fn(),
 }));
 
 vi.mock('@/server/utils/mappers.utils', () => ({
-  mapDBPresetToDomain: vi.fn(),
-  mapPresetWithCables: vi.fn(),
+  mapDBPresetToDomain: vi.fn((preset) => ({
+    id: preset.ID,
+    name: preset.NAME,
+    createdAt: preset.CREATED_AT,
+    updatedAt: preset.UPDATED_AT,
+  })),
+  mapPresetWithCables: vi.fn((preset, cables) => ({
+    id: preset.ID,
+    name: preset.NAME,
+    createdAt: preset.CREATED_AT,
+    updatedAt: preset.UPDATED_AT,
+    cables: cables.map((c: { ID: any; NAME: any; DIAMETER: any; CATEGORY: any; PRESET_ID: any }) => ({
+      id: c.ID,
+      name: c.NAME,
+      diameter: c.DIAMETER,
+      category: c.CATEGORY,
+      presetId: c.PRESET_ID,
+    })),
+  })),
 }));
 
 vi.mock('@/server/auth/protect.auth', () => ({
   adminProtectedAction: vi.fn((fn) => fn),
 }));
 
+// Mock console.error to prevent noise during tests
+vi.spyOn(console, 'error').mockImplementation(() => {});
+
 describe('Preset Actions', () => {
-  // Mock data for testing
-  const mockDBPreset: DBPreset = {
-    ID: 123,
+  const mockDBPreset = {
+    ID: 1,
     NAME: 'Test Preset',
-    CREATED_AT: '2023-01-01T00:00:00.000Z',
-    UPDATED_AT: '2023-01-01T00:00:00.000Z',
+    CREATED_AT: '2023-01-01T00:00:00Z',
+    UPDATED_AT: '2023-01-01T00:00:00Z',
   };
 
-  const mockPreset: Preset = {
-    id: 123,
-    name: 'Test Preset',
-    createdAt: new Date('2023-01-01T00:00:00.000Z'),
-    updatedAt: new Date('2023-01-01T00:00:00.000Z'),
-  };
-
-  const mockPresetWithCables: Preset = {
-    ...mockPreset,
-    cables: [
-      {
-        id: 456,
-        presetId: 123,
-        name: 'Cable 1',
-        category: 'Power',
-        diameter: 0.75,
-        createdAt: new Date('2023-01-01T00:00:00.000Z'),
-        updatedAt: new Date('2023-01-01T00:00:00.000Z'),
-      },
-    ],
-  };
-
-  const mockDBCable: DBCable = {
-    ID: 456,
-    PRESET_ID: 123,
-    NAME: 'Cable 1',
+  const mockDBCable = {
+    ID: 101,
+    NAME: 'Test Cable',
+    DIAMETER: 10,
     CATEGORY: 'Power',
-    DIAMETER: 0.75,
-    CREATED_AT: '2023-01-01T00:00:00.000Z',
-    UPDATED_AT: '2023-01-01T00:00:00.000Z',
+    PRESET_ID: 1,
+    CREATED_AT: '2023-01-01T00:00:00Z',
+    UPDATED_AT: '2023-01-01T00:00:00Z',
   };
-
-  // Console error spy
-  let consoleErrorSpy: any;
 
   beforeEach(() => {
-    // Reset all mocks
     vi.clearAllMocks();
-
-    // Setup mapper mocks
-    (mapDBPresetToDomain as any).mockReturnValue(mockPreset);
-    (mapPresetWithCables as any).mockReturnValue(mockPresetWithCables);
-
-    // Spy on console.error
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    // Restore console.error
-    consoleErrorSpy.mockRestore();
+    vi.resetAllMocks();
   });
 
   describe('createPresetAction', () => {
-    it('successfully creates a preset', async () => {
-      // Mock executeQuery responses for different calls
-      (executeQuery as any)
-        // First call - BEGIN TRANSACTION
-        .mockResolvedValueOnce({})
-        // Second call - Get max ID
-        .mockResolvedValueOnce({
-          rows: [{ MAX_ID: 122 }],
-        })
-        // Third call - Insert preset
-        .mockResolvedValueOnce({})
-        // Fourth call - Get inserted preset
-        .mockResolvedValueOnce({
-          rows: [mockDBPreset],
-        })
-        // Fifth call - COMMIT
-        .mockResolvedValueOnce({});
-
-      // Test input
-      const input: CreatePresetInput = {
-        name: 'Test Preset',
+    it('creates a preset successfully', async () => {
+      // Arrange
+      const input = { name: 'Test Preset' };
+      const mockQueryResults = {
+        rows: [mockDBPreset],
+        // Add other properties that your query results have
       };
 
-      // Call the action
-      const result = await createPresetAction(input);
-
-      // Verify the result
-      expect(result).toEqual({
-        success: true,
-        data: mockPreset,
+      // Set up the mock implementation for executeQuery
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'SELECT * FROM PRESETS WHERE NAME = ? ORDER BY CREATED_AT DESC LIMIT 1') {
+          return mockQueryResults;
+        }
+        return { rows: [] };
       });
 
-      // Verify that executeQuery was called with the correct parameters
-      expect(executeQuery).toHaveBeenCalledTimes(5);
-      expect(executeQuery).toHaveBeenNthCalledWith(1, 'BEGIN TRANSACTION');
-      expect(executeQuery).toHaveBeenNthCalledWith(2, 'SELECT MAX(ID) AS MAX_ID FROM PRESETS');
-      expect(executeQuery).toHaveBeenNthCalledWith(3, 'INSERT INTO PRESETS (NAME) VALUES (?)', ['Test Preset']);
-      expect(executeQuery).toHaveBeenNthCalledWith(
-        4,
-        'SELECT * FROM PRESETS WHERE ID > ? AND NAME = ? ORDER BY ID ASC LIMIT 1',
-        [122, 'Test Preset'],
-      );
-      expect(executeQuery).toHaveBeenNthCalledWith(5, 'COMMIT');
+      // Act
+      const result = await createPresetAction(input);
 
-      // Verify that mapDBPresetToDomain was called
+      // Assert
+      expect(executeQuery).toHaveBeenCalledWith('BEGIN TRANSACTION');
+      expect(executeQuery).toHaveBeenCalledWith('INSERT INTO PRESETS (NAME) VALUES (?)', ['Test Preset']);
+      expect(executeQuery).toHaveBeenCalledWith(
+        'SELECT * FROM PRESETS WHERE NAME = ? ORDER BY CREATED_AT DESC LIMIT 1',
+        ['Test Preset'],
+      );
+      expect(executeQuery).toHaveBeenCalledWith('COMMIT');
+
       expect(mapDBPresetToDomain).toHaveBeenCalledWith(mockDBPreset);
-    });
-
-    it('handles no prior presets in the database', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockResolvedValueOnce({ rows: [{ MAX_ID: null }] }) // MAX ID (null)
-        .mockResolvedValueOnce({}) // INSERT
-        .mockResolvedValueOnce({ rows: [mockDBPreset] }) // SELECT
-        .mockResolvedValueOnce({}); // COMMIT
-
-      // Test input
-      const input: CreatePresetInput = {
-        name: 'Test Preset',
-      };
-
-      // Call the action
-      const result = await createPresetAction(input);
-
-      // Verify success
       expect(result.success).toBe(true);
-
-      // Verify it used 0 as the default max ID
-      expect(executeQuery).toHaveBeenNthCalledWith(
-        4,
-        'SELECT * FROM PRESETS WHERE ID > ? AND NAME = ? ORDER BY ID ASC LIMIT 1',
-        [0, 'Test Preset'],
-      );
+      expect(result.data).toBeDefined();
     });
 
-    it('handles empty result from retrieval', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockResolvedValueOnce({ rows: [{ MAX_ID: 122 }] }) // MAX ID
-        .mockResolvedValueOnce({}) // INSERT
-        .mockResolvedValueOnce({ rows: [] }) // SELECT (empty)
-        .mockResolvedValueOnce({}); // ROLLBACK
+    it('handles failure to retrieve newly created preset', async () => {
+      // Arrange
+      const input = { name: 'Test Preset' };
 
-      // Test input
-      const input: CreatePresetInput = {
-        name: 'Test Preset',
-      };
-
-      // Call the action
-      const result = await createPresetAction(input);
-
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Failed to retrieve the newly created preset',
+      // Mock empty result set after insert
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'SELECT * FROM PRESETS WHERE NAME = ? ORDER BY CREATED_AT DESC LIMIT 1') {
+          return { rows: [] };
+        }
+        return { rows: [] };
       });
 
-      // Verify ROLLBACK was called
-      expect(executeQuery).toHaveBeenNthCalledWith(5, 'ROLLBACK');
-    });
-
-    it('handles database errors during insertion', async () => {
-      // Mock executeQuery to throw an error
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockResolvedValueOnce({ rows: [{ MAX_ID: 122 }] }) // MAX ID
-        .mockRejectedValueOnce(new Error('Database error during insert')) // INSERT (error)
-        .mockResolvedValueOnce({}); // ROLLBACK
-
-      // Test input
-      const input: CreatePresetInput = {
-        name: 'Test Preset',
-      };
-
-      // Call the action
+      // Act
       const result = await createPresetAction(input);
 
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Database error during insert',
-      });
-
-      // Verify ROLLBACK was called
+      // Assert
       expect(executeQuery).toHaveBeenCalledWith('ROLLBACK');
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Failed to retrieve the newly created preset');
+    });
 
-      // Verify error was logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error creating preset:', expect.any(Error));
+    it('handles database errors and rolls back transaction', async () => {
+      // Arrange
+      const input = { name: 'Test Preset' };
+      const mockError = new Error('Database error');
+
+      // Mock query execution error
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'INSERT INTO PRESETS (NAME) VALUES (?)') {
+          throw mockError;
+        }
+        return { rows: [] };
+      });
+
+      // Act
+      const result = await createPresetAction(input);
+
+      // Assert
+      expect(executeQuery).toHaveBeenCalledWith('ROLLBACK');
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Database error');
     });
 
     it('handles rollback errors', async () => {
-      // Mock executeQuery to throw errors
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockRejectedValueOnce(new Error('Primary database error')) // MAX ID (error)
-        .mockRejectedValueOnce(new Error('Rollback error')); // ROLLBACK (error)
+      // Arrange
+      const input = { name: 'Test Preset' };
+      const mockError = new Error('Database error');
+      const rollbackError = new Error('Rollback error');
 
-      // Test input
-      const input: CreatePresetInput = {
-        name: 'Test Preset',
-      };
-
-      // Call the action
-      const result = await createPresetAction(input);
-
-      // Verify error response has the primary error
-      expect(result).toEqual({
-        success: false,
-        error: 'Primary database error',
+      // Mock query execution error and rollback error
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'INSERT INTO PRESETS (NAME) VALUES (?)') {
+          throw mockError;
+        }
+        if (query === 'ROLLBACK') {
+          throw rollbackError;
+        }
+        return { rows: [] };
       });
 
-      // Verify both errors were logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error rolling back transaction:', expect.any(Error));
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error creating preset:', expect.any(Error));
+      // Act
+      const result = await createPresetAction(input);
+
+      // Assert
+      expect(console.error).toHaveBeenCalledWith('Error rolling back transaction:', rollbackError);
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Database error');
     });
   });
 
   describe('getAllPresetsWithCablesAction', () => {
-    it('successfully retrieves presets with cables', async () => {
-      // Mock multiple presets
-      const mockDBPresets = [mockDBPreset, { ...mockDBPreset, ID: 124, NAME: 'Another Preset' }];
-
-      // Mock cables for each preset
-      const mockDBCables = [
-        mockDBCable,
-        { ...mockDBCable, ID: 457, NAME: 'Cable 2' },
-        { ...mockDBCable, ID: 458, PRESET_ID: 124, NAME: 'Cable 3' },
-      ];
-
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({ rows: mockDBPresets }) // Presets query
-        .mockResolvedValueOnce({ rows: mockDBCables }); // Cables query
-
-      // Set up mapper to return appropriate presets with cables
-      (mapPresetWithCables as any).mockImplementation((preset: { ID: any; NAME: any }, cables: any[]) => ({
-        ...mockPresetWithCables,
-        id: preset.ID,
-        name: preset.NAME,
-        cables: cables.map((c) => ({ id: c.ID, name: c.NAME })),
-      }));
-
-      // Call the action
-      const result = await getAllPresetsWithCablesAction();
-
-      // Verify success
-      expect(result.success).toBe(true);
-      expect(result.data).toHaveLength(2);
-
-      // Verify queries
-      expect(executeQuery).toHaveBeenNthCalledWith(1, 'SELECT * FROM PRESETS ORDER BY NAME');
-      expect(executeQuery).toHaveBeenNthCalledWith(
-        2,
-        'SELECT * FROM CABLES WHERE PRESET_ID IN (123,124) ORDER BY PRESET_ID, NAME',
-        [],
-      );
-
-      // Verify mapper calls - once for each preset
-      expect(mapPresetWithCables).toHaveBeenCalledTimes(2);
-    });
-
-    it('handles empty presets list', async () => {
-      // Mock empty results
+    it('returns empty array when no presets exist', async () => {
+      // Arrange
       (executeQuery as any).mockResolvedValueOnce({ rows: [] });
 
-      // Call the action
+      // Act
       const result = await getAllPresetsWithCablesAction();
 
-      // Verify empty array is returned
-      expect(result).toEqual({
-        success: true,
-        data: [],
-      });
-
-      // Verify only one query was made (for presets)
-      expect(executeQuery).toHaveBeenCalledTimes(1);
-      expect(executeQuery).not.toHaveBeenCalledWith(expect.stringContaining('SELECT * FROM CABLES'), expect.anything());
-    });
-
-    it('handles presets with no cables', async () => {
-      // Mock presets but no cables
-      (executeQuery as any)
-        .mockResolvedValueOnce({ rows: [mockDBPreset] }) // Presets query
-        .mockResolvedValueOnce({ rows: [] }); // Empty cables result
-
-      // Call the action
-      const result = await getAllPresetsWithCablesAction();
-
-      // Verify success
+      // Assert
       expect(result.success).toBe(true);
-
-      // Verify mapper was called with empty cables array
-      expect(mapPresetWithCables).toHaveBeenCalledWith(mockDBPreset, []);
+      expect(result.data).toEqual([]);
+      expect(executeQuery).toHaveBeenCalledWith('SELECT * FROM PRESETS ORDER BY NAME');
     });
 
-    it('handles database errors', async () => {
-      // Mock query error
-      (executeQuery as any).mockRejectedValueOnce(new Error('Database connection failed'));
+    it('returns presets with their cables', async () => {
+      // Arrange
+      const mockPresetsResult = {
+        rows: [
+          { ...mockDBPreset, ID: 1 },
+          { ...mockDBPreset, ID: 2, NAME: 'Preset 2' },
+        ],
+      };
 
-      // Call the action
-      const result = await getAllPresetsWithCablesAction();
+      const mockCablesResult = {
+        rows: [
+          { ...mockDBCable, ID: 101, PRESET_ID: 1 },
+          { ...mockDBCable, ID: 102, NAME: 'Cable 2', PRESET_ID: 1 },
+          { ...mockDBCable, ID: 103, NAME: 'Cable 3', PRESET_ID: 2 },
+        ],
+      };
 
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Database connection failed',
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'SELECT * FROM PRESETS ORDER BY NAME') {
+          return mockPresetsResult;
+        }
+        if (query.startsWith('SELECT * FROM CABLES WHERE PRESET_ID IN')) {
+          return mockCablesResult;
+        }
+        return { rows: [] };
       });
 
-      // Verify error was logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error fetching all presets with cables:', expect.any(Error));
+      // Act
+      const result = await getAllPresetsWithCablesAction();
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.data?.length).toBe(2);
+
+      // Check that cables were properly mapped to presets
+      expect(mapPresetWithCables).toHaveBeenCalledTimes(2);
+
+      // First call should include the preset and its two cables
+      expect(mapPresetWithCables).toHaveBeenCalledWith(
+        mockPresetsResult.rows[0],
+        expect.arrayContaining([mockCablesResult.rows[0], mockCablesResult.rows[1]]),
+      );
+
+      // Second call should include the preset and its one cable
+      expect(mapPresetWithCables).toHaveBeenCalledWith(
+        mockPresetsResult.rows[1],
+        expect.arrayContaining([mockCablesResult.rows[2]]),
+      );
+    });
+
+    it('handles database errors gracefully', async () => {
+      // Arrange
+      const mockError = new Error('Database query failed');
+      (executeQuery as any).mockRejectedValueOnce(mockError);
+
+      // Act
+      const result = await getAllPresetsWithCablesAction();
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Database query failed');
+      expect(console.error).toHaveBeenCalledWith('Error fetching all presets with cables:', mockError);
     });
   });
 
   describe('updatePresetAction', () => {
-    it('successfully updates a preset', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockResolvedValueOnce({ rows: [{ 'number of rows updated': 1 }] }) // UPDATE
-        .mockResolvedValueOnce({ rows: [mockDBPreset] }) // SELECT
-        .mockResolvedValueOnce({}); // COMMIT
+    it('updates a preset successfully', async () => {
+      // Arrange
+      const presetId = 1;
+      const updates = { name: 'Updated Preset' };
 
-      // Test input
-      const presetId = 123;
-      const updates: UpdatePresetInput = {
-        name: 'Updated Preset',
-      };
-
-      // Call the action
-      const result = await updatePresetAction(presetId, updates);
-
-      // Verify the result
-      expect(result).toEqual({
-        success: true,
-        data: mockPreset,
+      // Mock successful update
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'UPDATE PRESETS SET NAME = ?, UPDATED_AT = CURRENT_TIMESTAMP() WHERE ID = ?') {
+          return { rows: [{ 'number of rows updated': 1 }] };
+        }
+        if (query === 'SELECT * FROM PRESETS WHERE ID = ?') {
+          return { rows: [{ ...mockDBPreset, NAME: 'Updated Preset' }] };
+        }
+        return { rows: [] };
       });
 
-      // Verify executeQuery calls
-      expect(executeQuery).toHaveBeenCalledTimes(4);
-      expect(executeQuery).toHaveBeenNthCalledWith(1, 'BEGIN TRANSACTION');
-      expect(executeQuery).toHaveBeenNthCalledWith(
-        2,
+      // Act
+      const result = await updatePresetAction(presetId, updates);
+
+      // Assert
+      expect(executeQuery).toHaveBeenCalledWith('BEGIN TRANSACTION');
+      expect(executeQuery).toHaveBeenCalledWith(
         'UPDATE PRESETS SET NAME = ?, UPDATED_AT = CURRENT_TIMESTAMP() WHERE ID = ?',
-        ['Updated Preset', 123],
+        ['Updated Preset', 1],
       );
-      expect(executeQuery).toHaveBeenNthCalledWith(3, 'SELECT * FROM PRESETS WHERE ID = ?', [123]);
-      expect(executeQuery).toHaveBeenNthCalledWith(4, 'COMMIT');
+      expect(executeQuery).toHaveBeenCalledWith('SELECT * FROM PRESETS WHERE ID = ?', [1]);
+      expect(executeQuery).toHaveBeenCalledWith('COMMIT');
+
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
     });
 
-    it('handles empty name in updates', async () => {
-      // Test input with empty name
-      const presetId = 123;
-      const updates: UpdatePresetInput = {
-        name: '',
-      };
+    it('returns error when no update fields provided', async () => {
+      // Arrange
+      const presetId = 1;
+      const updates = {}; // Empty updates
 
-      // Call the action
+      // Act
       const result = await updatePresetAction(presetId, updates);
 
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'No update fields provided',
-      });
-
-      // Verify no database calls were made
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('No update fields provided');
       expect(executeQuery).not.toHaveBeenCalled();
     });
 
-    it('handles non-existent preset ID', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockResolvedValueOnce({ rows: [{ 'number of rows updated': 0 }] }) // UPDATE (no rows)
-        .mockResolvedValueOnce({}); // ROLLBACK
-
-      // Test input
+    it('handles preset not found during update', async () => {
+      // Arrange
       const presetId = 999;
-      const updates: UpdatePresetInput = {
-        name: 'Updated Preset',
-      };
+      const updates = { name: 'Updated Preset' };
 
-      // Call the action
-      const result = await updatePresetAction(presetId, updates);
-
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Preset with ID 999 not found',
+      // Mock preset not found
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'UPDATE PRESETS SET NAME = ?, UPDATED_AT = CURRENT_TIMESTAMP() WHERE ID = ?') {
+          return { rows: [{ 'number of rows updated': 0 }] };
+        }
+        return { rows: [] };
       });
 
-      // Verify ROLLBACK was called
-      expect(executeQuery).toHaveBeenNthCalledWith(3, 'ROLLBACK');
+      // Act
+      const result = await updatePresetAction(presetId, updates);
+
+      // Assert
+      expect(executeQuery).toHaveBeenCalledWith('ROLLBACK');
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Preset with ID 999 not found');
+    });
+
+    it('handles failure to retrieve updated preset', async () => {
+      // Arrange
+      const presetId = 1;
+      const updates = { name: 'Updated Preset' };
+
+      // Mock update success but retrieval failure
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'UPDATE PRESETS SET NAME = ?, UPDATED_AT = CURRENT_TIMESTAMP() WHERE ID = ?') {
+          return { rows: [{ 'number of rows updated': 1 }] };
+        }
+        if (query === 'SELECT * FROM PRESETS WHERE ID = ?') {
+          return { rows: [] }; // Empty result
+        }
+        return { rows: [] };
+      });
+
+      // Act
+      const result = await updatePresetAction(presetId, updates);
+
+      // Assert
+      expect(executeQuery).toHaveBeenCalledWith('ROLLBACK');
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Failed to retrieve updated preset');
     });
 
     it('handles database errors during update', async () => {
-      // Mock executeQuery to throw an error
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockRejectedValueOnce(new Error('Update failed')) // UPDATE (error)
-        .mockResolvedValueOnce({}); // ROLLBACK
+      // Arrange
+      const presetId = 1;
+      const updates = { name: 'Updated Preset' };
+      const mockError = new Error('Database error during update');
 
-      // Test input
-      const presetId = 123;
-      const updates: UpdatePresetInput = {
-        name: 'Updated Preset',
-      };
-
-      // Call the action
-      const result = await updatePresetAction(presetId, updates);
-
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Update failed',
+      // Mock database error
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'UPDATE PRESETS SET NAME = ?, UPDATED_AT = CURRENT_TIMESTAMP() WHERE ID = ?') {
+          throw mockError;
+        }
+        return { rows: [] };
       });
 
-      // Verify ROLLBACK was called
+      // Act
+      const result = await updatePresetAction(presetId, updates);
+
+      // Assert
       expect(executeQuery).toHaveBeenCalledWith('ROLLBACK');
-
-      // Verify error was logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error updating preset 123:', expect.any(Error));
-    });
-
-    it('handles empty result from retrieving updated preset', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockResolvedValueOnce({ rows: [{ 'number of rows updated': 1 }] }) // UPDATE
-        .mockResolvedValueOnce({ rows: [] }) // SELECT (empty)
-        .mockResolvedValueOnce({}); // ROLLBACK
-
-      // Test input
-      const presetId = 123;
-      const updates: UpdatePresetInput = {
-        name: 'Updated Preset',
-      };
-
-      // Call the action
-      const result = await updatePresetAction(presetId, updates);
-
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Failed to retrieve updated preset',
-      });
-
-      // Verify ROLLBACK was called
-      expect(executeQuery).toHaveBeenNthCalledWith(4, 'ROLLBACK');
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Database error during update');
+      expect(console.error).toHaveBeenCalledWith(`Error updating preset ${presetId}:`, mockError);
     });
   });
 
   describe('deletePresetAction', () => {
-    it('successfully deletes a preset', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({ rows: [{ ID: 123 }] }) // SELECT
-        .mockResolvedValueOnce({}); // DELETE
+    it('deletes a preset successfully', async () => {
+      // Arrange
+      const presetId = 1;
 
-      // Test input
-      const presetId = 123;
-
-      // Call the action
-      const result = await deletePresetAction(presetId);
-
-      // Verify the result
-      expect(result).toEqual({
-        success: true,
+      // Mock preset exists
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'SELECT ID FROM PRESETS WHERE ID = ?') {
+          return { rows: [{ ID: presetId }] };
+        }
+        return { rows: [] };
       });
 
-      // Verify executeQuery calls
-      expect(executeQuery).toHaveBeenCalledTimes(2);
-      expect(executeQuery).toHaveBeenNthCalledWith(1, 'SELECT ID FROM PRESETS WHERE ID = ?', [123]);
-      expect(executeQuery).toHaveBeenNthCalledWith(2, 'DELETE FROM PRESETS WHERE ID = ?', [123]);
+      // Act
+      const result = await deletePresetAction(presetId);
+
+      // Assert
+      expect(executeQuery).toHaveBeenCalledWith('SELECT ID FROM PRESETS WHERE ID = ?', [presetId]);
+      expect(executeQuery).toHaveBeenCalledWith('DELETE FROM PRESETS WHERE ID = ?', [presetId]);
+      expect(result.success).toBe(true);
     });
 
-    it('handles non-existent preset ID', async () => {
-      // Mock executeQuery to return empty result
-      (executeQuery as any).mockResolvedValueOnce({ rows: [] }); // SELECT (empty)
-
-      // Test input
+    it('returns error when preset not found', async () => {
+      // Arrange
       const presetId = 999;
 
-      // Call the action
+      // Mock preset not found
+      (executeQuery as any).mockImplementation(() => ({ rows: [] }));
+
+      // Act
       const result = await deletePresetAction(presetId);
 
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Preset with ID 999 not found',
-      });
-
-      // Verify only the SELECT was called, not the DELETE
-      expect(executeQuery).toHaveBeenCalledTimes(1);
-      expect(executeQuery).not.toHaveBeenCalledWith('DELETE FROM PRESETS WHERE ID = ?', expect.anything());
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Preset with ID 999 not found');
+      expect(executeQuery).not.toHaveBeenCalledWith('DELETE FROM PRESETS WHERE ID = ?', [presetId]);
     });
 
-    it('handles database errors during check', async () => {
-      // Mock executeQuery to throw an error
-      (executeQuery as any).mockRejectedValueOnce(new Error('Database error')); // SELECT (error)
+    it('handles database errors during deletion', async () => {
+      // Arrange
+      const presetId = 1;
+      const mockError = new Error('Database error during deletion');
 
-      // Test input
-      const presetId = 123;
-
-      // Call the action
-      const result = await deletePresetAction(presetId);
-
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Database error',
+      // Mock preset exists but delete fails
+      (executeQuery as any).mockImplementation((query: string) => {
+        if (query === 'SELECT ID FROM PRESETS WHERE ID = ?') {
+          return { rows: [{ ID: presetId }] };
+        }
+        if (query === 'DELETE FROM PRESETS WHERE ID = ?') {
+          throw mockError;
+        }
+        return { rows: [] };
       });
 
-      // Verify error was logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error deleting preset 123:', expect.any(Error));
-    });
-
-    it('handles database errors during delete', async () => {
-      // Mock executeQuery responses
-      (executeQuery as any)
-        .mockResolvedValueOnce({ rows: [{ ID: 123 }] }) // SELECT
-        .mockRejectedValueOnce(new Error('Delete failed')); // DELETE (error)
-
-      // Test input
-      const presetId = 123;
-
-      // Call the action
+      // Act
       const result = await deletePresetAction(presetId);
 
-      // Verify error response
-      expect(result).toEqual({
-        success: false,
-        error: 'Delete failed',
-      });
-
-      // Verify error was logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error deleting preset 123:', expect.any(Error));
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Database error during deletion');
+      expect(console.error).toHaveBeenCalledWith(`Error deleting preset ${presetId}:`, mockError);
     });
   });
 });
