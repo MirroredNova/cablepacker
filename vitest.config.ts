@@ -22,6 +22,12 @@ export default defineConfig({
         'tailwind.config.ts',
         'src/app/**',
       ],
+      thresholds: {
+        branches: 75,
+        functions: 90,
+        lines: 90,
+        statements: 90,
+      },
     },
     alias: {
       '@': resolve(__dirname, './src'),
