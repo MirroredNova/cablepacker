@@ -11,13 +11,7 @@ function AddCableButton() {
   const { error, loading } = useResult();
 
   return (
-    <Button
-      variant="outlined"
-      onClick={addRow}
-      sx={{ mt: error ? 0 : 2 }}
-      disabled={loading}
-      startIcon={<AddIcon />}
-    >
+    <Button variant="outlined" onClick={addRow} sx={{ mt: error ? 0 : 2 }} disabled={loading} startIcon={<AddIcon />}>
       Add Cable
     </Button>
   );

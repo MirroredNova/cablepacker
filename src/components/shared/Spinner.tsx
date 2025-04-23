@@ -10,13 +10,17 @@ function Spinner({ select }: Props) {
     <CircularProgress
       color="inherit"
       size={20}
-      sx={select ? {
-        position: 'absolute',
-        top: '55%',
-        left: '90%',
-        marginTop: '-12px',
-        marginLeft: '-12px',
-      } : {}}
+      sx={
+        select
+          ? {
+            position: 'absolute',
+            top: '55%',
+            left: '90%',
+            marginTop: '-12px',
+            marginLeft: '-12px',
+          }
+          : {}
+      }
     />
   );
 }

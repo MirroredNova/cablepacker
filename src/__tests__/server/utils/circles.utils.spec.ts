@@ -1,13 +1,14 @@
-import {
-  describe, it, expect, vi, beforeEach,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mapCablesToCircles, assignColorsToCircles } from '@/server/utils/circles.utils';
 import { Circle } from '@/types/algorithm.types';
 import { Cable } from '@/types/domain.types';
 import { TableRowData } from '@/types/table.types';
 
 // Mock the structuredClone global function to ensure it's called correctly
-vi.stubGlobal('structuredClone', vi.fn((obj) => JSON.parse(JSON.stringify(obj))));
+vi.stubGlobal(
+  'structuredClone',
+  vi.fn((obj) => JSON.parse(JSON.stringify(obj))),
+);
 
 // Mock the serverConfig
 vi.mock('@/config', () => ({
@@ -34,7 +35,10 @@ describe('Circles Utilities', () => {
         {
           id: '2',
           selectedCable: {
-            id: 123, name: 'Cable A', diameter: 4, presetId: 1,
+            id: 123,
+            name: 'Cable A',
+            diameter: 4,
+            presetId: 1,
           } as Cable,
           quantity: 2,
         },

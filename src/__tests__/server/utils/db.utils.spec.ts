@@ -1,6 +1,4 @@
-import {
-  describe, it, expect, vi, beforeEach, afterEach,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Define but do not initialize these variables yet
 let mockExportFunc: any;
@@ -111,10 +109,7 @@ describe('Database Utilities', () => {
       const keyString = 'INVALID_KEY';
 
       expect(() => createPrivateKey(keyString)).toThrow('Invalid key format');
-      expect(errorSpy).toHaveBeenCalledWith(
-        'Error processing private key:',
-        expect.any(Error),
-      );
+      expect(errorSpy).toHaveBeenCalledWith('Error processing private key:', expect.any(Error));
     });
   });
 

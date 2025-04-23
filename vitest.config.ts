@@ -20,10 +20,12 @@ export default defineConfig({
         'vitest.config.ts',
         'postcss.config.mjs',
         'tailwind.config.ts',
+        'src/app/**',
       ],
     },
     alias: {
       '@': resolve(__dirname, './src'),
+      'server-only': resolve(__dirname, './src/__mocks__/server-only.ts'),
     },
   },
   resolve: {

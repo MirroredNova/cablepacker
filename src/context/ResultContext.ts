@@ -13,4 +13,4 @@ export type ResultContextType = {
   resetResult: () => void;
 };
 
-export const ResultContext = createContext<ResultContextType | undefined>(undefined);
+export const ResultContext = createContext<ResultContextType | null>(null);

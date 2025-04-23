@@ -1,9 +1,7 @@
 'use client';
 
 import { useParams, usePathname } from 'next/navigation';
-import React, {
-  PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState,
-} from 'react';
+import React, { PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import usePreset from '@/hooks/usePreset';
 import useTable from '@/hooks/useTable';
 import { getResultByIdAction } from '@/server/actions/results.actions';
@@ -18,54 +16,54 @@ export function ResultProvider({ children }: PropsWithChildren) {
   const justSetResultRef = useRef(false);
   const pendingPresetIdRef = useRef<number | null>(null);
 
-  const {
-    presets, setSelectedPreset, resetPresets, presetsLoaded,
-  } = usePreset();
+  const { presets, setSelectedPreset, resetPresets, presetsLoaded } = usePreset();
   const { setTableData, resetTableData, setHasChangedSinceGeneration } = useTable();
   const params = useParams<{ resultId?: string }>();
   const pathname = usePathname();
   const resultId = params?.resultId || null;
 
-  const safeSetSelectedPreset = useCallback((presetId: number | null) => {
-    if (!presetId) {
-      setSelectedPreset(null);
-      return;
-    }
+  const safeSetSelectedPreset = useCallback(
+    (presetId: number | null) => {
+      if (!presetId) {
+        setSelectedPreset(null);
+        return;
+      }
 
-    if (presetsLoaded) {
-      const preset = presets.find((p) => p.id === presetId);
-      setSelectedPreset(preset || null);
-    } else {
-      pendingPresetIdRef.current = presetId;
-    }
-  }, [presets, presetsLoaded, setSelectedPreset]);
+      if (presetsLoaded) {
+        const preset = presets.find((p) => p.id === presetId);
+        setSelectedPreset(preset || null);
+      } else {
+        pendingPresetIdRef.current = presetId;
+      }
+    },
+    [presets, presetsLoaded, setSelectedPreset],
+  );
 
   // Set result with optional navigation
-  const setResult = useCallback((newResult: Result | null, navigate = false) => {
-    setResultState(newResult);
+  const setResult = useCallback(
+    (newResult: Result | null, navigate = false) => {
+      setResultState(newResult);
 
-    if (newResult) {
-      justSetResultRef.current = true;
+      if (newResult) {
+        justSetResultRef.current = true;
 
-      if (newResult.selectedPresetId) {
-        safeSetSelectedPreset(newResult.selectedPresetId);
-      }
+        if (newResult.selectedPresetId) {
+          safeSetSelectedPreset(newResult.selectedPresetId);
+        }
 
-      if (newResult.inputCables) {
-        setTableData(newResult.inputCables);
-      }
+        if (newResult.inputCables) {
+          setTableData(newResult.inputCables);
+        }
 
-      if (navigate) {
-        if (newResult?.id) {
-          window.history.replaceState(
-            { resultId: newResult.id },
-            '',
-            `/${newResult.id}`,
-          );
+        if (navigate) {
+          if (newResult?.id) {
+            window.history.replaceState({ resultId: newResult.id }, '', `/${newResult.id}`);
+          }
         }
       }
-    }
-  }, [safeSetSelectedPreset, setTableData]);
+    },
+    [safeSetSelectedPreset, setTableData],
+  );
 
   // Reset all state
   const resetResult = useCallback(() => {
@@ -78,30 +76,33 @@ export function ResultProvider({ children }: PropsWithChildren) {
   }, [resetPresets, resetTableData]);
 
   // Fetch result by ID
-  const fetchResult = useCallback(async (id: string): Promise<boolean> => {
-    if (!id?.trim()) return false;
+  const fetchResult = useCallback(
+    async (id: string): Promise<boolean> => {
+      if (!id?.trim()) return false;
 
-    setLoading(true);
+      setLoading(true);
 
-    try {
-      const response = await getResultByIdAction(id.trim());
+      try {
+        const response = await getResultByIdAction(id.trim());
 
-      if (response.success && response.data) {
-        setResult(response.data);
-        setHasChangedSinceGeneration(false);
-        setError(null);
-        return true;
+        if (response.success && response.data) {
+          setResult(response.data);
+          setHasChangedSinceGeneration(false);
+          setError(null);
+          return true;
+        }
+
+        setError(response.error || 'Failed to load result');
+        return false;
+      } catch (err: any) {
+        setError(err.message || 'An unexpected error occurred');
+        return false;
+      } finally {
+        setLoading(false);
       }
-
-      setError(response.error || 'Failed to load result');
-      return false;
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred');
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [setHasChangedSinceGeneration, setResult]);
+    },
+    [setHasChangedSinceGeneration, setResult],
+  );
 
   // Apply pending preset when presets load
   useEffect(() => {
@@ -132,21 +133,20 @@ export function ResultProvider({ children }: PropsWithChildren) {
     }
   }, [resultId, pathname, fetchResult, resetResult, result?.id]);
 
-  const value = useMemo(() => ({
-    result,
-    loading,
-    error,
-    resultId,
-    setResult,
-    setLoading,
-    setError,
-    fetchResult,
-    resetResult,
-  }), [error, fetchResult, loading, resetResult, result, resultId, setResult]);
-
-  return (
-    <ResultContext.Provider value={value}>
-      {children}
-    </ResultContext.Provider>
+  const value = useMemo(
+    () => ({
+      result,
+      loading,
+      error,
+      resultId,
+      setResult,
+      setLoading,
+      setError,
+      fetchResult,
+      resetResult,
+    }),
+    [error, fetchResult, loading, resetResult, result, resultId, setResult],
   );
+
+  return <ResultContext.Provider value={value}>{children}</ResultContext.Provider>;
 }

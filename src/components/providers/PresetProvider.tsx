@@ -1,17 +1,14 @@
 'use client';
 
-import React, {
-  PropsWithChildren, useCallback, useEffect, useMemo, useState,
-} from 'react';
+import React, { PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
+import { createCableAction, deleteCableAction, updateCableAction } from '@/server/actions/cables.actions';
 import {
-  createCableAction, deleteCableAction, updateCableAction,
-} from '@/server/actions/cables.actions';
-import {
-  createPresetAction, deletePresetAction, getAllPresetsWithCablesAction, updatePresetAction,
+  createPresetAction,
+  deletePresetAction,
+  getAllPresetsWithCablesAction,
+  updatePresetAction,
 } from '@/server/actions/presets.actions';
-import {
-  CreateCableInput, CreatePresetInput, Preset, UpdateCableInput,
-} from '@/types/domain.types';
+import { CreateCableInput, CreatePresetInput, Preset, UpdateCableInput } from '@/types/domain.types';
 import { PresetContext } from '@/context/PresetContext';
 
 export default function PresetProvider({ children }: PropsWithChildren) {

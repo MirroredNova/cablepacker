@@ -10,9 +10,7 @@ import Spinner from '@/components/shared/Spinner';
 
 function GenerateBoreButton() {
   const { selectedPreset } = usePreset();
-  const {
-    tableData, setError: setTableError, hasChangedSinceGeneration, setHasChangedSinceGeneration,
-  } = useTable();
+  const { tableData, setError: setTableError, hasChangedSinceGeneration, setHasChangedSinceGeneration } = useTable();
   const { setResult } = useResult();
 
   const [loading, setLoading] = useState(false);

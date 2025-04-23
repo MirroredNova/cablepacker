@@ -4,15 +4,11 @@ import { adminProtectedAction } from '@/server/auth/protect.auth';
 import { executeQuery } from '@/server/db/snowflake.db';
 import { mapDBCableToDomain } from '@/server/utils/mappers.utils';
 import { DBCable } from '@/types/database.types';
-import {
-  ApiResponse, Cable, CreateCableInput, UpdateCableInput,
-} from '@/types/domain.types';
+import { ApiResponse, Cable, CreateCableInput, UpdateCableInput } from '@/types/domain.types';
 
 export const createCableAction = adminProtectedAction(async (input: CreateCableInput): Promise<ApiResponse<Cable>> => {
   try {
-    const {
-      presetId, name, diameter, category,
-    } = input;
+    const { presetId, name, diameter, category } = input;
 
     // Begin transaction
     await executeQuery('BEGIN TRANSACTION');
@@ -26,10 +22,12 @@ export const createCableAction = adminProtectedAction(async (input: CreateCableI
     const currentMaxId = maxIdResult.rows[0]?.MAX_ID || 0;
 
     // Insert the cable
-    await executeQuery(
-      'INSERT INTO CABLES (PRESET_ID, NAME, CATEGORY, DIAMETER) VALUES (?, ?, ?, ?)',
-      [presetId, name, category || null, diameter],
-    );
+    await executeQuery('INSERT INTO CABLES (PRESET_ID, NAME, CATEGORY, DIAMETER) VALUES (?, ?, ?, ?)', [
+      presetId,
+      name,
+      category || null,
+      diameter,
+    ]);
 
     // Get the newly inserted cable
     const results = await executeQuery<DBCable>(
@@ -63,10 +61,7 @@ export const createCableAction = adminProtectedAction(async (input: CreateCableI
 });
 
 export const updateCableAction = adminProtectedAction(
-  async (
-    cableId: number,
-    updates: UpdateCableInput,
-  ): Promise<ApiResponse<Cable>> => {
+  async (cableId: number, updates: UpdateCableInput): Promise<ApiResponse<Cable>> => {
     try {
       const updateFields: string[] = [];
       const values: any[] = [];
@@ -107,10 +102,7 @@ export const updateCableAction = adminProtectedAction(
       }
 
       // Get the updated cable
-      const results = await executeQuery<DBCable>(
-        'SELECT * FROM CABLES WHERE ID = ?',
-        [cableId],
-      );
+      const results = await executeQuery<DBCable>('SELECT * FROM CABLES WHERE ID = ?', [cableId]);
 
       if (results.rows.length === 0) {
         await executeQuery('ROLLBACK');
@@ -125,7 +117,7 @@ export const updateCableAction = adminProtectedAction(
         data: mapDBCableToDomain(results.rows[0]),
       };
     } catch (error: any) {
-    // Ensure we roll back the transaction on error
+      // Ensure we roll back the transaction on error
       try {
         await executeQuery('ROLLBACK');
       } catch (rollbackError) {
@@ -141,20 +133,14 @@ export const updateCableAction = adminProtectedAction(
 export const deleteCableAction = adminProtectedAction(async (cableId: number): Promise<ApiResponse<null>> => {
   try {
     // First verify the cable exists
-    const checkResult = await executeQuery<{ ID: number }>(
-      'SELECT ID FROM CABLES WHERE ID = ?',
-      [cableId],
-    );
+    const checkResult = await executeQuery<{ ID: number }>('SELECT ID FROM CABLES WHERE ID = ?', [cableId]);
 
     if (checkResult.rows.length === 0) {
       return { success: false, error: `Cable with ID ${cableId} not found` };
     }
 
     // Then delete it
-    await executeQuery(
-      'DELETE FROM CABLES WHERE ID = ?',
-      [cableId],
-    );
+    await executeQuery('DELETE FROM CABLES WHERE ID = ?', [cableId]);
 
     return { success: true };
   } catch (error: any) {

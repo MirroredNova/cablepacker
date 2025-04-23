@@ -4,28 +4,21 @@ import { adminProtectedAction } from '@/server/auth/protect.auth';
 import { executeQuery } from '@/server/db/snowflake.db';
 import { mapDBPresetToDomain, mapPresetWithCables } from '@/server/utils/mappers.utils';
 import { DBCable, DBPreset } from '@/types/database.types';
-import {
-  ApiResponse, CreatePresetInput, Preset, UpdatePresetInput,
-} from '@/types/domain.types';
+import { ApiResponse, CreatePresetInput, Preset, UpdatePresetInput } from '@/types/domain.types';
 
 export const createPresetAction = adminProtectedAction(
   async (input: CreatePresetInput): Promise<ApiResponse<Preset>> => {
     try {
-    // Start a transaction
+      // Start a transaction
       await executeQuery('BEGIN TRANSACTION');
 
       // Get the current maximum ID to track what we're inserting
-      const maxIdResult = await executeQuery<{ MAX_ID: number | null }>(
-        'SELECT MAX(ID) AS MAX_ID FROM PRESETS',
-      );
+      const maxIdResult = await executeQuery<{ MAX_ID: number | null }>('SELECT MAX(ID) AS MAX_ID FROM PRESETS');
 
       const currentMaxId = maxIdResult.rows[0]?.MAX_ID || 0;
 
       // Insert the new preset
-      await executeQuery(
-        'INSERT INTO PRESETS (NAME) VALUES (?)',
-        [input.name],
-      );
+      await executeQuery('INSERT INTO PRESETS (NAME) VALUES (?)', [input.name]);
 
       // Select the newly inserted preset by finding a row with ID greater than the previous max
       const results = await executeQuery<DBPreset>(
@@ -34,7 +27,7 @@ export const createPresetAction = adminProtectedAction(
       );
 
       if (results.rows.length === 0) {
-      // Something went wrong - roll back and error out
+        // Something went wrong - roll back and error out
         await executeQuery('ROLLBACK');
         throw new Error('Failed to retrieve the newly created preset');
       }
@@ -47,7 +40,7 @@ export const createPresetAction = adminProtectedAction(
         data: mapDBPresetToDomain(results.rows[0]),
       };
     } catch (error: any) {
-    // Ensure we roll back the transaction on error
+      // Ensure we roll back the transaction on error
       try {
         await executeQuery('ROLLBACK');
       } catch (rollbackError) {
@@ -103,10 +96,7 @@ export async function getAllPresetsWithCablesAction(): Promise<ApiResponse<Prese
 }
 
 export const updatePresetAction = adminProtectedAction(
-  async (
-    presetId: number,
-    updates: UpdatePresetInput,
-  ): Promise<ApiResponse<Preset>> => {
+  async (presetId: number, updates: UpdatePresetInput): Promise<ApiResponse<Preset>> => {
     try {
       if (!updates.name) {
         return { success: false, error: 'No update fields provided' };
@@ -127,10 +117,7 @@ export const updatePresetAction = adminProtectedAction(
       }
 
       // Fetch the updated preset
-      const results = await executeQuery<DBPreset>(
-        'SELECT * FROM PRESETS WHERE ID = ?',
-        [presetId],
-      );
+      const results = await executeQuery<DBPreset>('SELECT * FROM PRESETS WHERE ID = ?', [presetId]);
 
       if (results.rows.length === 0) {
         await executeQuery('ROLLBACK');
@@ -160,20 +147,14 @@ export const updatePresetAction = adminProtectedAction(
 export const deletePresetAction = adminProtectedAction(async (presetId: number): Promise<ApiResponse<null>> => {
   try {
     // First verify the preset exists
-    const checkResult = await executeQuery<DBPreset>(
-      'SELECT ID FROM PRESETS WHERE ID = ?',
-      [presetId],
-    );
+    const checkResult = await executeQuery<DBPreset>('SELECT ID FROM PRESETS WHERE ID = ?', [presetId]);
 
     if (checkResult.rows.length === 0) {
       return { success: false, error: `Preset with ID ${presetId} not found` };
     }
 
     // Then delete the preset (and its cables via CASCADE constraint)
-    await executeQuery(
-      'DELETE FROM PRESETS WHERE ID = ?',
-      [presetId],
-    );
+    await executeQuery('DELETE FROM PRESETS WHERE ID = ?', [presetId]);
 
     return { success: true };
   } catch (error: any) {
