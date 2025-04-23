@@ -29,7 +29,7 @@ stages:
   - test
   - predeploy
   - deploy
-  # - release
+  - release
 
 .npm_default:
   image: gitlabp2.alliant-energy.com:5050/devops/gitlab-ci-images/ae-node-18:18
