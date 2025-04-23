@@ -13,15 +13,8 @@ export const createCableAction = adminProtectedAction(async (input: CreateCableI
     // Begin transaction
     await executeQuery('BEGIN TRANSACTION');
 
-    // Get current max ID to track the insertion
-    const maxIdResult = await executeQuery<{ MAX_ID: number | null }>(
-      'SELECT MAX(ID) AS MAX_ID FROM CABLES WHERE PRESET_ID = ?',
-      [presetId],
-    );
-
-    const currentMaxId = maxIdResult.rows[0]?.MAX_ID || 0;
-
-    // Insert the cable
+    // Insert the cable and get its ID using RETURNING clause if available
+    // For Snowflake, we need a different approach
     await executeQuery('INSERT INTO CABLES (PRESET_ID, NAME, CATEGORY, DIAMETER) VALUES (?, ?, ?, ?)', [
       presetId,
       name,
@@ -29,10 +22,11 @@ export const createCableAction = adminProtectedAction(async (input: CreateCableI
       diameter,
     ]);
 
-    // Get the newly inserted cable
+    // Query the most recently inserted cable for this preset
+    // Using created_at instead of ID for more reliable retrieval
     const results = await executeQuery<DBCable>(
-      'SELECT * FROM CABLES WHERE PRESET_ID = ? AND ID > ? ORDER BY ID ASC LIMIT 1',
-      [presetId, currentMaxId],
+      'SELECT * FROM CABLES WHERE PRESET_ID = ? ORDER BY CREATED_AT DESC LIMIT 1',
+      [presetId],
     );
 
     if (results.rows.length === 0) {

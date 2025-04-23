@@ -12,18 +12,14 @@ export const createPresetAction = adminProtectedAction(
       // Start a transaction
       await executeQuery('BEGIN TRANSACTION');
 
-      // Get the current maximum ID to track what we're inserting
-      const maxIdResult = await executeQuery<{ MAX_ID: number | null }>('SELECT MAX(ID) AS MAX_ID FROM PRESETS');
-
-      const currentMaxId = maxIdResult.rows[0]?.MAX_ID || 0;
-
       // Insert the new preset
       await executeQuery('INSERT INTO PRESETS (NAME) VALUES (?)', [input.name]);
 
-      // Select the newly inserted preset by finding a row with ID greater than the previous max
+      // Select the newly inserted preset by using creation timestamp
+      // This is more reliable than ID tracking
       const results = await executeQuery<DBPreset>(
-        'SELECT * FROM PRESETS WHERE ID > ? AND NAME = ? ORDER BY ID ASC LIMIT 1',
-        [currentMaxId, input.name],
+        'SELECT * FROM PRESETS WHERE NAME = ? ORDER BY CREATED_AT DESC LIMIT 1',
+        [input.name],
       );
 
       if (results.rows.length === 0) {
