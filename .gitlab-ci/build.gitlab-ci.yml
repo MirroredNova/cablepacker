@@ -7,15 +7,11 @@
     expire_in: 2 hrs
     paths:
       - node_modules/
-      - version.env
-    reports:
-      dotenv: version.env
 
 .build_app:
   stage: build
   extends: .npm_default
   script:
-    - npm version $APP_VERSION
     - npm run build
     - cp -r .next/standalone build
   artifacts:
@@ -23,9 +19,6 @@
     paths:
       - build/
       - node_modules/
-      - version.env
-    reports:
-      dotenv: version.env
 
 .testing:
   stage: test
@@ -36,9 +29,6 @@
     expire_in: 2 hrs
     paths:
       - build/
-      - version.env
-    reports:
-      dotenv: version.env
 
 .zip:
   stage: predeploy
@@ -54,9 +44,6 @@
     expire_in: 2 hrs
     paths:
       - build.zip
-      - version.env
-    reports:
-      dotenv: version.env
 
 # QA Jobs
 
