@@ -8,9 +8,7 @@ function SelectedPresetHeader() {
   const { selectedPreset } = useAdmin();
 
   return (
-    <Typography variant="h6">
-      {selectedPreset ? `Cables in ${selectedPreset.name}` : 'Select a preset'}
-    </Typography>
+    <Typography variant="h6">{selectedPreset ? `Cables in ${selectedPreset.name}` : 'Select a preset'}</Typography>
   );
 }
 

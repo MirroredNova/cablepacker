@@ -1,8 +1,6 @@
 'use client';
 
-import React, {
-  useState, useMemo, PropsWithChildren, useCallback,
-} from 'react';
+import React, { useState, useMemo, PropsWithChildren, useCallback } from 'react';
 import { nanoid } from 'nanoid';
 import { TableError, TableRowData } from '@/types/table.types';
 import { TableContext } from '@/context/TableContext';

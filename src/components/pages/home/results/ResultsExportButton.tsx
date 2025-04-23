@@ -57,7 +57,6 @@ function ResultsExportButton({ contentRef }: Props) {
         </Alert>
       </Snackbar>
     </>
-
   );
 }
 

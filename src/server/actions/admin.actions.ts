@@ -15,6 +15,12 @@ export async function signInAction(formData: FormData) {
 }
 
 export async function logoutAction() {
-  deleteSession();
+  try {
+    deleteSession();
+  } catch (error) {
+    console.error('Error during logout:', error);
+    // Continue execution even if deletion fails
+  }
+
   redirect('/admin/login');
 }

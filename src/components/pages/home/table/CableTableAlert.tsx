@@ -23,9 +23,7 @@ function CableTableAlert() {
 
   return (
     <Alert severity="error">
-      <Typography variant="body2">
-        {error.message}
-      </Typography>
+      <Typography variant="body2">{error.message}</Typography>
     </Alert>
   );
 }

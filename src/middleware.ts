@@ -8,9 +8,17 @@ export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const isProtectedRoute = protectedRoutes.includes(path);
 
-  const cookie = (await cookies()).get('session')?.value;
-  const session = await decrypt(cookie);
-  const isAuthenticated = session?.username;
+  // Default to not authenticated if any errors occur
+  let isAuthenticated = false;
+
+  try {
+    const cookie = (await cookies()).get('session')?.value;
+    const session = await decrypt(cookie);
+    isAuthenticated = !!session?.username;
+  } catch (error) {
+    console.error('Authentication error in middleware:', error);
+    isAuthenticated = false;
+  }
 
   if (isProtectedRoute && !isAuthenticated) {
     return NextResponse.redirect(new URL('/admin/login', req.nextUrl));

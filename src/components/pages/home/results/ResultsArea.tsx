@@ -52,10 +52,7 @@ function ResultsArea() {
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} ref={contentRef}>
           <Stack direction={{ xs: 'column', lg: 'row' }} spacing={2}>
             {result.resultData.cables.length > 0 && (
-            <ResultsGraphic
-              bore={result.resultData.bore}
-              data={result.resultData.cables}
-            />
+              <ResultsGraphic bore={result.resultData.bore} data={result.resultData.cables} />
             )}
             <ResultsInformation result={result} />
           </Stack>

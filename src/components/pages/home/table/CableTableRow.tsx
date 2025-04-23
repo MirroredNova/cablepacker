@@ -69,13 +69,7 @@ export default function CableTableRow({ row }: Props) {
   return (
     <TableRow>
       <TableCell sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-        <Box
-          display="flex"
-          flexDirection="row"
-          gap={1}
-          width="100%"
-          minWidth="400px"
-        >
+        <Box display="flex" flexDirection="row" gap={1} width="100%" minWidth="400px">
           <Autocomplete
             value={isPresetCable ? (row.selectedCable as Cable) : options[0]}
             options={options}

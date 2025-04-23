@@ -53,14 +53,9 @@ export default function ResultsGraphic({ data, bore }: Props) {
         />
 
         {data.map((circle, index) => (
-        // eslint-disable-next-line react/no-array-index-key
+          // eslint-disable-next-line react/no-array-index-key
           <g key={index}>
-            <circle
-              cx={circle.coordinates.x}
-              cy={-circle.coordinates.y}
-              r={circle.radius}
-              fill={circle.color}
-            />
+            <circle cx={circle.coordinates.x} cy={-circle.coordinates.y} r={circle.radius} fill={circle.color} />
           </g>
         ))}
       </svg>

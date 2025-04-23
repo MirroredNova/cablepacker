@@ -1,8 +1,4 @@
-import {
-  describe, it, expect, vi, beforeEach,
-  beforeAll,
-  afterAll,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
 import {
   sortCircles,
   createEnclose,
@@ -29,7 +25,7 @@ describe('Algorithm Utilities', () => {
 
   // Before all tests
   beforeAll(() => {
-  // Use much larger step sizes for testing to reduce computation
+    // Use much larger step sizes for testing to reduce computation
     vi.spyOn(serverConfig, 'MAX_ITERATIONS', 'get').mockReturnValue(10);
     vi.spyOn(serverConfig, 'RADIUS_STEP_SIZE', 'get').mockReturnValue(1.0);
     vi.spyOn(serverConfig, 'ANGLE_STEP_SIZE', 'get').mockReturnValue(90);
@@ -37,7 +33,7 @@ describe('Algorithm Utilities', () => {
 
   // After all tests
   afterAll(() => {
-  // Restore original values
+    // Restore original values
     vi.spyOn(serverConfig, 'MAX_ITERATIONS', 'get').mockReturnValue(testMaxIterations);
     vi.spyOn(serverConfig, 'RADIUS_STEP_SIZE', 'get').mockReturnValue(testStepSize);
     vi.spyOn(serverConfig, 'ANGLE_STEP_SIZE', 'get').mockReturnValue(testAngleStep);
@@ -47,13 +43,25 @@ describe('Algorithm Utilities', () => {
     it('sorts circles by radius in descending order', () => {
       const circles: Circle[] = [
         {
-          name: 'small', diameter: 2, radius: 1, coordinates: { x: 0, y: 0 }, color: '',
+          name: 'small',
+          diameter: 2,
+          radius: 1,
+          coordinates: { x: 0, y: 0 },
+          color: '',
         },
         {
-          name: 'large', diameter: 6, radius: 3, coordinates: { x: 0, y: 0 }, color: '',
+          name: 'large',
+          diameter: 6,
+          radius: 3,
+          coordinates: { x: 0, y: 0 },
+          color: '',
         },
         {
-          name: 'medium', diameter: 4, radius: 2, coordinates: { x: 0, y: 0 }, color: '',
+          name: 'medium',
+          diameter: 4,
+          radius: 2,
+          coordinates: { x: 0, y: 0 },
+          color: '',
         },
       ];
 
@@ -67,10 +75,18 @@ describe('Algorithm Utilities', () => {
     it('returns a new array without modifying the original', () => {
       const circles: Circle[] = [
         {
-          name: 'small', diameter: 2, radius: 1, coordinates: { x: 0, y: 0 }, color: '',
+          name: 'small',
+          diameter: 2,
+          radius: 1,
+          coordinates: { x: 0, y: 0 },
+          color: '',
         },
         {
-          name: 'large', diameter: 6, radius: 3, coordinates: { x: 0, y: 0 }, color: '',
+          name: 'large',
+          diameter: 6,
+          radius: 3,
+          coordinates: { x: 0, y: 0 },
+          color: '',
         },
       ];
 
@@ -123,10 +139,18 @@ describe('Algorithm Utilities', () => {
       // Create two circles that can be easily packed
       const circles: Circle[] = [
         {
-          name: 'circle1', diameter: 2, radius: 1, coordinates: { x: 0, y: 0 }, color: '',
+          name: 'circle1',
+          diameter: 2,
+          radius: 1,
+          coordinates: { x: 0, y: 0 },
+          color: '',
         },
         {
-          name: 'circle2', diameter: 2, radius: 1, coordinates: { x: 0, y: 0 }, color: '',
+          name: 'circle2',
+          diameter: 2,
+          radius: 1,
+          coordinates: { x: 0, y: 0 },
+          color: '',
         },
       ];
 
@@ -145,10 +169,18 @@ describe('Algorithm Utilities', () => {
     it('should sort the circles before finding optimal enclosure', () => {
       const circles: Circle[] = [
         {
-          name: 'small', diameter: 2, radius: 1, coordinates: { x: 0, y: 0 }, color: '',
+          name: 'small',
+          diameter: 2,
+          radius: 1,
+          coordinates: { x: 0, y: 0 },
+          color: '',
         },
         {
-          name: 'large', diameter: 6, radius: 3, coordinates: { x: 0, y: 0 }, color: '',
+          name: 'large',
+          diameter: 6,
+          radius: 3,
+          coordinates: { x: 0, y: 0 },
+          color: '',
         },
       ];
 
@@ -184,10 +216,18 @@ describe('Algorithm Utilities', () => {
     it('should start with a diameter of twice the largest circle', () => {
       const circles: Circle[] = [
         {
-          name: 'large', diameter: 10, radius: 5, coordinates: { x: 0, y: 0 }, color: '',
+          name: 'large',
+          diameter: 10,
+          radius: 5,
+          coordinates: { x: 0, y: 0 },
+          color: '',
         },
         {
-          name: 'small', diameter: 4, radius: 2, coordinates: { x: 0, y: 0 }, color: '',
+          name: 'small',
+          diameter: 4,
+          radius: 2,
+          coordinates: { x: 0, y: 0 },
+          color: '',
         },
       ];
 
@@ -210,13 +250,15 @@ describe('Algorithm Utilities', () => {
       vi.spyOn(serverConfig, 'ANGLE_STEP_SIZE', 'get').mockReturnValue(90);
 
       // Create circles that would require some iterations
-      const circles: Circle[] = Array(5).fill(0).map((_, i) => ({
-        name: `circle${i}`,
-        diameter: 2,
-        radius: 1,
-        coordinates: { x: 0, y: 0 },
-        color: '',
-      }));
+      const circles: Circle[] = Array(5)
+        .fill(0)
+        .map((_, i) => ({
+          name: `circle${i}`,
+          diameter: 2,
+          radius: 1,
+          coordinates: { x: 0, y: 0 },
+          color: '',
+        }));
 
       const result = findOptimalEncloseSize(circles);
 
@@ -238,10 +280,18 @@ describe('Algorithm Utilities', () => {
       const circles: Circle[] = [
         // Two circles that are guaranteed to overlap if placed at (0,0)
         {
-          name: 'circle1', diameter: 4, radius: 2, coordinates: { x: 0, y: 0 }, color: '',
+          name: 'circle1',
+          diameter: 4,
+          radius: 2,
+          coordinates: { x: 0, y: 0 },
+          color: '',
         },
         {
-          name: 'circle2', diameter: 4, radius: 2, coordinates: { x: 0, y: 0 }, color: '',
+          name: 'circle2',
+          diameter: 4,
+          radius: 2,
+          coordinates: { x: 0, y: 0 },
+          color: '',
         },
       ];
 
@@ -252,8 +302,7 @@ describe('Algorithm Utilities', () => {
       const c1 = result.circles[0];
       const c2 = result.circles[1];
       const distance = Math.sqrt(
-        (c1.coordinates.x - c2.coordinates.x) ** 2
-        + (c1.coordinates.y - c2.coordinates.y) ** 2,
+        (c1.coordinates.x - c2.coordinates.x) ** 2 + (c1.coordinates.y - c2.coordinates.y) ** 2,
       );
 
       // Distance should be at least the sum of radii (minus small epsilon for floating point)
@@ -264,7 +313,11 @@ describe('Algorithm Utilities', () => {
       // Test through findOptimalEncloseSize
       const circles: Circle[] = [
         {
-          name: 'large', diameter: 6, radius: 3, coordinates: { x: 0, y: 0 }, color: '',
+          name: 'large',
+          diameter: 6,
+          radius: 3,
+          coordinates: { x: 0, y: 0 },
+          color: '',
         },
       ];
 
@@ -272,10 +325,7 @@ describe('Algorithm Utilities', () => {
 
       // The circle should be within the enclose
       const circle = result.circles[0];
-      const distanceFromCenter = Math.sqrt(
-        circle.coordinates.x ** 2
-        + circle.coordinates.y ** 2,
-      );
+      const distanceFromCenter = Math.sqrt(circle.coordinates.x ** 2 + circle.coordinates.y ** 2);
 
       // Distance from center + circle radius should be <= enclose radius
       expect(distanceFromCenter + circle.radius).toBeLessThanOrEqual(result.enclose.radius + 0.001);

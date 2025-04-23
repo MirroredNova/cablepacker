@@ -16,7 +16,7 @@ import useAdmin from '@/hooks/useAdmin';
 import EnhancedNumberInput from '@/components/shared/NumberInput';
 
 type Props = {
-  cable: Cable
+  cable: Cable;
 };
 
 function EditCableButton({ cable }: Props) {

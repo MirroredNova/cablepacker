@@ -22,7 +22,7 @@ export interface Preset {
 export interface Result {
   id: string;
   inputCables: TableRowData[];
-  resultData: BoreResult
+  resultData: BoreResult;
   selectedPresetId: number | null;
   cableCount: number;
   boreDiameter: number;
@@ -64,5 +64,5 @@ export interface CreateResult {
 export type ApiResponse<T> = {
   success: boolean;
   data?: T;
-  error?: string
+  error?: string;
 };

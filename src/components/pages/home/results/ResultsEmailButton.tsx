@@ -16,9 +16,7 @@ function ResultsEmailButton() {
         return;
       }
 
-      const resultUrl = typeof window !== 'undefined'
-        ? `${window.location.origin}/${result.id}`
-        : '';
+      const resultUrl = typeof window !== 'undefined' ? `${window.location.origin}/${result.id}` : '';
 
       // Create the email subject
       const subject = `Cable Bore Configuration - ${result.id}`;
@@ -52,12 +50,7 @@ Thank you!
 
   return (
     <>
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<AttachEmailIcon />}
-        onClick={handleSendEmail}
-      >
+      <Button variant="contained" color="primary" startIcon={<AttachEmailIcon />} onClick={handleSendEmail}>
         Send Email
       </Button>
 
@@ -72,7 +65,6 @@ Thank you!
         </Alert>
       </Snackbar>
     </>
-
   );
 }
 

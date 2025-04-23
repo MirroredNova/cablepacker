@@ -94,9 +94,7 @@ export default function EnhancedNumberInput({
       onChangeAction(min);
     } else {
       // Format to consistent decimal places if needed
-      const formattedValue = decimalPlaces > 0
-        ? Number(numValue.toFixed(decimalPlaces))
-        : Math.round(numValue);
+      const formattedValue = decimalPlaces > 0 ? Number(numValue.toFixed(decimalPlaces)) : Math.round(numValue);
 
       setInputValue(formattedValue.toString());
       onChangeAction(formattedValue);

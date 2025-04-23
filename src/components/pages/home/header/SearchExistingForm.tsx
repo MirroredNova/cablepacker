@@ -9,9 +9,7 @@ import useResult from '@/hooks/useResult';
 import Spinner from '@/components/shared/Spinner';
 
 function SearchExistingForm() {
-  const {
-    setResult, loading, setLoading, error, setError,
-  } = useResult();
+  const { setResult, loading, setLoading, error, setError } = useResult();
 
   const [searchId, setSearchId] = useState('');
 
@@ -43,7 +41,10 @@ function SearchExistingForm() {
   return (
     <FormControl
       sx={{
-        display: 'flex', flexDirection: 'row', gap: 2, width: '100%',
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 2,
+        width: '100%',
       }}
       component="form"
       onSubmit={handleSearchSubmit}

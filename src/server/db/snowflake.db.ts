@@ -15,10 +15,13 @@ export function getConnectionPool() {
   return connectionPool;
 }
 
-export async function executeQuery<T = Record<string, any>>(sqlText: string, binds: any[] = []): Promise<{
-  stmt: snowflake.RowStatement;
-  rows: T[];
-}> {
+export async function executeQuery<T = Record<string, any>>(
+  sqlText: string,
+  binds: any[] = [],
+): Promise<{
+    stmt: snowflake.RowStatement;
+    rows: T[];
+  }> {
   const pool = getConnectionPool();
   console.log(`Executing query: ${sqlText}`, binds ? `with binds: ${JSON.stringify(binds)}` : '');
 
@@ -26,32 +29,34 @@ export async function executeQuery<T = Record<string, any>>(sqlText: string, bin
     stmt: snowflake.RowStatement;
     rows: T[];
   }>((resolve, reject) => {
-    pool.use(async (clientConnection) => {
-      try {
-        clientConnection.execute({
-          sqlText,
-          binds,
-          complete: (err, stmt, rows) => {
-            if (err) {
-              console.error(`Query failed: ${sqlText}`, err);
-              reject(err);
-            } else {
-              console.log(`Query completed: ${sqlText} (${rows?.length || 0} rows)`);
-              resolve({
-                stmt,
-                rows: (rows || []) as T[],
-              });
-            }
-          },
-        });
-      } catch (error) {
-        console.error(`Error executing query: ${sqlText}`, error);
+    pool
+      .use(async (clientConnection) => {
+        try {
+          clientConnection.execute({
+            sqlText,
+            binds,
+            complete: (err, stmt, rows) => {
+              if (err) {
+                console.error(`Query failed: ${sqlText}`, err);
+                reject(err);
+              } else {
+                console.log(`Query completed: ${sqlText} (${rows?.length || 0} rows)`);
+                resolve({
+                  stmt,
+                  rows: (rows || []) as T[],
+                });
+              }
+            },
+          });
+        } catch (error) {
+          console.error(`Error executing query: ${sqlText}`, error);
+          reject(error);
+        }
+      })
+      .catch((error) => {
+        console.error(`Pool use error for query: ${sqlText}`, error);
         reject(error);
-      }
-    }).catch((error) => {
-      console.error(`Pool use error for query: ${sqlText}`, error);
-      reject(error);
-    });
+      });
   });
 }
 

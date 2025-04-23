@@ -24,7 +24,7 @@
   stage: test
   extends: .npm_default
   script:
-    - npm run test
+    - npm run test:coverage
   artifacts:
     expire_in: 2 hrs
     paths:

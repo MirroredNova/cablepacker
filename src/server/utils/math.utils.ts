@@ -8,10 +8,7 @@ export function almostEqual(a: number, b: number): boolean {
 }
 
 export function polarToCartesian(angle: number, radius: number): [number, number] {
-  return [
-    radius * Math.cos((angle * Math.PI) / 180.0),
-    radius * Math.sin((angle * Math.PI) / 180.0),
-  ];
+  return [radius * Math.cos((angle * Math.PI) / 180.0), radius * Math.sin((angle * Math.PI) / 180.0)];
 }
 
 export function getDistanceBetweenPoints(point0: Point, point1: Point): number {

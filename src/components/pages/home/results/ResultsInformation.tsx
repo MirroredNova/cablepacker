@@ -30,7 +30,7 @@ function ResultsInformation({ result }: Props) {
           Minimum Bore Diameter:
         </Box>
         {' '}
-        {(result.boreDiameter).toFixed(3)}
+        {result.boreDiameter.toFixed(3)}
         in
       </Typography>
     </Box>
