@@ -1,11 +1,6 @@
 .deploy:
   stage: deploy
   extends: .azcli_default
-  artifacts:
-    paths:
-      - version.env
-    reports:
-      dotenv: version.env
   script:
     - az login --service-principal -u ${ARM_CLIENT_ID} -p ${ARM_CLIENT_SECRET} --tenant ${ARM_TENANT_ID}
     - az account set --subscription ${ARM_SUBSCRIPTION_ID}

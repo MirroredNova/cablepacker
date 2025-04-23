@@ -280,10 +280,5 @@ describe('Algorithm Utilities', () => {
       // Distance from center + circle radius should be <= enclose radius
       expect(distanceFromCenter + circle.radius).toBeLessThanOrEqual(result.enclose.radius + 0.001);
     });
-
-    it('passes', () => {
-      // This is just a placeholder to ensure the test suite runs without errors
-      expect(true).toBe(true);
-    });
   });
 });
