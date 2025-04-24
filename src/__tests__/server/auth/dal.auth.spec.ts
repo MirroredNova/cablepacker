@@ -123,7 +123,7 @@ describe('Authentication Data Access Layer', () => {
       global.Date.now = vi.fn(() => mockNow);
 
       // Calculate expected expiration
-      const expectedExpires = new Date(mockNow + 7 * 24 * 60 * 60 * 1000);
+      const expectedExpires = new Date(mockNow + 24 * 60 * 60 * 1000);
 
       try {
         // Act

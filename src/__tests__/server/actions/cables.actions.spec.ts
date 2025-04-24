@@ -248,7 +248,7 @@ describe('Cable Actions', () => {
 
       // Check that the update query contains all fields
       const updateCall = (executeQuery as any).mock.calls.find(
-        (call) => typeof call[0] === 'string' && call[0].startsWith('UPDATE CABLES SET'),
+        (call: string[]) => typeof call[0] === 'string' && call[0].startsWith('UPDATE CABLES SET'),
       );
       expect(updateCall[0]).toContain('NAME = ?');
       expect(updateCall[0]).toContain('CATEGORY = ?');
@@ -293,7 +293,7 @@ describe('Cable Actions', () => {
       // Assert
       // Check that the update query contains only name field
       const updateCall = (executeQuery as any).mock.calls.find(
-        (call) => typeof call[0] === 'string' && call[0].startsWith('UPDATE CABLES SET'),
+        (call: string[]) => typeof call[0] === 'string' && call[0].startsWith('UPDATE CABLES SET'),
       );
       expect(updateCall[0]).toContain('NAME = ?');
       expect(updateCall[0]).not.toContain('CATEGORY = ?');

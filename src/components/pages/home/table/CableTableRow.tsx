@@ -72,7 +72,10 @@ export default function CableTableRow({ row }: Props) {
         <Box display="flex" flexDirection="row" gap={1} width="100%" minWidth="400px">
           <Autocomplete
             value={isPresetCable ? (row.selectedCable as Cable) : options[0]}
-            options={options}
+            options={[
+              options[0], // Keep 'Custom' as the first option
+              ...options.slice(1).sort((a, b) => a.name.localeCompare(b.name)), // Sort all other options
+            ]}
             getOptionLabel={(option) => option.name}
             onChange={handleNameChange}
             fullWidth

@@ -17,7 +17,7 @@ export const verifySession = cache(async () => {
 });
 
 export async function createSession(username: string) {
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
   const session = await encrypt({ username, expiresAt });
   const cookieStore = await cookies();
 
