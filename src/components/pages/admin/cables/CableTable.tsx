@@ -35,8 +35,17 @@ function CableTable() {
         return sortBy.order === 'asc'
           ? a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
           : b.name.localeCompare(a.name, undefined, { sensitivity: 'base' });
-      } if (sortBy.column === 'diameter') {
+      }
+      if (sortBy.column === 'diameter') {
         return sortBy.order === 'asc' ? a.diameter - b.diameter : b.diameter - a.diameter;
+      }
+      if (sortBy.column === 'category') {
+        // Handle undefined or null categories
+        const categoryA = a.category || '';
+        const categoryB = b.category || '';
+        return sortBy.order === 'asc'
+          ? categoryA.localeCompare(categoryB, undefined, { sensitivity: 'base' })
+          : categoryB.localeCompare(categoryA, undefined, { sensitivity: 'base' });
       }
       return 0;
     });
@@ -52,6 +61,18 @@ function CableTable() {
                 <span>Name</span>
                 <IconButton size="small" onClick={() => handleSort('name')}>
                   {sortBy.column === 'name' && sortBy.order === 'asc' ? (
+                    <ArrowUpwardIcon fontSize="small" />
+                  ) : (
+                    <ArrowDownwardIcon fontSize="small" />
+                  )}
+                </IconButton>
+              </Box>
+            </TableCell>
+            <TableCell>
+              <Box display="flex" alignItems="center">
+                <span>Category</span>
+                <IconButton size="small" onClick={() => handleSort('category')}>
+                  {sortBy.column === 'category' && sortBy.order === 'asc' ? (
                     <ArrowUpwardIcon fontSize="small" />
                   ) : (
                     <ArrowDownwardIcon fontSize="small" />
@@ -78,6 +99,7 @@ function CableTable() {
           {sortedCables.map((cable) => (
             <TableRow key={cable.id}>
               <TableCell>{cable.name}</TableCell>
+              <TableCell>{cable.category || ''}</TableCell>
               <TableCell>{cable.diameter}</TableCell>
               <TableCell align="right">
                 <EditCableButton cable={cable} />

@@ -58,14 +58,20 @@ function EditCableButton({ cable }: Props) {
               value={editingCable?.name || ''}
               onChange={(e) => setEditingCable((prev) => (prev ? { ...prev, name: e.target.value } : null))}
             />
+            <TextField
+              label="Category"
+              fullWidth
+              value={editingCable?.category || ''}
+              onChange={(e) => setEditingCable((prev) => (prev ? { ...prev, category: e.target.value } : null))}
+            />
             <EnhancedNumberInput
               label="Diameter"
               value={editingCable?.diameter || 1}
               onChangeAction={(value) => setEditingCable((prev) => (prev ? { ...prev, diameter: value } : null))}
-              min={0.1}
+              min={0.001}
               max={20}
-              step={0.1}
-              decimalPlaces={2}
+              step={0.001}
+              decimalPlaces={3}
             />
           </Stack>
         </DialogContent>

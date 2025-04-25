@@ -74,9 +74,15 @@ export default function CableTableRow({ row }: Props) {
             value={isPresetCable ? (row.selectedCable as Cable) : options[0]}
             options={[
               options[0], // Keep 'Custom' as the first option
-              ...options.slice(1).sort((a, b) => a.name.localeCompare(b.name)), // Sort all other options
+              ...options.slice(1).sort((a, b) => {
+                if (a.category === null && b.category !== null) return -1; // Custom category first
+                if (a.category !== null && b.category === null) return 1; // Custom category first
+                if (a.category === b.category) return a.name.localeCompare(b.name); // Sort by name within category
+                return a.category!.localeCompare(b.category!); // Sort categories alphabetically
+              }),
             ]}
             getOptionLabel={(option) => option.name}
+            groupBy={(option) => option.category ?? 'Custom'}
             onChange={handleNameChange}
             fullWidth
             size="small"
@@ -103,11 +109,11 @@ export default function CableTableRow({ row }: Props) {
           <EnhancedNumberInput
             value={row.customDiameter ?? 1}
             onChangeAction={(value) => updateRow(row.id, { customDiameter: value })}
-            min={0.1}
+            min={0.001}
             max={clientConfig.MAX_DIAMETER}
-            step={0.1}
+            step={0.001}
             allowTemporaryZero
-            decimalPlaces={1}
+            decimalPlaces={3}
             name="customDiameter"
             sx={{ width: '85px' }}
           />

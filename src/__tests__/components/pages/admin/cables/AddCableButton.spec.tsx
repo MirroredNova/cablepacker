@@ -101,7 +101,7 @@ describe('AddCableButton', () => {
     await userEvent.click(screen.getByRole('button', { name: /add cable/i }));
 
     // Check default values
-    expect(screen.getByLabelText('Cable Name')).toHaveValue('');
+    expect(screen.getByLabelText('Name')).toHaveValue('');
     expect(screen.getByTestId('diameter-input')).toHaveValue(1);
   });
 
@@ -112,8 +112,8 @@ describe('AddCableButton', () => {
     await userEvent.click(screen.getByRole('button', { name: /add cable/i }));
 
     // Type in cable name
-    await userEvent.type(screen.getByLabelText('Cable Name'), 'New Test Cable');
-    expect(screen.getByLabelText('Cable Name')).toHaveValue('New Test Cable');
+    await userEvent.type(screen.getByLabelText('Name'), 'New Test Cable');
+    expect(screen.getByLabelText('Name')).toHaveValue('New Test Cable');
 
     // Change diameter
     fireEvent.change(screen.getByTestId('diameter-input'), { target: { value: '3.5' } });
@@ -127,7 +127,7 @@ describe('AddCableButton', () => {
     await userEvent.click(screen.getByRole('button', { name: /add cable/i }));
 
     // Fill in the form
-    await userEvent.type(screen.getByLabelText('Cable Name'), 'New Test Cable');
+    await userEvent.type(screen.getByLabelText('Name'), 'New Test Cable');
     fireEvent.change(screen.getByTestId('diameter-input'), { target: { value: '3.5' } });
 
     // Click the Add button
@@ -153,7 +153,7 @@ describe('AddCableButton', () => {
     await userEvent.click(screen.getByRole('button', { name: /add cable/i }));
 
     // Fill in some data that shouldn't be submitted
-    await userEvent.type(screen.getByLabelText('Cable Name'), 'Canceled Cable');
+    await userEvent.type(screen.getByLabelText('Name'), 'Canceled Cable');
 
     // Click the Cancel button
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
