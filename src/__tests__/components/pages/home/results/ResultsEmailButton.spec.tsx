@@ -94,7 +94,7 @@ describe('ResultsEmailButton', () => {
     // Check that it contains the expected components
     expect(mailtoUrl).toContain('subject=Cable%20Bore%20Configuration%20-%20abc123');
     expect(mailtoUrl).toContain('Result%20ID%3A%20abc123');
-    expect(mailtoUrl).toContain('Bore%20Diameter%3A%204.50%20in');
+    expect(mailtoUrl).toContain('Bore%20Diameter%3A%204.500%20in');
     expect(mailtoUrl).toContain('Number%20of%20Cables%3A%202');
     expect(mailtoUrl).toContain('https%3A%2F%2Fexample.com%2Fabc123');
   });

@@ -149,7 +149,7 @@ describe('CableTableRow', () => {
 
     // Should display the diameter without input field
     expect(screen.queryByTestId('number-input-customDiameter')).not.toBeInTheDocument();
-    expect(screen.getByText('0.75 in')).toBeInTheDocument();
+    expect(screen.getByText('0.750 in')).toBeInTheDocument();
 
     // Should have quantity input
     const quantityInput = screen.getByTestId('number-input-quantity');

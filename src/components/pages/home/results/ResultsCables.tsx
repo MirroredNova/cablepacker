@@ -53,7 +53,7 @@ function ResultsCables({ cables }: Props) {
               sx={{ '&:nth-of-type(odd)': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
             >
               <TableCell>{cable.name}</TableCell>
-              <TableCell align="right">{cable.diameter.toFixed(1)}</TableCell>
+              <TableCell align="right">{cable.diameter.toFixed(3)}</TableCell>
               <TableCell align="right">{cable.quantity}</TableCell>
               <TableCell align="center">
                 <Box

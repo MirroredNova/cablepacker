@@ -122,7 +122,7 @@ describe('ResultsCables', () => {
     render(<ResultsCables cables={cablesWithExtraDecimals} />);
 
     // Check that the diameter is correctly formatted to one decimal place
-    expect(screen.getByText('4.6')).toBeInTheDocument();
+    expect(screen.getByText('4.567')).toBeInTheDocument();
   });
 
   it('handles empty cables array', () => {
@@ -172,7 +172,7 @@ describe('ResultsCables', () => {
     expect(cableXEntries).toHaveLength(2);
 
     // Check for both diameters
-    expect(screen.getByText('2.0')).toBeInTheDocument();
-    expect(screen.getByText('3.0')).toBeInTheDocument();
+    expect(screen.getByText('2.000')).toBeInTheDocument();
+    expect(screen.getByText('3.000')).toBeInTheDocument();
   });
 });

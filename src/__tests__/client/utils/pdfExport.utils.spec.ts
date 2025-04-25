@@ -127,7 +127,7 @@ describe('exportResultToPdf', () => {
 
     // Bore info element
     expect(children[2].tagName).toBe('P');
-    expect(children[2].innerText).toBe(`Bore Diameter: ${mockResult.boreDiameter.toFixed(2)} in`);
+    expect(children[2].innerText).toBe(`Bore Diameter: ${mockResult.boreDiameter.toFixed(3)} in`);
 
     // Date element
     expect(children[3].tagName).toBe('P');

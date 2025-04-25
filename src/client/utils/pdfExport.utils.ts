@@ -39,7 +39,7 @@ export async function exportResultToPdf(result: Result, contentRef: React.RefObj
   boreInfoElement.style.textAlign = 'center';
   boreInfoElement.style.marginBottom = '4px';
   boreInfoElement.style.fontSize = '14px';
-  boreInfoElement.innerText = `Bore Diameter: ${result.boreDiameter.toFixed(2)} in`;
+  boreInfoElement.innerText = `Bore Diameter: ${result.boreDiameter.toFixed(3)} in`;
 
   const dateElement = document.createElement('p');
   dateElement.style.textAlign = 'center';

@@ -61,9 +61,9 @@ export default function CableTableRow({ row }: Props) {
 
   const getDiameterDisplay = (): string => {
     if (isPresetCable) {
-      return `${(row.selectedCable as Cable).diameter.toFixed(2)} in`;
+      return `${(row.selectedCable as Cable).diameter.toFixed(3)} in`;
     }
-    return `${(row.customDiameter ?? 1).toFixed(2)} in`;
+    return `${(row.customDiameter ?? 1).toFixed(3)} in`;
   };
 
   return (

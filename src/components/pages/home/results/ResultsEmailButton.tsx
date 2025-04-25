@@ -28,7 +28,7 @@ Hello,
 I'd like to share this Cable Bore Configuration with you:
 
 Result ID: ${result.id}
-Bore Diameter: ${result.boreDiameter.toFixed(2)} in
+Bore Diameter: ${result.boreDiameter.toFixed(3)} in
 Number of Cables: ${result.resultData?.cables?.length || 0}
 
 You can view the full configuration at:
