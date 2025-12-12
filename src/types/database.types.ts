@@ -1,29 +1,30 @@
 import { BoreResult } from '@/types/algorithm.types';
 import { TableRowData } from '@/types/table.types';
 
+// PostgreSQL/Supabase database types (lowercase column names)
 export interface DBPreset {
-  ID: number;
-  NAME: string;
-  CREATED_AT: string;
-  UPDATED_AT: string;
+  id: number;
+  name: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface DBCable {
-  ID: number;
-  PRESET_ID: number;
-  NAME: string;
-  CATEGORY: string | null;
-  DIAMETER: number;
-  CREATED_AT: string;
-  UPDATED_AT: string;
+  id: number;
+  preset_id: number;
+  name: string;
+  category: string | null;
+  diameter: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface DBResult {
-  ID: string;
-  INPUT_CABLES: TableRowData[];
-  RESULT_DATA: BoreResult;
-  SELECTED_PRESET_ID: number | null;
-  CABLE_COUNT: number;
-  BORE_DIAMETER: number;
-  CREATED_AT: string;
+  id: string;
+  input_cables: TableRowData[];
+  result_data: BoreResult;
+  selected_preset_id: number | null;
+  cable_count: number;
+  bore_diameter: number;
+  created_at: string;
 }

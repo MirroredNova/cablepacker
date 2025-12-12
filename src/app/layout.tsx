@@ -14,8 +14,8 @@ import theme from '@/theme';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Cable Packer',
-    template: '%s | Cable Packer',
+    default: 'Circle Packer',
+    template: '%s | Circle Packer',
   },
 };
 

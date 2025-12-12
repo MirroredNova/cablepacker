@@ -1,7 +1,7 @@
 'use server';
 
 import { adminProtectedAction } from '@/server/auth/protect.auth';
-import { executeQuery } from '@/server/db/snowflake.db';
+import { getSupabaseClient } from '@/server/db/supabase.db';
 import { mapDBPresetToDomain, mapPresetWithCables } from '@/server/utils/mappers.utils';
 import { DBCable, DBPreset } from '@/types/database.types';
 import { ApiResponse, CreatePresetInput, Preset, UpdatePresetInput } from '@/types/domain.types';
@@ -9,40 +9,29 @@ import { ApiResponse, CreatePresetInput, Preset, UpdatePresetInput } from '@/typ
 export const createPresetAction = adminProtectedAction(
   async (input: CreatePresetInput): Promise<ApiResponse<Preset>> => {
     try {
-      // Start a transaction
-      await executeQuery('BEGIN TRANSACTION');
+      const client = await getSupabaseClient();
 
-      // Insert the new preset
-      await executeQuery('INSERT INTO PRESETS (NAME) VALUES (?)', [input.name]);
+      // Insert the new preset and return it
+      const { data, error } = await client
+        .from('presets')
+        .insert({ name: input.name })
+        .select()
+        .single();
 
-      // Select the newly inserted preset by using creation timestamp
-      // This is more reliable than ID tracking
-      const results = await executeQuery<DBPreset>(
-        'SELECT * FROM PRESETS WHERE NAME = ? ORDER BY CREATED_AT DESC LIMIT 1',
-        [input.name],
-      );
+      if (error) {
+        console.error('Error inserting preset:', error);
+        throw new Error(error.message);
+      }
 
-      if (results.rows.length === 0) {
-        // Something went wrong - roll back and error out
-        await executeQuery('ROLLBACK');
+      if (!data) {
         throw new Error('Failed to retrieve the newly created preset');
       }
 
-      // Commit the transaction
-      await executeQuery('COMMIT');
-
       return {
         success: true,
-        data: mapDBPresetToDomain(results.rows[0]),
+        data: mapDBPresetToDomain(data as DBPreset),
       };
     } catch (error: any) {
-      // Ensure we roll back the transaction on error
-      try {
-        await executeQuery('ROLLBACK');
-      } catch (rollbackError) {
-        console.error('Error rolling back transaction:', rollbackError);
-      }
-
       console.error('Error creating preset:', error);
       return { success: false, error: error.message };
     }
@@ -51,34 +40,56 @@ export const createPresetAction = adminProtectedAction(
 
 export async function getAllPresetsWithCablesAction(): Promise<ApiResponse<Preset[]>> {
   try {
-    const presetResults = await executeQuery<DBPreset>('SELECT * FROM PRESETS ORDER BY NAME');
-    if (presetResults.rows.length === 0) {
+    const client = await getSupabaseClient();
+
+    // Fetch all presets ordered by name
+    const { data: presets, error: presetsError } = await client
+      .from('presets')
+      .select('*')
+      .order('name');
+
+    if (presetsError) {
+      console.error('Error fetching presets:', presetsError);
+      throw new Error(presetsError.message);
+    }
+
+    if (!presets || presets.length === 0) {
       return {
         success: true,
         data: [],
       };
     }
 
-    const presetIdsStr = presetResults.rows.map((preset) => preset.ID).join(',');
-    const cablesResults = await executeQuery<DBCable>(
-      `SELECT * FROM CABLES WHERE PRESET_ID IN (${presetIdsStr}) ORDER BY PRESET_ID, NAME`,
-      [],
-    );
+    // Get all preset IDs
+    const presetIds = presets.map((preset) => preset.id);
+
+    // Fetch all cables for these presets
+    const { data: cables, error: cablesError } = await client
+      .from('cables')
+      .select('*')
+      .in('preset_id', presetIds)
+      .order('preset_id')
+      .order('name');
+
+    if (cablesError) {
+      console.error('Error fetching cables:', cablesError);
+      throw new Error(cablesError.message);
+    }
 
     // Group cables by preset ID
-    const cablesByPresetId = cablesResults.rows.reduce<Record<number, DBCable[]>>((acc, cable) => {
-      const presetId = cable.PRESET_ID;
+    const cablesByPresetId = (cables || []).reduce<Record<number, DBCable[]>>((acc, cable) => {
+      const presetId = cable.preset_id;
       if (!acc[presetId]) {
         acc[presetId] = [];
       }
-      acc[presetId].push(cable);
+      acc[presetId].push(cable as DBCable);
       return acc;
     }, {});
 
     // Map presets with their cables
-    const presetsWithCables = presetResults.rows.map((preset) => {
-      const cableForPreset = cablesByPresetId[preset.ID] || [];
-      return mapPresetWithCables(preset, cableForPreset);
+    const presetsWithCables = presets.map((preset) => {
+      const cableForPreset = cablesByPresetId[preset.id] || [];
+      return mapPresetWithCables(preset as DBPreset, cableForPreset);
     });
 
     return {
@@ -98,42 +109,33 @@ export const updatePresetAction = adminProtectedAction(
         return { success: false, error: 'No update fields provided' };
       }
 
-      // Begin transaction
-      await executeQuery('BEGIN TRANSACTION');
+      const client = await getSupabaseClient();
 
-      // Update the preset
-      const updateResult = await executeQuery(
-        'UPDATE PRESETS SET NAME = ?, UPDATED_AT = CURRENT_TIMESTAMP() WHERE ID = ?',
-        [updates.name, presetId],
-      );
+      // Update the preset and return the updated record
+      const { data, error } = await client
+        .from('presets')
+        .update({
+          name: updates.name,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', presetId)
+        .select()
+        .single();
 
-      if (updateResult.rows[0]['number of rows updated'] === 0) {
-        await executeQuery('ROLLBACK');
+      if (error) {
+        console.error('Error updating preset:', error);
+        return { success: false, error: error.message };
+      }
+
+      if (!data) {
         return { success: false, error: `Preset with ID ${presetId} not found` };
       }
 
-      // Fetch the updated preset
-      const results = await executeQuery<DBPreset>('SELECT * FROM PRESETS WHERE ID = ?', [presetId]);
-
-      if (results.rows.length === 0) {
-        await executeQuery('ROLLBACK');
-        return { success: false, error: 'Failed to retrieve updated preset' };
-      }
-
-      // Commit the transaction
-      await executeQuery('COMMIT');
-
       return {
         success: true,
-        data: mapDBPresetToDomain(results.rows[0]),
+        data: mapDBPresetToDomain(data as DBPreset),
       };
     } catch (error: any) {
-      try {
-        await executeQuery('ROLLBACK');
-      } catch (rollbackError) {
-        console.error('Error rolling back transaction:', rollbackError);
-      }
-
       console.error(`Error updating preset ${presetId}:`, error);
       return { success: false, error: error.message };
     }
@@ -142,17 +144,26 @@ export const updatePresetAction = adminProtectedAction(
 
 export const deletePresetAction = adminProtectedAction(async (presetId: number): Promise<ApiResponse<null>> => {
   try {
-    // First verify the preset exists
-    const checkResult = await executeQuery<DBPreset>('SELECT ID FROM PRESETS WHERE ID = ?', [presetId]);
+    const client = await getSupabaseClient();
 
-    if (checkResult.rows.length === 0) {
-      return { success: false, error: `Preset with ID ${presetId} not found` };
+    // Delete the preset (cables will be deleted via CASCADE constraint)
+    const { error } = await client
+      .from('presets')
+      .delete()
+      .eq('id', presetId)
+      .select()
+      .single();
+
+    if (error) {
+      // Check if it's a "not found" error
+      if (error.code === 'PGRST116') {
+        return { success: false, error: `Preset with ID ${presetId} not found` };
+      }
+      console.error('Error deleting preset:', error);
+      return { success: false, error: error.message };
     }
 
-    // Then delete the preset (and its cables via CASCADE constraint)
-    await executeQuery('DELETE FROM PRESETS WHERE ID = ?', [presetId]);
-
-    return { success: true };
+    return { success: true, data: null };
   } catch (error: any) {
     console.error(`Error deleting preset ${presetId}:`, error);
     return { success: false, error: error.message };

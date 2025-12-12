@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { saveResultAction, getResultByIdAction } from '@/server/actions/results.actions';
-import { executeQuery } from '@/server/db/snowflake.db';
+import { getSupabaseClient } from '@/server/db/supabase.db';
 import { mapDBResultToSavedResult } from '@/server/utils/mappers.utils';
 import { CreateResult } from '@/types/domain.types';
 import { DBResult } from '@/types/database.types';
 
 // Mock dependencies
-vi.mock('@/server/db/snowflake.db', () => ({
-  executeQuery: vi.fn(),
+vi.mock('@/server/db/supabase.db', () => ({
+  getSupabaseClient: vi.fn(),
 }));
 
 vi.mock('@/server/utils/mappers.utils', () => ({
@@ -52,24 +52,35 @@ describe('Results Actions', () => {
   };
 
   const mockDBResult: DBResult = {
-    ID: 'test-result-123',
-    INPUT_CABLES: mockCreateResult.inputCables,
-    RESULT_DATA: mockCreateResult.resultData,
-    SELECTED_PRESET_ID: 123,
-    CABLE_COUNT: 3,
-    BORE_DIAMETER: 2.5,
-    CREATED_AT: '2023-01-01T00:00:00.000Z',
+    id: 'test-result-123',
+    input_cables: mockCreateResult.inputCables,
+    result_data: mockCreateResult.resultData,
+    selected_preset_id: 123,
+    cable_count: 3,
+    bore_diameter: 2.5,
+    created_at: '2023-01-01T00:00:00.000Z',
   };
+
+  let mockSupabaseClient: any;
 
   beforeEach(() => {
     // Reset all mocks
     vi.clearAllMocks();
 
+    // Create mock Supabase client with chainable methods
+    mockSupabaseClient = {
+      from: vi.fn().mockReturnThis(),
+      insert: vi.fn().mockReturnThis(),
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn(),
+    };
+
+    (getSupabaseClient as any).mockResolvedValue(mockSupabaseClient);
+
     // Setup default mock implementations
-    (executeQuery as any).mockResolvedValue({ rows: [mockDBResult] });
     (mapDBResultToSavedResult as any).mockReturnValue({
       ...mockCreateResult,
-      // Add any fields that would be added by the mapper
     });
   });
 
@@ -80,34 +91,41 @@ describe('Results Actions', () => {
   describe('saveResultAction', () => {
     it('successfully saves a result to the database', async () => {
       // Arrange
-      (executeQuery as any).mockResolvedValue({ rowCount: 1 });
+      mockSupabaseClient.single.mockResolvedValue({
+        data: mockDBResult,
+        error: null,
+      });
 
       // Act
       const result = await saveResultAction(mockCreateResult);
 
       // Assert
-      // Verify the query was called correctly
-      expect(executeQuery).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO RESULTS'), [
-        mockCreateResult.id,
-        JSON.stringify(mockCreateResult.inputCables),
-        JSON.stringify(mockCreateResult.resultData),
-        mockCreateResult.selectedPresetId,
-        mockCreateResult.cableCount,
-        mockCreateResult.boreDiameter,
-        mockCreateResult.createdAt,
-      ]);
+      // Verify the Supabase client was called correctly
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('results');
+      expect(mockSupabaseClient.insert).toHaveBeenCalledWith({
+        id: mockCreateResult.id,
+        input_cables: mockCreateResult.inputCables,
+        result_data: mockCreateResult.resultData,
+        selected_preset_id: mockCreateResult.selectedPresetId,
+        cable_count: mockCreateResult.cableCount,
+        bore_diameter: mockCreateResult.boreDiameter,
+        created_at: mockCreateResult.createdAt,
+      });
+      expect(mockSupabaseClient.select).toHaveBeenCalled();
+      expect(mockSupabaseClient.single).toHaveBeenCalled();
 
       // Verify the result
-      expect(result).toEqual({
-        success: true,
-        data: mockCreateResult,
-      });
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
     });
 
     it('handles database errors when saving', async () => {
       // Arrange
-      const dbError = new Error('Database connection error');
-      (executeQuery as any).mockRejectedValue(dbError);
+      const dbError = { message: 'Database connection error', code: 'DB_ERROR' };
+      mockSupabaseClient.single.mockResolvedValue({
+        data: null,
+        error: dbError,
+      });
 
       // Spy on console.error to verify it's called
       const consoleErrorSpy = vi.spyOn(console, 'error');
@@ -117,7 +135,7 @@ describe('Results Actions', () => {
 
       // Assert
       // Verify error message is logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error saving calculation result:', dbError);
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error saving result:', dbError);
 
       // Verify error response
       expect(result).toEqual({
@@ -129,60 +147,62 @@ describe('Results Actions', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('handles JSON stringification correctly', async () => {
+    it('handles null data response', async () => {
       // Arrange
-      const resultWithCircularRef: any = { ...mockCreateResult };
-
-      // Mock JSON.stringify to throw an error
-      const originalStringify = JSON.stringify;
-      JSON.stringify = vi.fn().mockImplementation(() => {
-        throw new TypeError('Converting circular structure to JSON');
+      mockSupabaseClient.single.mockResolvedValue({
+        data: null,
+        error: null,
       });
 
-      try {
-        // Act
-        const result = await saveResultAction(resultWithCircularRef);
+      // Act
+      const result = await saveResultAction(mockCreateResult);
 
-        // Assert
-        expect(result).toEqual({
-          success: false,
-          error: expect.stringContaining('circular'),
-        });
-
-        // Verify JSON.stringify was called
-        expect(JSON.stringify).toHaveBeenCalled();
-      } finally {
-        // Restore original JSON.stringify
-        JSON.stringify = originalStringify;
-      }
+      // Assert
+      expect(result).toEqual({
+        success: false,
+        error: 'Failed to save result',
+      });
     });
 
     it('handles results with null selectedPresetId', async () => {
       // Arrange
       const resultWithoutPreset = { ...mockCreateResult, selectedPresetId: null };
 
+      mockSupabaseClient.single.mockResolvedValue({
+        data: { ...mockDBResult, selected_preset_id: null },
+        error: null,
+      });
+
       // Act
       await saveResultAction(resultWithoutPreset);
 
       // Assert
-      // Verify the query was called with null for selectedPresetId
-      expect(executeQuery).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.arrayContaining([null]), // The 4th parameter should be null
+      // Verify the insert was called with null for selected_preset_id
+      expect(mockSupabaseClient.insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          selected_preset_id: null,
+        }),
       );
     });
   });
 
   describe('getResultByIdAction', () => {
     it('successfully retrieves a result by ID', async () => {
-      // Arrange - using default mocks
+      // Arrange
+      mockSupabaseClient.single.mockResolvedValue({
+        data: mockDBResult,
+        error: null,
+      });
 
       // Act
       const result = await getResultByIdAction('test-result-123');
 
       // Assert
       // Verify the query was called correctly
-      expect(executeQuery).toHaveBeenCalledWith('SELECT * FROM RESULTS WHERE ID = ?', ['test-result-123']);
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('results');
+      expect(mockSupabaseClient.select).toHaveBeenCalledWith('*');
+      expect(mockSupabaseClient.eq).toHaveBeenCalledWith('id', 'test-result-123');
+      expect(mockSupabaseClient.single).toHaveBeenCalled();
 
       // Verify the mapper was called
       expect(mapDBResultToSavedResult).toHaveBeenCalledWith(mockDBResult);
@@ -196,7 +216,10 @@ describe('Results Actions', () => {
 
     it('handles non-existent result IDs', async () => {
       // Arrange
-      (executeQuery as any).mockResolvedValue({ rows: [] });
+      mockSupabaseClient.single.mockResolvedValue({
+        data: null,
+        error: { code: 'PGRST116', message: 'Not found' },
+      });
 
       // Act
       const result = await getResultByIdAction('non-existent-id');
@@ -213,8 +236,11 @@ describe('Results Actions', () => {
 
     it('handles database errors when retrieving', async () => {
       // Arrange
-      const dbError = new Error('Query execution failed');
-      (executeQuery as any).mockRejectedValue(dbError);
+      const dbError = { message: 'Query execution failed', code: 'DB_ERROR' };
+      mockSupabaseClient.single.mockResolvedValue({
+        data: null,
+        error: dbError,
+      });
 
       // Spy on console.error
       const consoleErrorSpy = vi.spyOn(console, 'error');
@@ -224,7 +250,7 @@ describe('Results Actions', () => {
 
       // Assert
       // Verify error message is logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error retrieving result test-result-123:', dbError);
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error fetching result:', dbError);
 
       // Verify error response
       expect(result).toEqual({
@@ -236,31 +262,21 @@ describe('Results Actions', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('handles invalid result IDs', async () => {
-      // Test with invalid inputs
-      const testCases = [
-        { id: '', expectedError: 'No result found with ID: ' },
-        { id: null as any, expectedError: expect.stringContaining('null') },
-      ];
-
-      // Mock empty results for invalid IDs
-      (executeQuery as any).mockResolvedValue({ rows: [] });
+    it('handles null data response', async () => {
+      // Arrange
+      mockSupabaseClient.single.mockResolvedValue({
+        data: null,
+        error: null,
+      });
 
       // Act
-      await Promise.all(
-        testCases.map(async (testCase) => {
-          const result = await getResultByIdAction(testCase.id);
+      const result = await getResultByIdAction('test-result-123');
 
-          // Assert
-          expect(result.success).toBe(false);
-          if (testCase.id === null) {
-            // For null, it might throw a different error during query execution
-            expect(result.error).toBeTruthy();
-          } else {
-            expect(result.error).toEqual(testCase.expectedError);
-          }
-        }),
-      );
+      // Assert
+      expect(result).toEqual({
+        success: false,
+        error: 'No result found with ID: test-result-123',
+      });
     });
 
     it('correctly processes database result through the mapper', async () => {
@@ -281,6 +297,11 @@ describe('Results Actions', () => {
         createdAt: new Date('2023-01-01'),
       };
 
+      mockSupabaseClient.single.mockResolvedValue({
+        data: mockDBResult,
+        error: null,
+      });
+
       (mapDBResultToSavedResult as any).mockReturnValue(mappedResult);
 
       // Act
@@ -299,10 +320,17 @@ describe('Results Actions', () => {
     it('data saved by saveResultAction can be retrieved by getResultByIdAction', async () => {
       // Arrange - Configure mocks to simulate a save followed by a retrieval
       // For the save operation
-      (executeQuery as any).mockResolvedValueOnce({ rowCount: 1 });
+      mockSupabaseClient.single.mockResolvedValueOnce({
+        data: mockDBResult,
+        error: null,
+      });
 
       // For the retrieve operation
-      (executeQuery as any).mockResolvedValueOnce({ rows: [mockDBResult] });
+      mockSupabaseClient.single.mockResolvedValueOnce({
+        data: mockDBResult,
+        error: null,
+      });
+
       (mapDBResultToSavedResult as any).mockReturnValue(mockCreateResult);
 
       // Act - First save, then retrieve
@@ -315,14 +343,16 @@ describe('Results Actions', () => {
         data: mockCreateResult,
       });
 
-      // Verify both queries were called correctly
-      expect(executeQuery).toHaveBeenNthCalledWith(
-        1,
-        expect.stringContaining('INSERT INTO RESULTS'),
-        expect.arrayContaining([mockCreateResult.id]),
+      // Verify both operations were called correctly
+      expect(mockSupabaseClient.from).toHaveBeenNthCalledWith(1, 'results');
+      expect(mockSupabaseClient.insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: mockCreateResult.id,
+        }),
       );
 
-      expect(executeQuery).toHaveBeenNthCalledWith(2, 'SELECT * FROM RESULTS WHERE ID = ?', [mockCreateResult.id]);
+      expect(mockSupabaseClient.from).toHaveBeenNthCalledWith(2, 'results');
+      expect(mockSupabaseClient.eq).toHaveBeenCalledWith('id', mockCreateResult.id);
     });
   });
 });

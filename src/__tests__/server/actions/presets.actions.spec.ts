@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { executeQuery } from '@/server/db/snowflake.db';
+import { getSupabaseClient } from '@/server/db/supabase.db';
 import { mapDBPresetToDomain, mapPresetWithCables } from '@/server/utils/mappers.utils';
 import {
   createPresetAction,
@@ -9,28 +9,28 @@ import {
 } from '@/server/actions/presets.actions';
 
 // Mock dependencies
-vi.mock('@/server/db/snowflake.db', () => ({
-  executeQuery: vi.fn(),
+vi.mock('@/server/db/supabase.db', () => ({
+  getSupabaseClient: vi.fn(),
 }));
 
 vi.mock('@/server/utils/mappers.utils', () => ({
   mapDBPresetToDomain: vi.fn((preset) => ({
-    id: preset.ID,
-    name: preset.NAME,
-    createdAt: preset.CREATED_AT,
-    updatedAt: preset.UPDATED_AT,
+    id: preset.id,
+    name: preset.name,
+    createdAt: preset.created_at,
+    updatedAt: preset.updated_at,
   })),
   mapPresetWithCables: vi.fn((preset, cables) => ({
-    id: preset.ID,
-    name: preset.NAME,
-    createdAt: preset.CREATED_AT,
-    updatedAt: preset.UPDATED_AT,
-    cables: cables.map((c: { ID: any; NAME: any; DIAMETER: any; CATEGORY: any; PRESET_ID: any }) => ({
-      id: c.ID,
-      name: c.NAME,
-      diameter: c.DIAMETER,
-      category: c.CATEGORY,
-      presetId: c.PRESET_ID,
+    id: preset.id,
+    name: preset.name,
+    createdAt: preset.created_at,
+    updatedAt: preset.updated_at,
+    cables: cables.map((c: { id: any; name: any; diameter: any; category: any; preset_id: any }) => ({
+      id: c.id,
+      name: c.name,
+      diameter: c.diameter,
+      category: c.category,
+      presetId: c.preset_id,
     })),
   })),
 }));
@@ -44,24 +44,41 @@ vi.spyOn(console, 'error').mockImplementation(() => {});
 
 describe('Preset Actions', () => {
   const mockDBPreset = {
-    ID: 1,
-    NAME: 'Test Preset',
-    CREATED_AT: '2023-01-01T00:00:00Z',
-    UPDATED_AT: '2023-01-01T00:00:00Z',
+    id: 1,
+    name: 'Test Preset',
+    created_at: '2023-01-01T00:00:00Z',
+    updated_at: '2023-01-01T00:00:00Z',
   };
 
   const mockDBCable = {
-    ID: 101,
-    NAME: 'Test Cable',
-    DIAMETER: 10,
-    CATEGORY: 'Power',
-    PRESET_ID: 1,
-    CREATED_AT: '2023-01-01T00:00:00Z',
-    UPDATED_AT: '2023-01-01T00:00:00Z',
+    id: 101,
+    name: 'Test Cable',
+    diameter: 10,
+    category: 'Power',
+    preset_id: 1,
+    created_at: '2023-01-01T00:00:00Z',
+    updated_at: '2023-01-01T00:00:00Z',
   };
+
+  let mockSupabaseClient: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Create mock Supabase client with chainable methods
+    mockSupabaseClient = {
+      from: vi.fn().mockReturnThis(),
+      insert: vi.fn().mockReturnThis(),
+      update: vi.fn().mockReturnThis(),
+      delete: vi.fn().mockReturnThis(),
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      single: vi.fn(),
+    };
+
+    (getSupabaseClient as any).mockResolvedValue(mockSupabaseClient);
   });
 
   afterEach(() => {
@@ -72,30 +89,20 @@ describe('Preset Actions', () => {
     it('creates a preset successfully', async () => {
       // Arrange
       const input = { name: 'Test Preset' };
-      const mockQueryResults = {
-        rows: [mockDBPreset],
-        // Add other properties that your query results have
-      };
 
-      // Set up the mock implementation for executeQuery
-      (executeQuery as any).mockImplementation((query: string) => {
-        if (query === 'SELECT * FROM PRESETS WHERE NAME = ? ORDER BY CREATED_AT DESC LIMIT 1') {
-          return mockQueryResults;
-        }
-        return { rows: [] };
+      mockSupabaseClient.single.mockResolvedValue({
+        data: mockDBPreset,
+        error: null,
       });
 
       // Act
       const result = await createPresetAction(input);
 
       // Assert
-      expect(executeQuery).toHaveBeenCalledWith('BEGIN TRANSACTION');
-      expect(executeQuery).toHaveBeenCalledWith('INSERT INTO PRESETS (NAME) VALUES (?)', ['Test Preset']);
-      expect(executeQuery).toHaveBeenCalledWith(
-        'SELECT * FROM PRESETS WHERE NAME = ? ORDER BY CREATED_AT DESC LIMIT 1',
-        ['Test Preset'],
-      );
-      expect(executeQuery).toHaveBeenCalledWith('COMMIT');
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('presets');
+      expect(mockSupabaseClient.insert).toHaveBeenCalledWith({ name: 'Test Preset' });
+      expect(mockSupabaseClient.select).toHaveBeenCalled();
+      expect(mockSupabaseClient.single).toHaveBeenCalled();
 
       expect(mapDBPresetToDomain).toHaveBeenCalledWith(mockDBPreset);
       expect(result.success).toBe(true);
@@ -106,67 +113,33 @@ describe('Preset Actions', () => {
       // Arrange
       const input = { name: 'Test Preset' };
 
-      // Mock empty result set after insert
-      (executeQuery as any).mockImplementation((query: string) => {
-        if (query === 'SELECT * FROM PRESETS WHERE NAME = ? ORDER BY CREATED_AT DESC LIMIT 1') {
-          return { rows: [] };
-        }
-        return { rows: [] };
+      mockSupabaseClient.single.mockResolvedValue({
+        data: null,
+        error: null,
       });
 
       // Act
       const result = await createPresetAction(input);
 
       // Assert
-      expect(executeQuery).toHaveBeenCalledWith('ROLLBACK');
       expect(result.success).toBe(false);
       expect(result.error).toBe('Failed to retrieve the newly created preset');
     });
 
-    it('handles database errors and rolls back transaction', async () => {
+    it('handles database errors', async () => {
       // Arrange
       const input = { name: 'Test Preset' };
-      const mockError = new Error('Database error');
+      const mockError = { message: 'Database error', code: 'DB_ERROR' };
 
-      // Mock query execution error
-      (executeQuery as any).mockImplementation((query: string) => {
-        if (query === 'INSERT INTO PRESETS (NAME) VALUES (?)') {
-          throw mockError;
-        }
-        return { rows: [] };
+      mockSupabaseClient.single.mockResolvedValue({
+        data: null,
+        error: mockError,
       });
 
       // Act
       const result = await createPresetAction(input);
 
       // Assert
-      expect(executeQuery).toHaveBeenCalledWith('ROLLBACK');
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Database error');
-    });
-
-    it('handles rollback errors', async () => {
-      // Arrange
-      const input = { name: 'Test Preset' };
-      const mockError = new Error('Database error');
-      const rollbackError = new Error('Rollback error');
-
-      // Mock query execution error and rollback error
-      (executeQuery as any).mockImplementation((query: string) => {
-        if (query === 'INSERT INTO PRESETS (NAME) VALUES (?)') {
-          throw mockError;
-        }
-        if (query === 'ROLLBACK') {
-          throw rollbackError;
-        }
-        return { rows: [] };
-      });
-
-      // Act
-      const result = await createPresetAction(input);
-
-      // Assert
-      expect(console.error).toHaveBeenCalledWith('Error rolling back transaction:', rollbackError);
       expect(result.success).toBe(false);
       expect(result.error).toBe('Database error');
     });
@@ -175,7 +148,11 @@ describe('Preset Actions', () => {
   describe('getAllPresetsWithCablesAction', () => {
     it('returns empty array when no presets exist', async () => {
       // Arrange
-      (executeQuery as any).mockResolvedValueOnce({ rows: [] });
+      // First call for presets
+      mockSupabaseClient.order.mockResolvedValueOnce({
+        data: [],
+        error: null,
+      });
 
       // Act
       const result = await getAllPresetsWithCablesAction();
@@ -183,35 +160,37 @@ describe('Preset Actions', () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.data).toEqual([]);
-      expect(executeQuery).toHaveBeenCalledWith('SELECT * FROM PRESETS ORDER BY NAME');
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('presets');
+      expect(mockSupabaseClient.select).toHaveBeenCalledWith('*');
+      expect(mockSupabaseClient.order).toHaveBeenCalledWith('name');
     });
 
     it('returns presets with their cables', async () => {
       // Arrange
-      const mockPresetsResult = {
-        rows: [
-          { ...mockDBPreset, ID: 1 },
-          { ...mockDBPreset, ID: 2, NAME: 'Preset 2' },
-        ],
-      };
+      const mockPresets = [
+        { ...mockDBPreset, id: 1 },
+        { ...mockDBPreset, id: 2, name: 'Preset 2' },
+      ];
 
-      const mockCablesResult = {
-        rows: [
-          { ...mockDBCable, ID: 101, PRESET_ID: 1 },
-          { ...mockDBCable, ID: 102, NAME: 'Cable 2', PRESET_ID: 1 },
-          { ...mockDBCable, ID: 103, NAME: 'Cable 3', PRESET_ID: 2 },
-        ],
-      };
+      const mockCables = [
+        { ...mockDBCable, id: 101, preset_id: 1 },
+        { ...mockDBCable, id: 102, name: 'Cable 2', preset_id: 1 },
+        { ...mockDBCable, id: 103, name: 'Cable 3', preset_id: 2 },
+      ];
 
-      (executeQuery as any).mockImplementation((query: string) => {
-        if (query === 'SELECT * FROM PRESETS ORDER BY NAME') {
-          return mockPresetsResult;
-        }
-        if (query.startsWith('SELECT * FROM CABLES WHERE PRESET_ID IN')) {
-          return mockCablesResult;
-        }
-        return { rows: [] };
+      // Mock the preset query
+      mockSupabaseClient.order.mockResolvedValueOnce({
+        data: mockPresets,
+        error: null,
       });
+
+      // Mock the cables query
+      mockSupabaseClient.order
+        .mockReturnValueOnce(mockSupabaseClient)
+        .mockResolvedValueOnce({
+          data: mockCables,
+          error: null,
+        });
 
       // Act
       const result = await getAllPresetsWithCablesAction();
@@ -224,22 +203,23 @@ describe('Preset Actions', () => {
       expect(mapPresetWithCables).toHaveBeenCalledTimes(2);
 
       // First call should include the preset and its two cables
-      expect(mapPresetWithCables).toHaveBeenCalledWith(
-        mockPresetsResult.rows[0],
-        expect.arrayContaining([mockCablesResult.rows[0], mockCablesResult.rows[1]]),
-      );
+      expect(mapPresetWithCables).toHaveBeenCalledWith(mockPresets[0], [mockCables[0], mockCables[1]]);
 
       // Second call should include the preset and its one cable
-      expect(mapPresetWithCables).toHaveBeenCalledWith(
-        mockPresetsResult.rows[1],
-        expect.arrayContaining([mockCablesResult.rows[2]]),
-      );
+      expect(mapPresetWithCables).toHaveBeenCalledWith(mockPresets[1], [mockCables[2]]);
+
+      // Verify correct API calls
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('cables');
+      expect(mockSupabaseClient.in).toHaveBeenCalledWith('preset_id', [1, 2]);
     });
 
     it('handles database errors gracefully', async () => {
       // Arrange
-      const mockError = new Error('Database query failed');
-      (executeQuery as any).mockRejectedValueOnce(mockError);
+      const mockError = { message: 'Database query failed', code: 'DB_ERROR' };
+      mockSupabaseClient.order.mockResolvedValueOnce({
+        data: null,
+        error: mockError,
+      });
 
       // Act
       const result = await getAllPresetsWithCablesAction();
@@ -247,7 +227,7 @@ describe('Preset Actions', () => {
       // Assert
       expect(result.success).toBe(false);
       expect(result.error).toBe('Database query failed');
-      expect(console.error).toHaveBeenCalledWith('Error fetching all presets with cables:', mockError);
+      expect(console.error).toHaveBeenCalledWith('Error fetching presets:', mockError);
     });
   });
 
@@ -257,28 +237,23 @@ describe('Preset Actions', () => {
       const presetId = 1;
       const updates = { name: 'Updated Preset' };
 
-      // Mock successful update
-      (executeQuery as any).mockImplementation((query: string) => {
-        if (query === 'UPDATE PRESETS SET NAME = ?, UPDATED_AT = CURRENT_TIMESTAMP() WHERE ID = ?') {
-          return { rows: [{ 'number of rows updated': 1 }] };
-        }
-        if (query === 'SELECT * FROM PRESETS WHERE ID = ?') {
-          return { rows: [{ ...mockDBPreset, NAME: 'Updated Preset' }] };
-        }
-        return { rows: [] };
+      mockSupabaseClient.single.mockResolvedValue({
+        data: { ...mockDBPreset, name: 'Updated Preset' },
+        error: null,
       });
 
       // Act
       const result = await updatePresetAction(presetId, updates);
 
       // Assert
-      expect(executeQuery).toHaveBeenCalledWith('BEGIN TRANSACTION');
-      expect(executeQuery).toHaveBeenCalledWith(
-        'UPDATE PRESETS SET NAME = ?, UPDATED_AT = CURRENT_TIMESTAMP() WHERE ID = ?',
-        ['Updated Preset', 1],
-      );
-      expect(executeQuery).toHaveBeenCalledWith('SELECT * FROM PRESETS WHERE ID = ?', [1]);
-      expect(executeQuery).toHaveBeenCalledWith('COMMIT');
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('presets');
+      expect(mockSupabaseClient.update).toHaveBeenCalledWith({
+        name: 'Updated Preset',
+        updated_at: expect.any(String),
+      });
+      expect(mockSupabaseClient.eq).toHaveBeenCalledWith('id', 1);
+      expect(mockSupabaseClient.select).toHaveBeenCalled();
+      expect(mockSupabaseClient.single).toHaveBeenCalled();
 
       expect(result.success).toBe(true);
       expect(result.data).toBeDefined();
@@ -287,7 +262,7 @@ describe('Preset Actions', () => {
     it('returns error when no update fields provided', async () => {
       // Arrange
       const presetId = 1;
-      const updates = {}; // Empty updates
+      const updates = {};
 
       // Act
       const result = await updatePresetAction(presetId, updates);
@@ -295,7 +270,7 @@ describe('Preset Actions', () => {
       // Assert
       expect(result.success).toBe(false);
       expect(result.error).toBe('No update fields provided');
-      expect(executeQuery).not.toHaveBeenCalled();
+      expect(mockSupabaseClient.from).not.toHaveBeenCalled();
     });
 
     it('handles preset not found during update', async () => {
@@ -303,70 +278,37 @@ describe('Preset Actions', () => {
       const presetId = 999;
       const updates = { name: 'Updated Preset' };
 
-      // Mock preset not found
-      (executeQuery as any).mockImplementation((query: string) => {
-        if (query === 'UPDATE PRESETS SET NAME = ?, UPDATED_AT = CURRENT_TIMESTAMP() WHERE ID = ?') {
-          return { rows: [{ 'number of rows updated': 0 }] };
-        }
-        return { rows: [] };
+      mockSupabaseClient.single.mockResolvedValue({
+        data: null,
+        error: null,
       });
 
       // Act
       const result = await updatePresetAction(presetId, updates);
 
       // Assert
-      expect(executeQuery).toHaveBeenCalledWith('ROLLBACK');
       expect(result.success).toBe(false);
       expect(result.error).toBe('Preset with ID 999 not found');
-    });
-
-    it('handles failure to retrieve updated preset', async () => {
-      // Arrange
-      const presetId = 1;
-      const updates = { name: 'Updated Preset' };
-
-      // Mock update success but retrieval failure
-      (executeQuery as any).mockImplementation((query: string) => {
-        if (query === 'UPDATE PRESETS SET NAME = ?, UPDATED_AT = CURRENT_TIMESTAMP() WHERE ID = ?') {
-          return { rows: [{ 'number of rows updated': 1 }] };
-        }
-        if (query === 'SELECT * FROM PRESETS WHERE ID = ?') {
-          return { rows: [] }; // Empty result
-        }
-        return { rows: [] };
-      });
-
-      // Act
-      const result = await updatePresetAction(presetId, updates);
-
-      // Assert
-      expect(executeQuery).toHaveBeenCalledWith('ROLLBACK');
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Failed to retrieve updated preset');
     });
 
     it('handles database errors during update', async () => {
       // Arrange
       const presetId = 1;
       const updates = { name: 'Updated Preset' };
-      const mockError = new Error('Database error during update');
+      const mockError = { message: 'Database error during update', code: 'DB_ERROR' };
 
-      // Mock database error
-      (executeQuery as any).mockImplementation((query: string) => {
-        if (query === 'UPDATE PRESETS SET NAME = ?, UPDATED_AT = CURRENT_TIMESTAMP() WHERE ID = ?') {
-          throw mockError;
-        }
-        return { rows: [] };
+      mockSupabaseClient.single.mockResolvedValue({
+        data: null,
+        error: mockError,
       });
 
       // Act
       const result = await updatePresetAction(presetId, updates);
 
       // Assert
-      expect(executeQuery).toHaveBeenCalledWith('ROLLBACK');
       expect(result.success).toBe(false);
       expect(result.error).toBe('Database error during update');
-      expect(console.error).toHaveBeenCalledWith(`Error updating preset ${presetId}:`, mockError);
+      expect(console.error).toHaveBeenCalledWith('Error updating preset:', mockError);
     });
   });
 
@@ -375,20 +317,20 @@ describe('Preset Actions', () => {
       // Arrange
       const presetId = 1;
 
-      // Mock preset exists
-      (executeQuery as any).mockImplementation((query: string) => {
-        if (query === 'SELECT ID FROM PRESETS WHERE ID = ?') {
-          return { rows: [{ ID: presetId }] };
-        }
-        return { rows: [] };
+      mockSupabaseClient.single.mockResolvedValue({
+        data: mockDBPreset,
+        error: null,
       });
 
       // Act
       const result = await deletePresetAction(presetId);
 
       // Assert
-      expect(executeQuery).toHaveBeenCalledWith('SELECT ID FROM PRESETS WHERE ID = ?', [presetId]);
-      expect(executeQuery).toHaveBeenCalledWith('DELETE FROM PRESETS WHERE ID = ?', [presetId]);
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('presets');
+      expect(mockSupabaseClient.delete).toHaveBeenCalled();
+      expect(mockSupabaseClient.eq).toHaveBeenCalledWith('id', presetId);
+      expect(mockSupabaseClient.select).toHaveBeenCalled();
+      expect(mockSupabaseClient.single).toHaveBeenCalled();
       expect(result.success).toBe(true);
     });
 
@@ -396,8 +338,10 @@ describe('Preset Actions', () => {
       // Arrange
       const presetId = 999;
 
-      // Mock preset not found
-      (executeQuery as any).mockImplementation(() => ({ rows: [] }));
+      mockSupabaseClient.single.mockResolvedValue({
+        data: null,
+        error: { code: 'PGRST116', message: 'Not found' },
+      });
 
       // Act
       const result = await deletePresetAction(presetId);
@@ -405,23 +349,16 @@ describe('Preset Actions', () => {
       // Assert
       expect(result.success).toBe(false);
       expect(result.error).toBe('Preset with ID 999 not found');
-      expect(executeQuery).not.toHaveBeenCalledWith('DELETE FROM PRESETS WHERE ID = ?', [presetId]);
     });
 
     it('handles database errors during deletion', async () => {
       // Arrange
       const presetId = 1;
-      const mockError = new Error('Database error during deletion');
+      const mockError = { message: 'Database error during deletion', code: 'DB_ERROR' };
 
-      // Mock preset exists but delete fails
-      (executeQuery as any).mockImplementation((query: string) => {
-        if (query === 'SELECT ID FROM PRESETS WHERE ID = ?') {
-          return { rows: [{ ID: presetId }] };
-        }
-        if (query === 'DELETE FROM PRESETS WHERE ID = ?') {
-          throw mockError;
-        }
-        return { rows: [] };
+      mockSupabaseClient.single.mockResolvedValue({
+        data: null,
+        error: mockError,
       });
 
       // Act
@@ -430,7 +367,7 @@ describe('Preset Actions', () => {
       // Assert
       expect(result.success).toBe(false);
       expect(result.error).toBe('Database error during deletion');
-      expect(console.error).toHaveBeenCalledWith(`Error deleting preset ${presetId}:`, mockError);
+      expect(console.error).toHaveBeenCalledWith('Error deleting preset:', mockError);
     });
   });
 });
