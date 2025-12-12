@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build && (cp -r public .next/standalone/public & cp -r .next/static .next/standalone/.next/static)",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
@@ -27,7 +27,7 @@
     "jose": "^6.0.10",
     "jspdf": "^3.0.1",
     "nanoid": "^5.1.5",
-    "next": "15.1.2",
+    "next": "^15.1.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

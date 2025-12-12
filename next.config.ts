@@ -1,12 +1,8 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
   compiler: {
     removeConsole: false,
-  },
-  experimental: {
-    serverMinification: false,
   },
   poweredByHeader: false,
   headers: () => Promise.resolve([
