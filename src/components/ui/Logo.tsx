@@ -7,9 +7,26 @@ import React from 'react';
 function Logo() {
   return (
     <Link href="/" style={{ textDecoration: 'none' }}>
-      <Stack direction="row" alignItems="center" spacing={2} sx={{ width: 'fit-content' }}>
-        <Box component="img" height={120} maxHeight={120} src="/logo.png" alt="Cable Packer Logo" />
-        <Typography variant="h2" component="h1" sx={{ fontWeight: 600, color: 'text.primary' }}>
+      <Stack direction="row" alignItems="center" spacing={{ xs: 1, md: 2 }} sx={{ width: 'fit-content' }}>
+        <Box
+          component="img"
+          src="/logo.png"
+          alt="Cable Packer Logo"
+          sx={{
+            height: { xs: 80, md: 100, lg: 120 },
+            maxHeight: { xs: 80, md: 100, lg: 120 },
+          }}
+        />
+        <Typography
+          variant="h2"
+          component="h1"
+          sx={{
+            fontWeight: 600,
+            color: 'text.primary',
+            fontSize: { xs: '2rem', md: '2.5rem', lg: '3rem' },
+            whiteSpace: 'nowrap',
+          }}
+        >
           Cable Packer
         </Typography>
       </Stack>

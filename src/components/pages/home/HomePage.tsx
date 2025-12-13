@@ -22,7 +22,7 @@ function HomePage() {
     <Stack spacing={2}>
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} justifyContent="space-between">
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="start">
-          <FormControl sx={{ minWidth: '200px' }} size="small">
+          <FormControl sx={{ width: { xs: '100%', md: '200px' } }} size="small">
             <InputLabel id="preset-select-label">Preset</InputLabel>
             <HeaderPresetSelect />
           </FormControl>
