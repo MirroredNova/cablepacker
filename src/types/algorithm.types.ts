@@ -1,4 +1,3 @@
-// BACKEND TYPES
 export type Circle = {
   name: string;
   diameter: number;

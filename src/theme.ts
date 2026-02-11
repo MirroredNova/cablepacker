@@ -21,11 +21,6 @@ const appTheme = createTheme({
     warning: {
       main: '#e4a11b',
     },
-    greenPalette: {
-      main: '#c3d830',
-      light: 'rgba(255, 255, 255, 0.87)',
-      dark: '#74c045',
-    },
   },
 });
 

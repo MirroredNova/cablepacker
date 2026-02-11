@@ -3,7 +3,9 @@ import { almostEqual, polarToCartesian, getDistanceBetweenPoints } from '@/serve
 import { serverConfig } from '@/config';
 
 /**
- * Sort the list of circles from input (from largest radius to smallest radius)
+ * Sorts an array of circles in descending order by radius.
+ * @param circleList - The array of circles to sort.
+ * @returns A new sorted array with circles ordered from largest to smallest radius.
  */
 export function sortCircles(circleList: Circle[]): Circle[] {
   return [...circleList].sort((a, b) => b.radius - a.radius);
@@ -11,6 +13,9 @@ export function sortCircles(circleList: Circle[]): Circle[] {
 
 /**
  * Create a enclosing circle with the given diameter and radius
+ * @param diameter The diameter of the enclosing circle
+ * @param radius The radius of the enclosing circle (should be diameter / 2)
+ * @returns A Circle object representing the enclosing circle
  */
 export function createEnclose(diameter: number, radius: number): Circle {
   return {
@@ -26,7 +31,14 @@ export function createEnclose(diameter: number, radius: number): Circle {
 }
 
 /**
- * Check if a circle's position is valid compared to all previously placed circles
+ * Validates whether a circle at the specified index can be positioned without overlapping other circles.
+ * @param circles - Array of circles to check against
+ * @param index - Index of the circle to validate in the circles array
+ * @returns `true` if the circle at the given index does not overlap with any circle before it, `false` otherwise
+ * @remarks
+ * A small floating-point tolerance is applied when comparing distances to account for precision errors.
+ * Two circles are considered overlapping if the sum of their radii is greater than the distance between their centers,
+ * excluding cases where they are nearly equal (within floating-point error margin).
  */
 function circlePositionIsValid(circles: Circle[], index: number): boolean {
   const circle = circles[index];
@@ -45,7 +57,18 @@ function circlePositionIsValid(circles: Circle[], index: number): boolean {
 }
 
 /**
- * Attempt to place a single circle inside the enclose
+ * Attempts to place a circle at a valid position within the enclosing radius.
+ *
+ * @param circles - Array of circles to position
+ * @param index - Index of the circle to place in the array
+ * @param encloseRadius - The radius of the enclosing boundary
+ * @returns `true` if a valid position was found and the circle was placed, `false` otherwise
+ *
+ * @remarks
+ * Searches for a valid position by iterating through decreasing distances from the center
+ * and angles around each distance level. The circle is placed at the first position that
+ * doesn't conflict with previously placed circles. Step sizes for radius and angle are
+ * configured via `serverConfig`.
  */
 function placeCircle(circles: Circle[], index: number, encloseRadius: number): boolean {
   const circle = circles[index];
@@ -69,7 +92,12 @@ function placeCircle(circles: Circle[], index: number, encloseRadius: number): b
 }
 
 /**
- * Check if circles can be placed within the specified circle diameter
+ * Checks if all circles can be enclosed within a circular boundary and attempts to place them.
+ * @param encloseDiameter - The diameter of the enclosing circle
+ * @param circleList - The list of circles to place within the enclosure
+ * @returns A tuple containing the placed circles and a boolean indicating if all circles were successfully placed
+ * @returns [circles, true] if all circles were placed successfully within the enclosure
+ * @returns [circles, false] if at least one circle could not be placed
  */
 function checkEnclose(encloseDiameter: number, circleList: Circle[]): [Circle[], boolean] {
   // Create a deep copy of circleList to avoid modifying the original
@@ -87,7 +115,24 @@ function checkEnclose(encloseDiameter: number, circleList: Circle[]): [Circle[],
 }
 
 /**
- * Find the optimal enclose size using binary search
+ * Finds the optimal enclosing circle size that can contain all provided circles.
+ *
+ * Uses binary search to determine the minimum diameter of an enclosing circle
+ * that can fit all input circles through iterative packing attempts.
+ *
+ * @param circles - Array of circles to be enclosed
+ * @returns An object containing the enclosing circle and the sorted array of circles
+ * @returns {Circle} enclose - The minimum circle that encloses all input circles
+ * @returns {Circle[]} circles - The sorted array of circles used in the calculation
+ *
+ * @remarks
+ * The algorithm performs a binary search bounded by:
+ * - Initial guess: 2x the largest circle's diameter
+ * - Convergence threshold: `MIN_ENCLOSE_STEP_SIZE` configuration
+ * - Maximum iterations: `MAX_ITERATIONS` configuration
+ *
+ * The search adjusts the enclosing diameter based on validation results from
+ * `checkEnclose()` until convergence or iteration limit is reached.
  */
 export function findOptimalEncloseSize(circles: Circle[]): {
   enclose: Circle;
@@ -149,6 +194,13 @@ export function findOptimalEncloseSize(circles: Circle[]): {
   };
 }
 
+/**
+ * Calculates the minimum enclosing circle for a set of circles.
+ * @param circles - Array of circles to enclose
+ * @returns An object containing the enclosing circle and the sorted array of circles
+ * @returns {Circle} enclose - The minimum circle that encloses all input circles
+ * @returns {Circle[]} circles - The sorted array of circles used in the calculation
+ */
 export function calculateMinimumEncloseForCircles(circles: Circle[]): {
   enclose: Circle;
   circles: Circle[];

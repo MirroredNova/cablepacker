@@ -15,10 +15,10 @@ describe('Database Mappers Utilities', () => {
     it('should map database preset to domain preset', () => {
       const timestamp = '2023-04-15T10:30:00.000Z';
       const dbPreset: DBPreset = {
-        ID: 123,
-        NAME: 'Test Preset',
-        CREATED_AT: timestamp,
-        UPDATED_AT: timestamp,
+        id: 123,
+        name: 'Test Preset',
+        created_at: timestamp,
+        updated_at: timestamp,
       };
 
       const expected: Preset = {
@@ -37,10 +37,10 @@ describe('Database Mappers Utilities', () => {
 
     it('should handle different date formats', () => {
       const dbPreset: DBPreset = {
-        ID: 123,
-        NAME: 'Test Preset',
-        CREATED_AT: '2023-04-15', // Different date format
-        UPDATED_AT: '2023-04-15T10:30:00.000Z',
+        id: 123,
+        name: 'Test Preset',
+        created_at: '2023-04-15', // Different date format
+        updated_at: '2023-04-15T10:30:00.000Z',
       };
 
       const result = mapDBPresetToDomain(dbPreset);
@@ -55,13 +55,13 @@ describe('Database Mappers Utilities', () => {
     it('should map database cable to domain cable', () => {
       const timestamp = '2023-04-15T10:30:00.000Z';
       const dbCable: DBCable = {
-        ID: 456,
-        PRESET_ID: 123,
-        NAME: 'Cable Type A',
-        CATEGORY: 'Power',
-        DIAMETER: 10.5,
-        CREATED_AT: timestamp,
-        UPDATED_AT: timestamp,
+        id: 456,
+        preset_id: 123,
+        name: 'Cable Type A',
+        category: 'Power',
+        diameter: 10.5,
+        created_at: timestamp,
+        updated_at: timestamp,
       };
 
       const expected: Cable = {
@@ -83,13 +83,13 @@ describe('Database Mappers Utilities', () => {
 
     it('should handle null category field', () => {
       const dbCable: DBCable = {
-        ID: 456,
-        PRESET_ID: 123,
-        NAME: 'Cable Type A',
-        CATEGORY: null,
-        DIAMETER: 10.5,
-        CREATED_AT: '2023-04-15T10:30:00.000Z',
-        UPDATED_AT: '2023-04-15T10:30:00.000Z',
+        id: 456,
+        preset_id: 123,
+        name: 'Cable Type A',
+        category: null,
+        diameter: 10.5,
+        created_at: '2023-04-15T10:30:00.000Z',
+        updated_at: '2023-04-15T10:30:00.000Z',
       };
 
       const result = mapDBCableToDomain(dbCable);
@@ -102,30 +102,30 @@ describe('Database Mappers Utilities', () => {
     it('should map preset with its associated cables', () => {
       const timestamp = '2023-04-15T10:30:00.000Z';
       const dbPreset: DBPreset = {
-        ID: 123,
-        NAME: 'Test Preset',
-        CREATED_AT: timestamp,
-        UPDATED_AT: timestamp,
+        id: 123,
+        name: 'Test Preset',
+        created_at: timestamp,
+        updated_at: timestamp,
       };
 
       const dbCables: DBCable[] = [
         {
-          ID: 456,
-          PRESET_ID: 123,
-          NAME: 'Cable Type A',
-          CATEGORY: 'Power',
-          DIAMETER: 10.5,
-          CREATED_AT: timestamp,
-          UPDATED_AT: timestamp,
+          id: 456,
+          preset_id: 123,
+          name: 'Cable Type A',
+          category: 'Power',
+          diameter: 10.5,
+          created_at: timestamp,
+          updated_at: timestamp,
         },
         {
-          ID: 457,
-          PRESET_ID: 123,
-          NAME: 'Cable Type B',
-          CATEGORY: 'Data',
-          DIAMETER: 5.2,
-          CREATED_AT: timestamp,
-          UPDATED_AT: timestamp,
+          id: 457,
+          preset_id: 123,
+          name: 'Cable Type B',
+          category: 'Data',
+          diameter: 5.2,
+          created_at: timestamp,
+          updated_at: timestamp,
         },
       ];
 
@@ -147,10 +147,10 @@ describe('Database Mappers Utilities', () => {
 
     it('should handle empty cables array', () => {
       const dbPreset: DBPreset = {
-        ID: 123,
-        NAME: 'Test Preset',
-        CREATED_AT: '2023-04-15T10:30:00.000Z',
-        UPDATED_AT: '2023-04-15T10:30:00.000Z',
+        id: 123,
+        name: 'Test Preset',
+        created_at: '2023-04-15T10:30:00.000Z',
+        updated_at: '2023-04-15T10:30:00.000Z',
       };
 
       const result = mapPresetWithCables(dbPreset, []);
@@ -202,13 +202,13 @@ describe('Database Mappers Utilities', () => {
       };
 
       const dbResult: DBResult = {
-        ID: 'ABC12345',
-        INPUT_CABLES: inputCables,
-        RESULT_DATA: resultData,
-        SELECTED_PRESET_ID: 123,
-        CABLE_COUNT: 2,
-        BORE_DIAMETER: 35,
-        CREATED_AT: timestamp,
+        id: 'ABC12345',
+        input_cables: inputCables,
+        result_data: resultData,
+        selected_preset_id: 123,
+        cable_count: 2,
+        bore_diameter: 35,
+        created_at: timestamp,
       };
 
       const result = mapDBResultToSavedResult(dbResult);
@@ -238,13 +238,13 @@ describe('Database Mappers Utilities', () => {
       };
 
       const dbResult: DBResult = {
-        ID: 'ABC12345',
-        INPUT_CABLES: [],
-        RESULT_DATA: resultData,
-        SELECTED_PRESET_ID: null,
-        CABLE_COUNT: 0,
-        BORE_DIAMETER: 35,
-        CREATED_AT: '2023-04-15T10:30:00.000Z',
+        id: 'ABC12345',
+        input_cables: [],
+        result_data: resultData,
+        selected_preset_id: null,
+        cable_count: 0,
+        bore_diameter: 35,
+        created_at: '2023-04-15T10:30:00.000Z',
       };
 
       const result = mapDBResultToSavedResult(dbResult);

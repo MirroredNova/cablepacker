@@ -5,17 +5,10 @@ import { customAlphabet } from 'nanoid';
 const nanoid = customAlphabet('23456789ABCDEFGHJKMNPQRSTUVWXYZ', 8);
 
 /**
- * Generates a short, unique, user-friendly ID for result retrieval
+ * Generates a short, unique, user-friendly ID for a generation result retrieval
  * Format: 8 uppercase alphanumeric characters (excluding confusing characters)
+ * @returns A unique ID string
  */
 export function generateResultId(): string {
   return nanoid();
-}
-
-/**
- * Validates if a string could be a valid result ID
- */
-export function isValidResultId(id: string): boolean {
-  // Must be exactly 8 characters long and only contain characters from our alphabet
-  return /^[23456789ABCDEFGHJKMNPQRSTUVWXYZ]{8}$/.test(id);
 }

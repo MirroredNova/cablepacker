@@ -3,6 +3,11 @@ import { Circle } from '@/types/algorithm.types';
 import { Cable } from '@/types/domain.types';
 import { TableRowData } from '@/types/table.types';
 
+/**
+ * Map the input cables from the table to a list of circles for the algorithm
+ * @param cables The list of cables from the input table, including custom cables
+ * @returns A list of Circle objects representing each cable to be arranged
+ */
 export function mapCablesToCircles(cables: TableRowData[]): Circle[] {
   const circles: Circle[] = [];
   cables.forEach((row) => {
@@ -30,6 +35,10 @@ export function mapCablesToCircles(cables: TableRowData[]): Circle[] {
   return circles;
 }
 
+/**
+ * Generate a random hex color string
+ * @returns A random color in hex format (e.g., #a1b2c3)
+ */
 function generateRandomColor(): string {
   // Generate values between 0-255 for RGB
   const r = Math.floor(Math.random() * 256);
@@ -42,6 +51,11 @@ function generateRandomColor(): string {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
+/**
+ * Assign colors to circles based on their type (name). Circles with the same name get the same color.
+ * @param circles The list of circles to assign colors to
+ * @returns A new list of circles with colors assigned
+ */
 export function assignColorsToCircles(circles: Circle[]): Circle[] {
   const colorMap = new Map<string, string>();
 

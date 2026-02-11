@@ -8,18 +8,15 @@ describe('Logo Component', () => {
     render(<Logo />);
 
     // Find the image
-    const logoImage = screen.getByRole('img', { name: /alliant energy logo/i });
+    const logoImage = screen.getByRole('img', { name: /cable packer logo/i });
 
     // Check image attributes
     expect(logoImage).toBeInTheDocument();
-    expect(logoImage).toHaveAttribute('src', '/logo.svg');
-    expect(logoImage).toHaveAttribute('alt', 'Alliant Energy Logo');
+    expect(logoImage).toHaveAttribute('src', '/logo.png');
+    expect(logoImage).toHaveAttribute('alt', 'Cable Packer Logo');
 
-    // Verify height attributes from MUI Box
-    expect(logoImage).toHaveStyle({
-      height: '120px',
-      maxHeight: '120px',
-    });
+    // Verify brand text is rendered
+    expect(screen.getByRole('heading', { name: /cable packer/i, level: 1 })).toBeInTheDocument();
   });
 
   it('wraps the logo in a link to the homepage', () => {
@@ -33,7 +30,7 @@ describe('Logo Component', () => {
     expect(homeLink).toHaveAttribute('href', '/');
 
     // Verify the link contains the image
-    const logoImage = screen.getByRole('img', { name: /alliant energy logo/i });
+    const logoImage = screen.getByRole('img', { name: /cable packer logo/i });
     expect(homeLink).toContainElement(logoImage);
   });
 });
