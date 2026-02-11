@@ -36,7 +36,7 @@ function HomePage() {
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
-              <TableCell width="120px">Diameter (in)</TableCell>
+              <TableCell width="120px">Diameter</TableCell>
               <TableCell width="120px">Quantity</TableCell>
               <TableCell align="right" width="1px">
                 Actions

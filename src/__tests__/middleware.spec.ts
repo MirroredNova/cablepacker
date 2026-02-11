@@ -55,6 +55,34 @@ describe('Middleware', () => {
   });
 
   describe('Route protection', () => {
+    it('redirects /admin to login when not authenticated', async () => {
+      // Arrange
+      mockUrl.pathname = '/admin';
+      mockCookieStore.get.mockReturnValue(undefined);
+      (decrypt as any).mockResolvedValue(null);
+
+      // Act
+      const response = await middleware(mockRequest);
+
+      // Assert
+      expect(response.type).toBe('redirect');
+      expect(new URL(response.url).pathname).toBe('/admin/login');
+    });
+
+    it('redirects /admin to dashboard when authenticated', async () => {
+      // Arrange
+      mockUrl.pathname = '/admin';
+      mockCookieStore.get.mockReturnValue({ value: 'session-cookie' });
+      (decrypt as any).mockResolvedValue({ username: 'admin' });
+
+      // Act
+      const response = await middleware(mockRequest);
+
+      // Assert
+      expect(response.type).toBe('redirect');
+      expect(new URL(response.url).pathname).toBe('/admin/dashboard');
+    });
+
     it('redirects to login when accessing protected route without authentication', async () => {
       // Arrange
       mockUrl.pathname = '/admin/dashboard';
@@ -119,6 +147,20 @@ describe('Middleware', () => {
       // Assert
       expect(response.type).toBe('next');
       expect(NextResponse.next).toHaveBeenCalled();
+    });
+
+    it('redirects unauthenticated access for nested admin routes', async () => {
+      // Arrange
+      mockUrl.pathname = '/admin/settings/advanced';
+      mockCookieStore.get.mockReturnValue(undefined);
+      (decrypt as any).mockResolvedValue(null);
+
+      // Act
+      const response = await middleware(mockRequest);
+
+      // Assert
+      expect(response.type).toBe('redirect');
+      expect(new URL(response.url).pathname).toBe('/admin/login');
     });
   });
 

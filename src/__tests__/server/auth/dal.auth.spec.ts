@@ -66,7 +66,7 @@ describe('Authentication Data Access Layer', () => {
     it('returns auth info when valid session exists', async () => {
       // Arrange
       const mockCookie = 'encrypted-session-cookie';
-      const mockSession = { userId: 'user-123' };
+      const mockSession = { username: 'admin' };
 
       mockCookieStore.get.mockReturnValue({ value: mockCookie });
       (decrypt as any).mockResolvedValue(mockSession);
@@ -77,7 +77,7 @@ describe('Authentication Data Access Layer', () => {
       // Assert
       expect(result).toEqual({
         isAuth: true,
-        userId: 'user-123',
+        username: 'admin',
       });
       expect(mockCookieStore.get).toHaveBeenCalledWith('session');
       expect(decrypt).toHaveBeenCalledWith(mockCookie);
@@ -100,7 +100,7 @@ describe('Authentication Data Access Layer', () => {
       // Arrange
       const mockCookie = 'encrypted-session-cookie';
       mockCookieStore.get.mockReturnValue({ value: mockCookie });
-      (decrypt as any).mockResolvedValue({ username: 'user1' }); // Missing userId
+      (decrypt as any).mockResolvedValue({ userId: 'user-123' }); // Missing username
 
       // Act & Assert
       await expect(verifySession()).rejects.toThrow('NEXT_REDIRECT: /admin/login');
@@ -187,7 +187,6 @@ describe('Authentication Data Access Layer', () => {
     it('creates a session that can be verified', async () => {
       // Arrange
       const username = 'testuser';
-      const userId = 'user-123';
       const mockEncryptedSession = 'encrypted-data';
 
       // Setup for createSession
@@ -195,7 +194,7 @@ describe('Authentication Data Access Layer', () => {
 
       // Setup for verifySession
       mockCookieStore.get.mockReturnValue({ value: mockEncryptedSession });
-      (decrypt as any).mockResolvedValue({ userId, username });
+      (decrypt as any).mockResolvedValue({ username });
 
       // Act - Create session
       await createSession(username);
@@ -209,7 +208,7 @@ describe('Authentication Data Access Layer', () => {
       // Assert session was verified
       expect(sessionInfo).toEqual({
         isAuth: true,
-        userId,
+        username,
       });
     });
 
@@ -217,7 +216,7 @@ describe('Authentication Data Access Layer', () => {
       // Arrange - setup session first
       const mockEncryptedSession = 'encrypted-data';
       mockCookieStore.get.mockReturnValue({ value: mockEncryptedSession });
-      (decrypt as any).mockResolvedValue({ userId: 'user-123' });
+      (decrypt as any).mockResolvedValue({ username: 'admin' });
 
       // Act - Delete session
       await deleteSession();

@@ -49,7 +49,7 @@ describe('ResultsCables', () => {
 
     // Check for table headers
     expect(screen.getByText('Name')).toBeInTheDocument();
-    expect(screen.getByText('Diameter (in)')).toBeInTheDocument();
+    expect(screen.getByText('Diameter')).toBeInTheDocument();
     expect(screen.getByText('Quantity')).toBeInTheDocument();
     expect(screen.getByText('Color')).toBeInTheDocument();
   });
@@ -133,7 +133,7 @@ describe('ResultsCables', () => {
 
     // Check that the table headers are rendered
     expect(screen.getByText('Name')).toBeInTheDocument();
-    expect(screen.getByText('Diameter (in)')).toBeInTheDocument();
+    expect(screen.getByText('Diameter')).toBeInTheDocument();
     expect(screen.getByText('Quantity')).toBeInTheDocument();
     expect(screen.getByText('Color')).toBeInTheDocument();
 

@@ -56,7 +56,7 @@ describe('HomePage', () => {
 
     // Check for table headers
     expect(screen.getByText('Name')).toBeInTheDocument();
-    expect(screen.getByText('Diameter (in)')).toBeInTheDocument();
+    expect(screen.getByText('Diameter')).toBeInTheDocument();
     expect(screen.getByText('Quantity')).toBeInTheDocument();
     expect(screen.getByText('Actions')).toBeInTheDocument();
   });

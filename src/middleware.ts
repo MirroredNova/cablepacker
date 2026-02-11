@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { decrypt } from '@/server/auth/session.auth';
 
-const protectedRoutes = ['/admin/dashboard'];
-
 export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
-  const isProtectedRoute = protectedRoutes.includes(path);
+  const isAdminRoute = path === '/admin' || path.startsWith('/admin/');
+  const isAdminLoginRoute = path === '/admin/login';
 
   // Default to not authenticated if any errors occur
   let isAuthenticated = false;
@@ -20,11 +19,15 @@ export default async function middleware(req: NextRequest) {
     isAuthenticated = false;
   }
 
-  if (isProtectedRoute && !isAuthenticated) {
+  if (path === '/admin') {
+    return NextResponse.redirect(new URL(isAuthenticated ? '/admin/dashboard' : '/admin/login', req.nextUrl));
+  }
+
+  if (isAdminRoute && !isAdminLoginRoute && !isAuthenticated) {
     return NextResponse.redirect(new URL('/admin/login', req.nextUrl));
   }
 
-  if (path === '/admin/login' && isAuthenticated) {
+  if (isAdminLoginRoute && isAuthenticated) {
     return NextResponse.redirect(new URL('/admin/dashboard', req.nextUrl));
   }
 

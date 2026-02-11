@@ -42,7 +42,7 @@ function ResultsCables({ cables }: Props) {
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
-              <TableCell align="right">Diameter (in)</TableCell>
+              <TableCell align="right">Diameter</TableCell>
               <TableCell align="right">Quantity</TableCell>
               <TableCell align="center">Color</TableCell>
             </TableRow>

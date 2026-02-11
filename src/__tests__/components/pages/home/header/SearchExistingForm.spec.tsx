@@ -38,7 +38,7 @@ describe('SearchExistingForm', () => {
     render(<SearchExistingForm />);
 
     // Check for the text input field
-    const inputField = screen.getByLabelText('Search Existing Result ID');
+    const inputField = screen.getByLabelText('Result ID');
     expect(inputField).toBeInTheDocument();
     expect(inputField).toHaveValue('');
 
@@ -51,7 +51,7 @@ describe('SearchExistingForm', () => {
   it('enables the search button when search ID is entered', () => {
     render(<SearchExistingForm />);
 
-    const inputField = screen.getByLabelText('Search Existing Result ID');
+    const inputField = screen.getByLabelText('Result ID');
     const searchButton = screen.getByRole('button', { name: 'Search' });
 
     // Initial state - button should be disabled
@@ -77,12 +77,12 @@ describe('SearchExistingForm', () => {
     render(<SearchExistingForm />);
 
     // Input field should be disabled
-    const inputField = screen.getByLabelText('Search Existing Result ID');
+    const inputField = screen.getByLabelText('Result ID');
     expect(inputField).toBeDisabled();
 
     // The error is because the endIcon adds "Loading..." to the accessible name
     // So we need to check for button content instead of accessible name
-    const searchButton = screen.getByText('Searching...');
+    const searchButton = screen.getByText('Searching');
     expect(searchButton.closest('button')).toBeDisabled();
 
     // Spinner should be visible
@@ -102,7 +102,7 @@ describe('SearchExistingForm', () => {
     render(<SearchExistingForm />);
 
     // Input field should have error state
-    const inputField = screen.getByLabelText('Search Existing Result ID');
+    const inputField = screen.getByLabelText('Result ID');
     expect(inputField).toHaveAttribute('aria-invalid', 'true');
   });
 
@@ -118,7 +118,7 @@ describe('SearchExistingForm', () => {
     render(<SearchExistingForm />);
 
     // Type in the input field
-    const inputField = screen.getByLabelText('Search Existing Result ID');
+    const inputField = screen.getByLabelText('Result ID');
     fireEvent.change(inputField, { target: { value: '456' } });
 
     // setError should be called with null
@@ -129,7 +129,7 @@ describe('SearchExistingForm', () => {
     render(<SearchExistingForm />);
 
     // Enter a search ID
-    const inputField = screen.getByLabelText('Search Existing Result ID');
+    const inputField = screen.getByLabelText('Result ID');
     fireEvent.change(inputField, { target: { value: '123' } });
 
     // Submit the form
@@ -152,7 +152,7 @@ describe('SearchExistingForm', () => {
     render(<SearchExistingForm />);
 
     // Enter a search ID
-    const inputField = screen.getByLabelText('Search Existing Result ID');
+    const inputField = screen.getByLabelText('Result ID');
     fireEvent.change(inputField, { target: { value: '999' } });
 
     // Submit the form
@@ -169,7 +169,7 @@ describe('SearchExistingForm', () => {
     render(<SearchExistingForm />);
 
     // Enter a search ID with whitespace
-    const inputField = screen.getByLabelText('Search Existing Result ID');
+    const inputField = screen.getByLabelText('Result ID');
     fireEvent.change(inputField, { target: { value: '  123  ' } });
 
     // Submit the form

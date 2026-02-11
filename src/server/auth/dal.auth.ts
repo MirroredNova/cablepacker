@@ -9,11 +9,11 @@ export const verifySession = cache(async () => {
   const cookie = (await cookies()).get('session')?.value;
   const session = await decrypt(cookie);
 
-  if (!session?.userId) {
+  if (!session?.username) {
     redirect('/admin/login');
   }
 
-  return { isAuth: true, userId: session.userId };
+  return { isAuth: true, username: session.username };
 });
 
 export async function createSession(username: string) {

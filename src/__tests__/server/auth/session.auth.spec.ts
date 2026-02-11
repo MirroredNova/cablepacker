@@ -13,7 +13,7 @@ const originalTextEncoder = global.TextEncoder;
 const originalEnv = { ...process.env };
 
 // Create a proper secretKey for tests that doesn't change
-const TEST_SECRET = 'test-secret-key-for-testing';
+const TEST_SECRET = 'test-secret-key-for-testing-32-chars-minimum';
 
 // Create a proper encoded key for testing
 const ENCODED_TEST_KEY = new Uint8Array([116, 101, 115, 116]); // just some bytes for testing
@@ -115,9 +115,6 @@ describe('Session Authentication', () => {
       // Arrange - remove the env var
       process.env.SESSION_SECRET = undefined;
 
-      // Set up mock to throw when sign is called
-      shouldThrowOnSign = true;
-
       // Create payload
       const payload: SessionPayload = {
         username: 'testuser',
@@ -125,7 +122,9 @@ describe('Session Authentication', () => {
       };
 
       // Act & Assert
-      await expect(encrypt(payload)).rejects.toThrow('Failed to sign JWT');
+      await expect(encrypt(payload)).rejects.toThrow(
+        'SESSION_SECRET must be defined and at least 32 characters long',
+      );
     });
   });
 

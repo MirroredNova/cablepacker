@@ -37,7 +37,7 @@ function SearchExistingForm() {
     >
       <TextField
         id="retrieve-existing-input"
-        label="Search Existing Result ID"
+        label="Result ID"
         size="small"
         value={searchId}
         onChange={(e) => {
@@ -53,8 +53,9 @@ function SearchExistingForm() {
         type="submit"
         disabled={loading || !searchId.trim()}
         endIcon={loading ? <Spinner /> : null}
+        sx={{ minWidth: '140px' }}
       >
-        {loading ? 'Searching...' : 'Search'}
+        {loading ? 'Searching' : 'Search'}
       </Button>
     </FormControl>
   );
