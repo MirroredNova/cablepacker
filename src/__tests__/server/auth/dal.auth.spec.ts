@@ -90,10 +90,10 @@ describe('Authentication Data Access Layer', () => {
       (decrypt as any).mockResolvedValue(null);
 
       // Act & Assert
-      await expect(verifySession()).rejects.toThrow('NEXT_REDIRECT: /login');
+      await expect(verifySession()).rejects.toThrow('NEXT_REDIRECT: /admin/login');
       expect(mockCookieStore.get).toHaveBeenCalledWith('session');
       expect(decrypt).toHaveBeenCalledWith(undefined);
-      expect(redirect).toHaveBeenCalledWith('/login');
+      expect(redirect).toHaveBeenCalledWith('/admin/login');
     });
 
     it('redirects to login when session is invalid', async () => {
@@ -103,10 +103,10 @@ describe('Authentication Data Access Layer', () => {
       (decrypt as any).mockResolvedValue({ username: 'user1' }); // Missing userId
 
       // Act & Assert
-      await expect(verifySession()).rejects.toThrow('NEXT_REDIRECT: /login');
+      await expect(verifySession()).rejects.toThrow('NEXT_REDIRECT: /admin/login');
       expect(mockCookieStore.get).toHaveBeenCalledWith('session');
       expect(decrypt).toHaveBeenCalledWith(mockCookie);
-      expect(redirect).toHaveBeenCalledWith('/login');
+      expect(redirect).toHaveBeenCalledWith('/admin/login');
     });
   });
 
@@ -227,8 +227,8 @@ describe('Authentication Data Access Layer', () => {
       (decrypt as any).mockResolvedValue(null);
 
       // Act & Assert - verify should now redirect
-      await expect(verifySession()).rejects.toThrow('NEXT_REDIRECT: /login');
-      expect(redirect).toHaveBeenCalledWith('/login');
+      await expect(verifySession()).rejects.toThrow('NEXT_REDIRECT: /admin/login');
+      expect(redirect).toHaveBeenCalledWith('/admin/login');
     });
   });
 });

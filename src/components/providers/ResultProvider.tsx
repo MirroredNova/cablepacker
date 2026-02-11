@@ -15,9 +15,12 @@ export function ResultProvider({ children }: PropsWithChildren) {
 
   const justSetResultRef = useRef(false);
   const pendingPresetIdRef = useRef<number | null>(null);
+  const fetchResultRef = useRef<(id: string) => Promise<boolean>>(async () => false);
+  const resetResultRef = useRef<() => void>(() => {});
 
   const { presets, setSelectedPreset, resetPresets, presetsLoaded } = usePreset();
   const { setTableData, resetTableData, setHasChangedSinceGeneration } = useTable();
+
   const params = useParams<{ resultId?: string }>();
   const pathname = usePathname();
   const resultId = params?.resultId || null;
@@ -43,6 +46,7 @@ export function ResultProvider({ children }: PropsWithChildren) {
   const setResult = useCallback(
     (newResult: Result | null, navigate = false) => {
       setResultState(newResult);
+      setError(null);
 
       if (newResult) {
         justSetResultRef.current = true;
@@ -80,6 +84,7 @@ export function ResultProvider({ children }: PropsWithChildren) {
     async (id: string): Promise<boolean> => {
       if (!id?.trim()) return false;
 
+      setError(null);
       setLoading(true);
 
       try {
@@ -104,6 +109,15 @@ export function ResultProvider({ children }: PropsWithChildren) {
     [setHasChangedSinceGeneration, setResult],
   );
 
+  // Keep stable refs so route effect does not re-fire on callback identity changes.
+  useEffect(() => {
+    fetchResultRef.current = fetchResult;
+  }, [fetchResult]);
+
+  useEffect(() => {
+    resetResultRef.current = resetResult;
+  }, [resetResult]);
+
   // Apply pending preset when presets load
   useEffect(() => {
     if (presetsLoaded && pendingPresetIdRef.current) {
@@ -127,11 +141,11 @@ export function ResultProvider({ children }: PropsWithChildren) {
     }
 
     if (resultId) {
-      fetchResult(resultId);
+      fetchResultRef.current(resultId);
     } else if (pathname === '/') {
-      resetResult();
+      resetResultRef.current();
     }
-  }, [resultId, pathname, fetchResult, resetResult, result?.id]);
+  }, [resultId, pathname, result?.id]);
 
   const value = useMemo(
     () => ({

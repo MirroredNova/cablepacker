@@ -73,7 +73,7 @@ describe('GenerateBoreButton', () => {
     render(<GenerateBoreButton />);
 
     const button = screen.getByRole('button');
-    expect(button).toHaveTextContent('Generate Bore');
+    expect(button).toHaveTextContent('Calculate');
     expect(button).not.toBeDisabled();
     expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
   });
@@ -140,13 +140,13 @@ describe('GenerateBoreButton', () => {
     fireEvent.click(button);
 
     // Button should show "Calculating..." and be disabled
-    expect(button).toHaveTextContent('Calculating...');
+    expect(button).toHaveTextContent('Calculating');
     expect(button).toBeDisabled();
     expect(screen.getByTestId('spinner')).toBeInTheDocument();
 
     // Wait for generation to complete
     await waitFor(() => {
-      expect(button).toHaveTextContent('Generate Bore');
+      expect(button).toHaveTextContent('Calculate');
       expect(button).not.toBeDisabled();
     });
   });
@@ -235,12 +235,12 @@ describe('GenerateBoreButton', () => {
     fireEvent.click(button);
 
     // Initially in loading state
-    expect(button).toHaveTextContent('Calculating...');
+    expect(button).toHaveTextContent('Calculating');
     expect(button).toBeDisabled();
 
     // Should reset to non-loading state after error
     await waitFor(() => {
-      expect(button).toHaveTextContent('Generate Bore');
+      expect(button).toHaveTextContent('Calculate');
       expect(button).not.toBeDisabled();
     });
   });

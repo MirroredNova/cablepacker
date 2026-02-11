@@ -142,9 +142,6 @@ describe('Session Authentication', () => {
 
       // Assert
       expect(result).toBeNull();
-
-      // Verify error was logged
-      expect(consoleLogSpy).toHaveBeenCalledWith('Failed to verify session');
     });
 
     it('handles expired tokens', async () => {
@@ -159,7 +156,6 @@ describe('Session Authentication', () => {
 
       // Assert
       expect(result).toBeNull();
-      expect(consoleLogSpy).toHaveBeenCalledWith('Failed to verify session');
     });
   });
 

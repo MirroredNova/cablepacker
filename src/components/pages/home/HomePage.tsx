@@ -51,7 +51,7 @@ function HomePage() {
 
       <CableTableAlert />
 
-      <Stack direction="row" justifyContent="flex-end" spacing={4} alignItems="center">
+      <Stack direction="row" justifyContent={{ xs: 'space-between', md: 'flex-end' }} spacing={4} alignItems="center">
         <CableTotal />
         <GenerateBoreButton />
       </Stack>

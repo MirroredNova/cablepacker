@@ -45,8 +45,9 @@ function GenerateBoreButton() {
       onClick={handleGenerateBore}
       disabled={isDisabled}
       startIcon={loading ? <Spinner /> : null}
+      sx={{ width: '140px' }}
     >
-      {loading ? 'Calculating...' : 'Generate Bore'}
+      {loading ? 'Calculating' : 'Calculate'}
     </Button>
   );
 }

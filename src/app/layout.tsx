@@ -9,13 +9,14 @@ import type { Metadata } from 'next';
 import PresetProvider from '@/components/providers/PresetProvider';
 import { ResultProvider } from '@/components/providers/ResultProvider';
 import TableProvider from '@/components/providers/TableProvider';
+import Footer from '@/components/ui/Footer';
 import Logo from '@/components/ui/Logo';
 import theme from '@/theme';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Circle Packer',
-    template: '%s | Circle Packer',
+    default: 'Cable Packer',
+    template: '%s | Cable Packer',
   },
 };
 
@@ -26,18 +27,28 @@ type Props = Readonly<{
 export default function RootLayout({ children }: Props) {
   return (
     <html lang="en">
-      <body className="h-screen">
+      <body>
         <StyledEngineProvider injectFirst>
           <AppRouterCacheProvider>
             <ThemeProvider theme={theme}>
               <TableProvider>
                 <PresetProvider>
                   <ResultProvider>
-                    <Box maxWidth="xl" marginX="auto" p={4}>
+                    <Box
+                      maxWidth="xl"
+                      marginX="auto"
+                      p={4}
+                      sx={{
+                        minHeight: '100dvh',
+                        display: 'flex',
+                        flexDirection: 'column',
+                      }}
+                    >
                       <Logo />
-                      <Box pt={4} display="flex" flexDirection="column" gap={4}>
+                      <Box pt={4} display="flex" flexDirection="column" gap={4} sx={{ flexGrow: 1 }}>
                         {children}
                       </Box>
+                      <Footer />
                     </Box>
                   </ResultProvider>
                 </PresetProvider>

@@ -4,37 +4,27 @@ import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
-import { getResultByIdAction } from '@/server/actions/results.actions';
 import useResult from '@/hooks/useResult';
 import Spinner from '@/components/shared/Spinner';
 
 function SearchExistingForm() {
-  const { setResult, loading, setLoading, error, setError } = useResult();
+  const { loading, error, setError, fetchResult } = useResult();
 
   const [searchId, setSearchId] = useState('');
 
   const handleSearchSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
-    if (!searchId.trim()) return;
-
-    setLoading(true);
-    setError(null);
+    const trimmedId = searchId.trim();
+    if (!trimmedId) return;
 
     try {
-      const response = await getResultByIdAction(searchId.trim());
-
-      if (response.success && response.data) {
-        setResult(response.data, true);
+      const success = await fetchResult(trimmedId);
+      if (success) {
         setSearchId('');
-      } else {
-        setError(response.error || 'Result not found');
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error searching for result:', err);
-      setError(err.message || 'An unexpected error occurred');
-    } finally {
-      setLoading(false);
     }
   };
 

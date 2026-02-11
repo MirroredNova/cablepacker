@@ -16,10 +16,10 @@ function HeaderPresetSelect() {
   const { resetTableData } = useTable();
   const { loading: resultLoading } = useResult();
 
-  const handlePresetChange = (event: SelectChangeEvent) => {
-    const presetName = event.target.value as string;
-    const preset = presets.find((p) => p.name === presetName);
-    setSelectedPreset(preset || null);
+  const handlePresetChange = (event: SelectChangeEvent<string>) => {
+    const presetId = event.target.value;
+    const preset = presets.find((p) => p.id === Number(presetId));
+    setSelectedPreset(preset ?? null);
     resetTableData();
   };
 
@@ -29,7 +29,7 @@ function HeaderPresetSelect() {
     <Select
       labelId="preset-select-label"
       id="preset-select"
-      value={selectedPreset?.name || ''}
+      value={selectedPreset ? String(selectedPreset.id) : ''}
       label="Preset"
       onChange={handlePresetChange}
       disabled={isLoading}
@@ -37,7 +37,7 @@ function HeaderPresetSelect() {
     >
       <MenuItem value="">None</MenuItem>
       {presets.map((preset) => (
-        <MenuItem key={preset.id} value={preset.name}>
+        <MenuItem key={preset.id} value={String(preset.id)}>
           {preset.name}
         </MenuItem>
       ))}

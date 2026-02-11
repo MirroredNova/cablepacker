@@ -20,7 +20,7 @@ type Props = {
 };
 
 export default function CableTableRow({ row }: Props) {
-  const { selectedPreset, loading } = usePreset()!;
+  const { selectedPreset, loading } = usePreset();
   const { updateRow, deleteRow } = useTable();
 
   const isPresetCable = useMemo(() => row.selectedCable !== 'custom', [row.selectedCable]);

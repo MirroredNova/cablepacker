@@ -3,15 +3,10 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import SearchExistingForm from '@/components/pages/home/header/SearchExistingForm';
 import useResult from '@/hooks/useResult';
-import { getResultByIdAction } from '@/server/actions/results.actions';
 
-// Mock the hooks and server actions
+// Mock the hooks
 vi.mock('@/hooks/useResult', () => ({
   default: vi.fn(),
-}));
-
-vi.mock('@/server/actions/results.actions', () => ({
-  getResultByIdAction: vi.fn(),
 }));
 
 // Mock the Spinner component
@@ -21,8 +16,7 @@ vi.mock('@/components/shared/Spinner', () => ({
 
 describe('SearchExistingForm', () => {
   // Mock values and functions
-  const mockSetResult = vi.fn();
-  const mockSetLoading = vi.fn();
+  const mockFetchResult = vi.fn();
   const mockSetError = vi.fn();
 
   beforeEach(() => {
@@ -30,18 +24,14 @@ describe('SearchExistingForm', () => {
 
     // Default mock implementation for useResult
     (useResult as any).mockReturnValue({
-      setResult: mockSetResult,
       loading: false,
-      setLoading: mockSetLoading,
       error: null,
       setError: mockSetError,
+      fetchResult: mockFetchResult,
     });
 
-    // Default mock implementation for getResultByIdAction
-    (getResultByIdAction as any).mockResolvedValue({
-      success: true,
-      data: { id: '123', result: 'test result' },
-    });
+    // Default mock implementation for fetchResult
+    mockFetchResult.mockResolvedValue(true);
   });
 
   it('renders the search form with input field and search button', () => {
@@ -78,11 +68,10 @@ describe('SearchExistingForm', () => {
   it('disables input field and shows spinner when loading', () => {
     // Mock loading state
     (useResult as any).mockReturnValue({
-      setResult: mockSetResult,
       loading: true,
-      setLoading: mockSetLoading,
       error: null,
       setError: mockSetError,
+      fetchResult: mockFetchResult,
     });
 
     render(<SearchExistingForm />);
@@ -104,11 +93,10 @@ describe('SearchExistingForm', () => {
   it('shows error state on the input when there is an error', () => {
     // Mock error state
     (useResult as any).mockReturnValue({
-      setResult: mockSetResult,
       loading: false,
-      setLoading: mockSetLoading,
       error: 'Result not found',
       setError: mockSetError,
+      fetchResult: mockFetchResult,
     });
 
     render(<SearchExistingForm />);
@@ -121,11 +109,10 @@ describe('SearchExistingForm', () => {
   it('clears error when user types in the input field', () => {
     // Mock error state
     (useResult as any).mockReturnValue({
-      setResult: mockSetResult,
       loading: false,
-      setLoading: mockSetLoading,
       error: 'Result not found',
       setError: mockSetError,
+      fetchResult: mockFetchResult,
     });
 
     render(<SearchExistingForm />);
@@ -138,7 +125,7 @@ describe('SearchExistingForm', () => {
     expect(mockSetError).toHaveBeenCalledWith(null);
   });
 
-  it('submits the form and calls getResultByIdAction with the search ID', async () => {
+  it('submits the form and calls fetchResult with the search ID', async () => {
     render(<SearchExistingForm />);
 
     // Enter a search ID
@@ -149,34 +136,18 @@ describe('SearchExistingForm', () => {
     const searchButton = screen.getByRole('button', { name: 'Search' });
     fireEvent.click(searchButton);
 
-    // Check that setLoading(true) was called
-    expect(mockSetLoading).toHaveBeenCalledWith(true);
-
-    // Check that setError(null) was called
-    expect(mockSetError).toHaveBeenCalledWith(null);
-
-    // Check that getResultByIdAction was called with the correct ID
-    expect(getResultByIdAction).toHaveBeenCalledWith('123');
+    // Check that fetchResult was called with the correct ID
+    expect(mockFetchResult).toHaveBeenCalledWith('123');
 
     // Wait for the async operation to complete
     await waitFor(() => {
-      // Check that setResult was called with the correct data
-      expect(mockSetResult).toHaveBeenCalledWith({ id: '123', result: 'test result' }, true);
-
       // Check that setSearchId was called to clear the input
       expect(inputField).toHaveValue('');
-
-      // Check that setLoading(false) was called
-      expect(mockSetLoading).toHaveBeenCalledWith(false);
     });
   });
 
-  it('handles error when the API returns an error', async () => {
-    // Mock API returning an error
-    (getResultByIdAction as any).mockResolvedValue({
-      success: false,
-      error: 'Result not found',
-    });
+  it('keeps input value when fetchResult returns false', async () => {
+    mockFetchResult.mockResolvedValue(false);
 
     render(<SearchExistingForm />);
 
@@ -188,20 +159,14 @@ describe('SearchExistingForm', () => {
     const searchButton = screen.getByRole('button', { name: 'Search' });
     fireEvent.click(searchButton);
 
-    // Wait for the async operation to complete
     await waitFor(() => {
-      // Check that setError was called with the error message
-      expect(mockSetError).toHaveBeenCalledWith('Result not found');
-
-      // Check that setLoading(false) was called
-      expect(mockSetLoading).toHaveBeenCalledWith(false);
+      expect(mockFetchResult).toHaveBeenCalledWith('999');
+      expect(inputField).toHaveValue('999');
     });
   });
 
-  it('handles exception when the API throws an error', async () => {
-    // Mock API throwing an error
-    const errorMessage = 'Network error';
-    (getResultByIdAction as any).mockRejectedValue(new Error(errorMessage));
+  it('handles exception when fetchResult throws an error', async () => {
+    mockFetchResult.mockRejectedValue(new Error('Network error'));
 
     // Spy on console.error
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -221,11 +186,7 @@ describe('SearchExistingForm', () => {
       // Check that console.error was called
       expect(consoleSpy).toHaveBeenCalled();
 
-      // Check that setError was called with the error message
-      expect(mockSetError).toHaveBeenCalledWith(errorMessage);
-
-      // Check that setLoading(false) was called
-      expect(mockSetLoading).toHaveBeenCalledWith(false);
+      expect(mockFetchResult).toHaveBeenCalledWith('999');
     });
 
     // Restore console.error
@@ -243,7 +204,7 @@ describe('SearchExistingForm', () => {
     const searchButton = screen.getByRole('button', { name: 'Search' });
     fireEvent.click(searchButton);
 
-    // Check that getResultByIdAction was called with the trimmed ID
-    expect(getResultByIdAction).toHaveBeenCalledWith('123');
+    // Check that fetchResult was called with the trimmed ID
+    expect(mockFetchResult).toHaveBeenCalledWith('123');
   });
 });

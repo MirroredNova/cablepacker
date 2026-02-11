@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { render, screen, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { useParams, usePathname } from 'next/navigation';
 import { ResultProvider } from '@/components/providers/ResultProvider';
 import { ResultContext } from '@/context/ResultContext';
 import { getResultByIdAction } from '@/server/actions/results.actions';
@@ -160,6 +161,8 @@ describe('ResultProvider', () => {
   beforeEach(() => {
     console.error = vi.fn();
     vi.clearAllMocks();
+    (useParams as any).mockImplementation(() => ({ resultId: 'test-result-123' }));
+    (usePathname as any).mockImplementation(() => '/test-result-123');
 
     // Setup hook mocks
     (usePreset as any).mockReturnValue({
@@ -328,6 +331,27 @@ describe('ResultProvider', () => {
 
     // Verify we didn't fetch from API
     expect(getResultByIdAction).not.toHaveBeenCalled();
+  });
+
+  it('clears previous error when setting a new result', async () => {
+    (useParams as any).mockImplementation(() => ({}));
+    (usePathname as any).mockImplementation(() => '/new-result');
+
+    render(
+      <ResultProvider>
+        <TestComponent />
+      </ResultProvider>,
+    );
+
+    await act(async () => {
+      screen.getByTestId('set-error').click();
+    });
+    expect(screen.getByTestId('error')).toHaveTextContent('Test error');
+
+    await act(async () => {
+      screen.getByTestId('set-result').click();
+    });
+    expect(screen.getByTestId('error')).toHaveTextContent('null');
   });
 
   it('sets result with navigation', async () => {
