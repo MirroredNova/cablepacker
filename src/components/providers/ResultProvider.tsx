@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams, usePathname } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import React, { PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import usePreset from '@/hooks/usePreset';
 import useTable from '@/hooks/useTable';
@@ -13,16 +13,13 @@ export function ResultProvider({ children }: PropsWithChildren) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const justSetResultRef = useRef(false);
   const pendingPresetIdRef = useRef<number | null>(null);
-  const fetchResultRef = useRef<(id: string) => Promise<boolean>>(async () => false);
-  const resetResultRef = useRef<() => void>(() => {});
 
   const { presets, setSelectedPreset, resetPresets, presetsLoaded } = usePreset();
   const { setTableData, resetTableData, setHasChangedSinceGeneration } = useTable();
+  const router = useRouter();
 
   const params = useParams<{ resultId?: string }>();
-  const pathname = usePathname();
   const resultId = params?.resultId || null;
 
   const safeSetSelectedPreset = useCallback(
@@ -44,13 +41,11 @@ export function ResultProvider({ children }: PropsWithChildren) {
 
   // Set result with optional navigation
   const setResult = useCallback(
-    (newResult: Result | null, navigate = false) => {
+    (newResult: Result | null, navigate: boolean | 'replace' | 'push' = false) => {
       setResultState(newResult);
       setError(null);
 
       if (newResult) {
-        justSetResultRef.current = true;
-
         if (newResult.selectedPresetId) {
           safeSetSelectedPreset(newResult.selectedPresetId);
         }
@@ -59,14 +54,17 @@ export function ResultProvider({ children }: PropsWithChildren) {
           setTableData(newResult.inputCables);
         }
 
-        if (navigate) {
-          if (newResult?.id) {
-            window.history.replaceState({ resultId: newResult.id }, '', `/${newResult.id}`);
+        if (navigate && newResult?.id) {
+          const mode = navigate === true ? 'replace' : navigate;
+          if (mode === 'push') {
+            router.push(`/${newResult.id}`);
+          } else {
+            router.replace(`/${newResult.id}`);
           }
         }
       }
     },
-    [safeSetSelectedPreset, setTableData],
+    [router, safeSetSelectedPreset, setTableData],
   );
 
   // Reset all state
@@ -75,13 +73,12 @@ export function ResultProvider({ children }: PropsWithChildren) {
     setError(null);
     resetTableData();
     resetPresets();
-    justSetResultRef.current = false;
     pendingPresetIdRef.current = null;
   }, [resetPresets, resetTableData]);
 
   // Fetch result by ID
   const fetchResult = useCallback(
-    async (id: string): Promise<boolean> => {
+    async (id: string, navigate: boolean | 'replace' | 'push' = false): Promise<boolean> => {
       if (!id?.trim()) return false;
 
       setError(null);
@@ -91,9 +88,8 @@ export function ResultProvider({ children }: PropsWithChildren) {
         const response = await getResultByIdAction(id.trim());
 
         if (response.success && response.data) {
-          setResult(response.data);
+          setResult(response.data, navigate);
           setHasChangedSinceGeneration(false);
-          setError(null);
           return true;
         }
 
@@ -109,15 +105,6 @@ export function ResultProvider({ children }: PropsWithChildren) {
     [setHasChangedSinceGeneration, setResult],
   );
 
-  // Keep stable refs so route effect does not re-fire on callback identity changes.
-  useEffect(() => {
-    fetchResultRef.current = fetchResult;
-  }, [fetchResult]);
-
-  useEffect(() => {
-    resetResultRef.current = resetResult;
-  }, [resetResult]);
-
   // Apply pending preset when presets load
   useEffect(() => {
     if (presetsLoaded && pendingPresetIdRef.current) {
@@ -128,24 +115,6 @@ export function ResultProvider({ children }: PropsWithChildren) {
       pendingPresetIdRef.current = null;
     }
   }, [presets, presetsLoaded, setSelectedPreset]);
-
-  // Auto-fetch on route change
-  useEffect(() => {
-    if (resultId && result?.id === resultId) {
-      return; // Already have this result
-    }
-
-    if (resultId && justSetResultRef.current) {
-      justSetResultRef.current = false;
-      return; // Just set the result manually
-    }
-
-    if (resultId) {
-      fetchResultRef.current(resultId);
-    } else if (pathname === '/') {
-      resetResultRef.current();
-    }
-  }, [resultId, pathname, result?.id]);
 
   const value = useMemo(
     () => ({

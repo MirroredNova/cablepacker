@@ -8,6 +8,7 @@ import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import type { Metadata } from 'next';
 import PresetProvider from '@/components/providers/PresetProvider';
 import { ResultProvider } from '@/components/providers/ResultProvider';
+import ResultRouteSync from '@/components/providers/ResultRouteSync';
 import TableProvider from '@/components/providers/TableProvider';
 import Footer from '@/components/ui/Footer';
 import Logo from '@/components/ui/Logo';
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: Props) {
               <TableProvider>
                 <PresetProvider>
                   <ResultProvider>
+                    <ResultRouteSync />
                     <Box
                       maxWidth="xl"
                       marginX="auto"

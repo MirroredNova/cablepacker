@@ -16,11 +16,12 @@ import useResult from '@/hooks/useResult';
 import Spinner from '@/components/shared/Spinner';
 
 function ResultsArea() {
-  const { result, loading, error } = useResult();
+  const { result, resultId, loading, error } = useResult();
   const contentRef = useRef<HTMLDivElement>(null);
+  const hasStaleResult = Boolean(resultId && result && result.id !== resultId);
 
-  // Show loading spinner when fetching results
-  if (loading) {
+  // Show loading while fetching or while previous result does not match current route.
+  if (loading || hasStaleResult) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
         <Spinner />

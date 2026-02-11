@@ -137,7 +137,7 @@ describe('SearchExistingForm', () => {
     fireEvent.click(searchButton);
 
     // Check that fetchResult was called with the correct ID
-    expect(mockFetchResult).toHaveBeenCalledWith('123');
+    expect(mockFetchResult).toHaveBeenCalledWith('123', 'push');
 
     // Wait for the async operation to complete
     await waitFor(() => {
@@ -160,37 +160,9 @@ describe('SearchExistingForm', () => {
     fireEvent.click(searchButton);
 
     await waitFor(() => {
-      expect(mockFetchResult).toHaveBeenCalledWith('999');
+      expect(mockFetchResult).toHaveBeenCalledWith('999', 'push');
       expect(inputField).toHaveValue('999');
     });
-  });
-
-  it('handles exception when fetchResult throws an error', async () => {
-    mockFetchResult.mockRejectedValue(new Error('Network error'));
-
-    // Spy on console.error
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    render(<SearchExistingForm />);
-
-    // Enter a search ID
-    const inputField = screen.getByLabelText('Search Existing Result ID');
-    fireEvent.change(inputField, { target: { value: '999' } });
-
-    // Submit the form
-    const searchButton = screen.getByRole('button', { name: 'Search' });
-    fireEvent.click(searchButton);
-
-    // Wait for the async operation to complete
-    await waitFor(() => {
-      // Check that console.error was called
-      expect(consoleSpy).toHaveBeenCalled();
-
-      expect(mockFetchResult).toHaveBeenCalledWith('999');
-    });
-
-    // Restore console.error
-    consoleSpy.mockRestore();
   });
 
   it('trims the search ID before submitting', async () => {
@@ -205,6 +177,6 @@ describe('SearchExistingForm', () => {
     fireEvent.click(searchButton);
 
     // Check that fetchResult was called with the trimmed ID
-    expect(mockFetchResult).toHaveBeenCalledWith('123');
+    expect(mockFetchResult).toHaveBeenCalledWith('123', 'push');
   });
 });

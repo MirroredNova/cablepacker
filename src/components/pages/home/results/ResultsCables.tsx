@@ -14,26 +14,25 @@ type Props = {
 };
 
 function ResultsCables({ cables }: Props) {
-  const cableCounts = cables.reduce(
-    (acc, cable) => {
-      const key = `${cable.name}-${cable.diameter}`;
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
-    },
-    {} as Record<string, number>,
+  const formatDiameter = (diameter: unknown) => (
+    typeof diameter === 'number' && Number.isFinite(diameter) ? diameter.toFixed(3) : 'N/A'
   );
 
-  const uniqueCables = Object.entries(cableCounts).map(([key, count]) => {
-    const [name, diameterStr] = key.split('-');
-    const diameter = parseFloat(diameterStr);
+  const groupedCables = cables.reduce(
+    (acc, cable) => {
+      const key = JSON.stringify([cable.name, cable.diameter]);
+      const existing = acc.get(key);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        acc.set(key, { ...cable, quantity: 1 });
+      }
+      return acc;
+    },
+    new Map<string, Circle & { quantity: number }>(),
+  );
 
-    const cable = cables.find((c) => c.name === name && c.diameter === diameter)!;
-
-    return {
-      ...cable,
-      quantity: count,
-    };
-  });
+  const uniqueCables = Array.from(groupedCables.values());
 
   return (
     <Box display="flex" flexDirection="column" gap="8px" flex={1} className="ResultsCables">
@@ -55,7 +54,7 @@ function ResultsCables({ cables }: Props) {
                 sx={{ '&:nth-of-type(odd)': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
               >
                 <TableCell>{cable.name}</TableCell>
-                <TableCell align="right">{cable.diameter.toFixed(3)}</TableCell>
+                <TableCell align="right">{formatDiameter(cable.diameter)}</TableCell>
                 <TableCell align="right">{cable.quantity}</TableCell>
                 <TableCell align="center">
                   <Box
@@ -67,7 +66,7 @@ function ResultsCables({ cables }: Props) {
                       borderRadius: '50%',
                       border: '1px solid rgba(0, 0, 0, 0.2)',
                     }}
-                    title={`${cable.name} (${cable.diameter}in)`}
+                    title={`${cable.name} (${typeof cable.diameter === 'number' ? cable.diameter : 'N/A'}in)`}
                   />
                 </TableCell>
               </TableRow>

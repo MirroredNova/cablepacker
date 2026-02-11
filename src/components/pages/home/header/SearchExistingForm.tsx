@@ -18,13 +18,9 @@ function SearchExistingForm() {
     const trimmedId = searchId.trim();
     if (!trimmedId) return;
 
-    try {
-      const success = await fetchResult(trimmedId);
-      if (success) {
-        setSearchId('');
-      }
-    } catch (err) {
-      console.error('Error searching for result:', err);
+    const success = await fetchResult(trimmedId, 'push');
+    if (success) {
+      setSearchId('');
     }
   };
 

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { render, screen, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { useParams, usePathname } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { ResultProvider } from '@/components/providers/ResultProvider';
 import { ResultContext } from '@/context/ResultContext';
 import { getResultByIdAction } from '@/server/actions/results.actions';
@@ -12,9 +12,11 @@ import { BoreResult } from '@/types/algorithm.types';
 import { TableRowData } from '@/types/table.types';
 
 // Mock Next.js navigation hooks
+const mockRouterReplace = vi.fn();
+
 vi.mock('next/navigation', () => ({
   useParams: vi.fn(() => ({ resultId: 'test-result-123' })),
-  usePathname: vi.fn(() => '/test-result-123'),
+  useRouter: vi.fn(() => ({ replace: mockRouterReplace })),
 }));
 
 // Mock hooks
@@ -30,15 +32,6 @@ vi.mock('@/hooks/useTable', () => ({
 vi.mock('@/server/actions/results.actions', () => ({
   getResultByIdAction: vi.fn(),
 }));
-
-// Mock window.history
-const mockReplaceState = vi.fn();
-Object.defineProperty(window, 'history', {
-  writable: true,
-  value: {
-    replaceState: mockReplaceState,
-  },
-});
 
 // Sample data for testing
 const mockTableRows: TableRowData[] = [
@@ -162,7 +155,6 @@ describe('ResultProvider', () => {
     console.error = vi.fn();
     vi.clearAllMocks();
     (useParams as any).mockImplementation(() => ({ resultId: 'test-result-123' }));
-    (usePathname as any).mockImplementation(() => '/test-result-123');
 
     // Setup hook mocks
     (usePreset as any).mockReturnValue({
@@ -203,12 +195,16 @@ describe('ResultProvider', () => {
     expect(screen.getByText('Child Content')).toBeInTheDocument();
   });
 
-  it('fetches result on mount when resultId is in URL', async () => {
+  it('fetches result when fetchResult is called', async () => {
     render(
       <ResultProvider>
         <TestComponent />
       </ResultProvider>,
     );
+
+    await act(async () => {
+      screen.getByTestId('fetch-result').click();
+    });
 
     await waitFor(() => {
       expect(getResultByIdAction).toHaveBeenCalledWith('test-result-123');
@@ -235,8 +231,9 @@ describe('ResultProvider', () => {
       </ResultProvider>,
     );
 
-    // Initial state should show loading
-    expect(screen.getByTestId('loading')).toHaveTextContent('true');
+    await act(async () => {
+      screen.getByTestId('fetch-result').click();
+    });
 
     // After API response, loading should be false
     await waitFor(() => {
@@ -258,6 +255,10 @@ describe('ResultProvider', () => {
       </ResultProvider>,
     );
 
+    await act(async () => {
+      screen.getByTestId('fetch-result').click();
+    });
+
     await waitFor(() => {
       expect(screen.getByTestId('error')).toHaveTextContent('Result not found');
       expect(screen.getByTestId('loading')).toHaveTextContent('false');
@@ -274,13 +275,17 @@ describe('ResultProvider', () => {
       </ResultProvider>,
     );
 
+    await act(async () => {
+      screen.getByTestId('fetch-result').click();
+    });
+
     await waitFor(() => {
       expect(screen.getByTestId('error')).toHaveTextContent('Network error');
       expect(screen.getByTestId('loading')).toHaveTextContent('false');
     });
   });
 
-  it('does not fetch again if result is already loaded', async () => {
+  it('fetches only when explicitly requested', async () => {
     // Setup mocked implementation to track calls
     const mockFetch = vi.fn().mockResolvedValue({
       success: true,
@@ -293,6 +298,12 @@ describe('ResultProvider', () => {
         <TestComponent />
       </ResultProvider>,
     );
+
+    expect(mockFetch).toHaveBeenCalledTimes(0);
+
+    await act(async () => {
+      screen.getByTestId('fetch-result').click();
+    });
 
     // Wait for first call to complete
     await waitFor(() => {
@@ -335,7 +346,6 @@ describe('ResultProvider', () => {
 
   it('clears previous error when setting a new result', async () => {
     (useParams as any).mockImplementation(() => ({}));
-    (usePathname as any).mockImplementation(() => '/new-result');
 
     render(
       <ResultProvider>
@@ -370,7 +380,7 @@ describe('ResultProvider', () => {
     });
 
     // Verify navigation was called
-    expect(mockReplaceState).toHaveBeenCalledWith({ resultId: 'test-result-123' }, '', '/test-result-123');
+    expect(mockRouterReplace).toHaveBeenCalledWith('/test-result-123');
   });
 
   it('handles delayed preset loading', async () => {
@@ -388,12 +398,12 @@ describe('ResultProvider', () => {
       </ResultProvider>,
     );
 
-    // Initial result load - should store preset in pendingPresetIdRef
-    await waitFor(() => {
-      expect(screen.getByTestId('result-data')).not.toHaveTextContent('null');
-      // Selected preset should not be called yet
-      expect(mockSetSelectedPreset).not.toHaveBeenCalledWith(expect.objectContaining({ id: 1 }));
+    await act(async () => {
+      screen.getByTestId('set-result').click();
     });
+
+    expect(screen.getByTestId('result-data')).toHaveTextContent(mockResult.id);
+    expect(mockSetSelectedPreset).not.toHaveBeenCalledWith(expect.objectContaining({ id: 1 }));
 
     // Now update the preset hook to indicate presets are loaded
     (usePreset as any).mockReturnValue({
