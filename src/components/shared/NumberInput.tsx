@@ -70,35 +70,21 @@ export default function EnhancedNumberInput({
   };
 
   const handleBlur = () => {
-    // Handle empty, temporary, or invalid values on blur
-    if (
-      inputValue === undefined
+    // Normalize the value on blur: coerce, clamp, then format.
+    const numValue = Number(inputValue);
+    const isInvalid = inputValue === undefined
       || inputValue === ''
       || inputValue === '0'
       || inputValue === '0.'
-      || Number(inputValue) < min
-      || Number.isNaN(Number(inputValue))
-    ) {
-      setInputValue(min.toString());
-      onChangeAction(min);
-      return;
-    }
+      || Number.isNaN(numValue);
 
-    // Ensure value is within bounds
-    const numValue = Number(inputValue);
-    if (numValue > max) {
-      setInputValue(max.toString());
-      onChangeAction(max);
-    } else if (numValue < min) {
-      setInputValue(min.toString());
-      onChangeAction(min);
-    } else {
-      // Format to consistent decimal places if needed
-      const formattedValue = decimalPlaces > 0 ? Number(numValue.toFixed(decimalPlaces)) : Math.round(numValue);
+    const clampedValue = isInvalid ? min : Math.min(Math.max(numValue, min), max);
+    const formattedValue = decimalPlaces > 0
+      ? Number(clampedValue.toFixed(decimalPlaces))
+      : Math.round(clampedValue);
 
-      setInputValue(formattedValue.toString());
-      onChangeAction(formattedValue);
-    }
+    setInputValue(formattedValue.toString());
+    onChangeAction(formattedValue);
   };
 
   return (
