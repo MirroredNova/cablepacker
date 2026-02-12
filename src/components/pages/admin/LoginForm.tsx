@@ -16,7 +16,7 @@ function LoginForm() {
           <FormLabel htmlFor="username">Username</FormLabel>
           <TextField
             id="username"
-            type="username"
+            type="text"
             name="username"
             placeholder="username"
             autoComplete="username"
@@ -34,7 +34,6 @@ function LoginForm() {
             type="password"
             id="password"
             autoComplete="current-password"
-            autoFocus
             required
             variant="outlined"
             size="small"

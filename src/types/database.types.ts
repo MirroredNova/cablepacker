@@ -1,7 +1,7 @@
 import { BoreResult } from '@/types/algorithm.types';
 import { TableRowData } from '@/types/table.types';
 
-// PostgreSQL/Supabase database types (lowercase column names)
+// PostgreSQL/Supabase database types
 export interface DBPreset {
   id: number;
   name: string;

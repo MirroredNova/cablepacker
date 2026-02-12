@@ -1,4 +1,3 @@
-// src/utils/pdfUtils.ts
 import html2canvas from 'html2canvas';
 import Jspdf from 'jspdf';
 import { Result } from '@/types/domain.types';

@@ -80,8 +80,6 @@ describe('SearchExistingForm', () => {
     const inputField = screen.getByLabelText('Result ID');
     expect(inputField).toBeDisabled();
 
-    // The error is because the endIcon adds "Loading..." to the accessible name
-    // So we need to check for button content instead of accessible name
     const searchButton = screen.getByText('Searching');
     expect(searchButton.closest('button')).toBeDisabled();
 
