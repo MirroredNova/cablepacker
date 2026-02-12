@@ -21,7 +21,7 @@ describe('LoginForm', () => {
     // Username field
     const usernameLabel = screen.getByLabelText('Username');
     expect(usernameLabel).toBeInTheDocument();
-    expect(usernameLabel).toHaveAttribute('type', 'username');
+    expect(usernameLabel).toHaveAttribute('type', 'text');
     expect(usernameLabel).toHaveAttribute('name', 'username');
     expect(usernameLabel).toHaveAttribute('required');
     expect(usernameLabel).toHaveAttribute('id', 'username');
